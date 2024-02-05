@@ -8,7 +8,7 @@ const db = getDb();
 const store = getStore()
 
 export const NotFoundPage = () => {
-    return div(
-        "not found"
-    )
+    return div({class:"content"},
+    "not found"
+)
 }

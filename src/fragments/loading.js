@@ -2,7 +2,8 @@ import van from "vanjs-core"
 const { div, img } = van.tags
 
 import { getStore } from '../store.js'
-import wolk from '../images/wolk.gif';
+import wolkImage from '../images/wolk.gif';
+import bannerImage from '../images/banner.gif'
 
 const store = getStore()
 
@@ -11,7 +12,7 @@ export const Loading = () => {
     return div(
         { class: () => `loading ${store.isLoading ? "" : "fade"}` },
         div(
-            img({ src: wolk, class:"image" }),
-        ),
-    )
+            div({ class: "content" }, img({ src: bannerImage }), img({ src: wolkImage })
+            )
+        ))
 }

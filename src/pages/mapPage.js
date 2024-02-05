@@ -10,7 +10,7 @@ const db = getDb();
 const store = getStore()
 
 export const MapPage = () => {
-    return div(
+    return div({class:"content"},
         Map()
     )
 }

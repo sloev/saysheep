@@ -8,7 +8,7 @@ const db = getDb();
 const store = getStore()
 
 export const TvPage = () => {
-    return div(
-        "tvPage"
+    return div({class:"content"},
+        "tv page"
     )
 }

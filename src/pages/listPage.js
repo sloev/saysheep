@@ -9,7 +9,7 @@ const db = getDb();
 const store = getStore()
 
 export const ListPage = () => {
-    return div(
-        h3("listPage")
+    return div({class:"content"},
+        "list page"
     )
 }

@@ -56,9 +56,8 @@ export const Map = () => {
         setupMap(mapDiv)
     }
     console.log(map.map)
-    return div(
-        mapDiv
-    )
+    return mapDiv
+    
 }
 
 

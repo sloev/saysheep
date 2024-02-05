@@ -1,7 +1,13 @@
 body {
-    margin-top: 0px;
-    margin-bottom: 0px;
+    height: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0;
+
+    min-width: 319px;
+    background-color: #ff5f75;
 }
+
 
 .loading {
     position: absolute;
@@ -10,14 +16,14 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: white;
+    background-color: #ff5f75;
     opacity: 1;
     transition: visibility 2s, opacity 2s ease-out;
 
     visibility: visible;
 
-    .image {
-
+    .content {
+        background-color: transparent;
         max-width: 90%;
         width: 400px;
         position: absolute;
@@ -35,55 +41,81 @@ body {
 }
 
 #map {
-    width: 100%;
-    height: calc(100vh - 5em);
+    height: 100%;
+    position: relative;
 }
 
 
 
-.content {
+.content-container {
+    height: calc(100vh - 4.2em);
     position: relative;
     z-index: 0;
+    padding: 1px 0 0 0;
+}
+
+.content {
+    background-color: white;
+    padding: 0.5em;
+    position: relative;
+    height: 100%;
 }
 
 
 .navbar {
-    display: table;
-    max-width:800px;
-    width:100%;
-
-    border-spacing: 10px;
-    border-collapse: separate;
+    max-width: 800px;
+    width: 100%;
+    display: inline-grid;
+    height: 3em;
+    grid-template-columns: min-content auto 3em 3em 3em 3em 3em;
 }
 
-.navbar-banner {
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
 
-    text-decoration: none;
-    background-color: #fff;
-    color: midnightblue;
-    padding: 0 0em 0 0em;
-    height: 2em;
-    margin-right:auto;
-    border-radius: 5px;
+
+.navbar-icon {
+    background-color: white;
+    border-radius: 10px;
+    height: 2.5em;
+    margin: auto;
+    width: 2.5em;
+    position: relative;
+
+    img {
+        /* width: 100%; */
+        height: 85%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+    }
+
+
 }
 
 .navbar-link {
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    text-decoration: none;
-    background-color: #fff;
-    color: rgb(0, 0, 0);
-    padding: 0 0em 0 0em;
-    border-radius: 5px;
+    background-color: white;
+    border-radius: 10px;
+    height: 2.5em;
+    margin: auto;
+    width: 2.5em;
+    position: relative;
+
+    img {
+        /* width: 100%; */
+        height: 85%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+    }
+
+
 }
 
 .navbar-link:hover {
     background-color: rgb(179, 255, 0);
-    text-decoration: none; 
 }
 
 .navbar-link:active {
