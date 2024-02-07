@@ -126,3 +126,55 @@ body {
 .navbar-link[aria-current="page"] {
     background-color: rgb(134, 217, 255);
 }
+
+.list-item {
+    display:grid;
+    background-color: #ff5f75;
+    grid-template-columns: 5em  1em auto 4em 4em 4em;
+    grid-template-rows: auto;
+    grid-template-areas: 
+    "image . title title title title"
+    "image . description description description description"
+    "image . description description description description"
+    "image . . messages date lnglat";
+    margin-bottom: 0.5em;
+    padding: 5px;
+    border-radius: 5px;
+
+    .image {
+        grid-area: image;
+        background-color: #ff5f75;
+        width:5em;
+        border-radius: 10px 0px 0px 10px;
+        margin-right:5px; 
+    }
+    .verified {
+        margin: 0.25em;
+        left: 3.5em;
+        z-index: 1;
+        width: 1.5em;
+        position: absolute;
+    }
+    .title {
+        grid-area: title;
+        background-color: aqua;
+
+    }
+    .description {
+        grid-area: description;
+        background-color: chocolate;
+    }
+    .messages {
+        grid-area: messages;
+        background-color:rgb(133, 248, 109);
+    }
+    .date {
+        grid-area: date;
+        background-color:crimson;
+    }
+    .lnglat {
+        grid-area: lnglat;
+        background-color: darkgreen;
+    }
+
+}
