@@ -31,7 +31,7 @@ const map = {
 // };
 
 
-const setupMap = (mapDiv) => {
+export const setupMap = () => {
     if (store.mapIsLoading) { return }
 
     store.mapIsLoading = true
@@ -46,6 +46,7 @@ const setupMap = (mapDiv) => {
         });
         map.map.on('load', function () {
             store.mapIsLoading = false
+            map.map.resize()
         })
     }, 100);
 };
@@ -53,7 +54,7 @@ const setupMap = (mapDiv) => {
 
 export const Map = () => {
     if (!map.map) {
-        setupMap(mapDiv)
+        setupMap()
     }
     console.log(map.map)
     return mapDiv

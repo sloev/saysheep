@@ -1,10 +1,10 @@
 body {
     height: 100%;
-    margin-top: 0;
-    margin-bottom: 0;
+    margin-top: 0em;
+    margin-bottom: 0em;
     padding: 0;
 
-    min-width: 319px;
+    min-width: 320px;
     background-color: #ff5f75;
 }
 
@@ -15,56 +15,59 @@ body {
     left: 0;
     top: 0;
     width: 100%;
-    height: 100%;
+    height: 0%;
     background-color: #ff5f75;
-    opacity: 1;
-    transition: visibility 2s, opacity 2s ease-out;
-
-    visibility: visible;
-
+    transition: height 3s, visibility 1.5s, opacity 1.5s ease-out;
+    opacity: 0;
+    visibility: hidden;
     .content {
         background-color: transparent;
         max-width: 90%;
         width: 400px;
-        position: absolute;
-        top: 25%;
+        position: relative;
+        top: 0%;
         left: 50%;
-        transform: translate(-50%, 0%);
+        transform: translate(-50%, 50%);
 
     }
 }
 
-.loading.fade {
-    opacity: 0;
-    visibility: hidden;
+
+.loading.visible {
+    opacity: 1;
+    visibility: visible;
+    height:100%;
 
 }
 
 #map {
+    border-radius: 10px 10px 0 0;
     height: 100%;
     position: relative;
 }
 
 
 
-.content-container {
-    height: calc(100vh - 4.2em);
-    position: relative;
-    z-index: 0;
-    padding: 1px 0 0 0;
+.container {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 3em auto;
+    grid-template-areas:
+        "navbar"
+        "content";
+    height: 100vh;
 }
 
 .content {
-    background-color: white;
-    padding: 0.5em;
-    position: relative;
+    grid-area: content;
     height: 100%;
 }
 
 
 .navbar {
-    max-width: 800px;
-    width: 100%;
+    grid-area: navbar;
+    margin:2px 5px 0px 5px;
+
     display: inline-grid;
     height: 3em;
     grid-template-columns: min-content auto 3em 3em 3em 3em 3em;
@@ -128,53 +131,73 @@ body {
 }
 
 .list-item {
-    display:grid;
-    background-color: #ff5f75;
-    grid-template-columns: 5em  1em auto 4em 4em 4em;
+    border: black;
+    display: grid;
+    border-style: dashed;
+    background-color: rgb(134, 217, 255);
+    grid-template-columns: 5em 0.5em auto;
     grid-template-rows: auto;
-    grid-template-areas: 
-    "image . title title title title"
-    "image . description description description description"
-    "image . description description description description"
-    "image . . messages date lnglat";
-    margin-bottom: 0.5em;
+    grid-template-areas:
+        "image . title"
+        "image . description"
+        "image . description"
+        "image . description"
+        "pills pills pills";
+    margin: 5px 5px 10px 5px;
     padding: 5px;
     border-radius: 5px;
 
     .image {
         grid-area: image;
-        background-color: #ff5f75;
-        width:5em;
+        width: 5em;
         border-radius: 10px 0px 0px 10px;
-        margin-right:5px; 
+        margin-right: 5px;
     }
-    .verified {
-        margin: 0.25em;
-        left: 3.5em;
-        z-index: 1;
-        width: 1.5em;
-        position: absolute;
-    }
+
+
     .title {
         grid-area: title;
-        background-color: aqua;
-
+        font-weight: bold;
+        font-size: medium;
+        text-transform: capitalize;
     }
+
     .description {
+        font-size: medium;
+        -webkit-box-orient: vertical;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+        text-transform: capitalize;
         grid-area: description;
-        background-color: chocolate;
-    }
-    .messages {
-        grid-area: messages;
-        background-color:rgb(133, 248, 109);
-    }
-    .date {
-        grid-area: date;
-        background-color:crimson;
-    }
-    .lnglat {
-        grid-area: lnglat;
-        background-color: darkgreen;
+        vertical-align: top;
+        text-align: left;
+        height: 4em;
+        margin-bottom: 5px;
     }
 
+    .pills {
+        grid-area: pills;
+        display: flex;
+        align-items: flex-start;
+    }
+}
+
+.pill {
+    background-color: #ff5f75;
+
+    font-size: small;
+    border-radius: 5px;
+    height: 1.5em;
+    min-width: fit-content;
+    overflow: hidden;
+    margin: 5px 10px 0 0px;
+    padding: 0 5px 0 5px;
+    text-align: center;
+
+    img {
+        width: 1em;
+        margin-left: 5px;
+        margin-top: 2px;
+    }
 }

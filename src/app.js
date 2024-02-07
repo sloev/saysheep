@@ -5,6 +5,7 @@ import config from './config.json'
 import creds from './creds.client.json'
 
 import { setupDb } from './db/db.js'
+import { setupMap } from './fragments/map.js'
 import { getStore } from './store.js'
 import {Loading} from './fragments/loading'
 import {navBar, routerElement} from './router.js'
@@ -12,6 +13,8 @@ import {navBar, routerElement} from './router.js'
 
 const store = getStore()
 const db = setupDb(config, creds)
+setupMap()
+
 const { a, div, h3, img, li, nav, p, ul } = van.tags
 
 
@@ -22,9 +25,10 @@ const { a, div, h3, img, li, nav, p, ul } = van.tags
 
 const App = () => {
     console.log(store)
-    return div(
+    return div(div({class: "container"},
         navBar(),
         routerElement,
+    ),
         Loading(),
         )
 }

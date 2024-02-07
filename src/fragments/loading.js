@@ -10,7 +10,7 @@ const store = getStore()
 export const Loading = () => {
     console.log(store)
     return div(
-        { class: () => `loading ${store.isLoading ? "" : "fade"}` },
+        { class: () => `loading ${store.isLoading ? "visible" : ""}` },
         div(
             div({ class: "content" }, img({ src: bannerImage }), img({ src: wolkImage })
             )

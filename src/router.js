@@ -19,7 +19,7 @@ const { a, div, h3, img, li, nav, p, ul } = van.tags
 
 
 // create the spa object
-export const routerElement = div({ id: 'layout', class: "content-container" })
+export const routerElement = div({ id: 'layout' })
 const { link, route } = createCone({ routerElement: routerElement })
 
 route('home', '/', MapPage, { title: 'SaySheep' })
