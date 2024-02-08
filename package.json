@@ -16,6 +16,7 @@
     "gun": "^0.2020.1239",
     "leaflet": "^1.9.4",
     "maplibre-gl": "^3.6.2",
+    "minisearch": "^6.3.0",
     "parcel": "^2.11.0",
     "pmtiles": "^2.11.0",
     "protomaps-leaflet": "^1.24.2",

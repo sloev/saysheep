@@ -37,12 +37,7 @@ const units = {
 };
 
 
-/**
- * Return an Intl.RelativeTimeFormat string without having to specify units.
- *
- * @param {Date} when
- * @returns {string}
- */
+
 export function formatRelative(when) {
   const ms = when - Date.now();
   for (const [unit, value] of Object.entries(units)) {
