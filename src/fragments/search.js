@@ -1,15 +1,13 @@
 import van from "vanjs-core"
 const { button, div, img, input } = van.tags
 
-import { getStore } from '../store.js'
-import binocularsImage from '../images/binoculars.png'
-import router from '../router.js'
+import { getStore, updateQuery } from '../store.js'
 
 const store = getStore()
 
 export const Search = () => {
     return div({ class: "searchbar" },
-        input({ class: "search", type: "search", placeholder: "search" }),
-        img({ class: "submit", src: binocularsImage })
+        input({ class: "search", type: "search", 
+        placeholder: "search",value: store.query, oninput: e => updateQuery(e.target.value) }),
     )
 }

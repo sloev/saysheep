@@ -1,5 +1,7 @@
 
 import van from "vanjs-core"
+import * as vanX from "vanjs-ext"
+
 import { getDb } from '../db/db.js'
 import { getStore } from '../store.js'
 import { ListItem } from '../fragments/listItem.js'
@@ -15,8 +17,6 @@ export const ListPage = () => {
 
     return div({ class: "content" },
         Search(),
-
-        Object.values(store.items).map(ListItem)
-
+        vanX.list(div, store.matchedIds, ({val:v}) => ListItem(store.items[v])),        
     )
 }

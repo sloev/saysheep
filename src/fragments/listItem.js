@@ -13,6 +13,7 @@ import { getStore } from '../store.js'
 const store = getStore()
 
 export const ListItem = (params) => {
+    console.log("item", params)
     return div({ class: "list-item" },
         div({ class: "image" }, img({ src: params.verified ? params.image : AuditImage })),
         div({ class: "title" }, params.title),
