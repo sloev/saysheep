@@ -8,8 +8,7 @@ import { setupDb } from './db/db.js'
 import { setupMap } from './fragments/map.js'
 import { getStore } from './store.js'
 import {Loading} from './fragments/loading'
-import {Search} from './fragments/search'
-import {navBar, routerElement} from './router.js'
+import {navBar, routerElement, cone} from './router.js'
 
 
 const store = getStore()
@@ -25,10 +24,8 @@ const { a, div, h3, img, li, nav, p, ul } = van.tags
 
 
 const App = () => {
-    console.log(store)
     return div(div({class: "container"},
         navBar(),
-        Search(),
         routerElement,
     ),
         Loading(),

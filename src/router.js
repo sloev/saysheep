@@ -18,24 +18,24 @@ const { a, div, h3, img, li, nav, p, ul } = van.tags
 
 // create the spa object
 export const routerElement = div({ id: 'layout' })
-const { link, route } = createCone({ routerElement: routerElement })
+export const cone = createCone({ routerElement: routerElement })
 
-route('home', '/', MapPage, { title: 'SaySheep' })
-route('mapItem', '/map/', MapPage, { title: 'SaySheep | map' })
-route('list', '/list', ListPage, { title: 'SaySheep | list' })
-route('new', '/new', NewItemPage, { title: 'SaySheep | new' })
-route('tv', '/tv', TvPage, { title: 'SaySheep | tv' })
-route('notFound', '.*', NotFoundPage, { title: 'SaySheep| Not Found' })
+cone.route('home', '/', MapPage, { title: 'SaySheep' })
+cone.route('map', '/map', MapPage, { title: 'SaySheep | map' })
+cone.route('list', '/list', ListPage, { title: 'SaySheep | list' })
+cone.route('new', '/new', NewItemPage, { title: 'SaySheep | new' })
+cone.route('tv', '/tv', TvPage, { title: 'SaySheep | tv' })
+cone.route('notFound', '.*', NotFoundPage, { title: 'SaySheep| Not Found' })
 
 
 export const navBar = () => {
     return nav({ class: "navbar" },
         div({ class: 'navbar-icon' }, img({ src: iconImage })),
         div(),
-        link({ name: 'home', class: 'navbar-link' }, img({ src: mapImage })),
-        link({ name: 'list', class: 'navbar-link' }, img({ src: listImage })),
-        link({ name: 'new', class: 'navbar-link' }, img({ src: newImage })),
-        link({ name: 'tv', class: 'navbar-link' }, img({ src: tvImage })),
+        cone.link({ name: 'map', class: 'navbar-link' }, img({ src: mapImage })),
+        cone.link({ name: 'list', class: 'navbar-link' }, img({ src: listImage })),
+        cone.link({ name: 'new', class: 'navbar-link' }, img({ src: newImage })),
+        cone.link({ name: 'tv', class: 'navbar-link' }, img({ src: tvImage })),
     )
 }
 
