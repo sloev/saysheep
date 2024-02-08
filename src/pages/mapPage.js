@@ -14,9 +14,6 @@ export const MapPage = () => {
     return div({ class: "content" },
         Search(),
         Map(),
-        div({class:"map-pills"},
-        div({ class: "pill" }, "100 thingz")
-        )
     )
         
 }
