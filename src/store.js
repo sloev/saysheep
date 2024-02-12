@@ -28,7 +28,8 @@ export const getStore = () => {
                 lng: 74,
                 lat: 40
             },
-            query: ""
+            query: "",
+            warnings:[]
         })
         store.isLoading = vanX.calc(() => [store.dbIsLoading, store.mapIsLoading].some(x => !!x))
         addItems(demodata.items).then(() => { console.log("done indexing") })
@@ -85,4 +86,7 @@ export const removeItems = async (ids) => {
 
 };
 
+export const addWarning=(warning)=>{
+    store.warnings.push(warning)
+}
 

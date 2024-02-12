@@ -43,7 +43,7 @@ body {
 
     .search {
         grid-area: search;
-        height:2.5em
+        height: 2.5em
     }
 }
 
@@ -58,7 +58,7 @@ body {
 #map {
     border-radius: 10px 10px 0 0;
     height: calc(100vh - 11vh);
-    margin-bottom:0;
+    margin-bottom: 0;
     position: relative;
 }
 
@@ -217,5 +217,50 @@ body {
         width: 1em;
         margin-left: 5px;
         margin-top: 2px;
+
+    }
+}
+
+
+.new-item-form {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto 2.5em;
+    grid-template-areas:
+        "preview"
+        "trigger"
+    ;
+    margin: 0px 5px 10px 5px;
+    padding: 5px;
+    row-gap: 5px;
+
+}
+
+.preview-container {
+    border-style: dashed;
+    border-radius: 5px;
+    display:none;
+   
+}
+.preview-container.visible {
+    display: flex;
+}
+
+.preview {
+    width: 100%;
+   
+}
+
+.trigger {
+    position: "absolute";
+    height: 2.5em;
+    width: 100%;
+
+    img {
+        height: 2em;
+        margin: auto;
+        position: relative;
+        top: 50%;
+        transform: translate(-0%, -50%);
     }
 }
