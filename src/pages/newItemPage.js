@@ -12,6 +12,7 @@ const { a, button, canvas, div, h3, img, input, label, li, nav, p, textarea, ul,
 const db = getDb();
 const store = getStore()
 let stream = null
+const cameraIsOn = van.state(false)
 const hasPosition = van.state(false)
 const hasPhoto = van.state(false)
 const photo = van.state(null)
@@ -27,7 +28,7 @@ const position = van.state({
 })
 
 
-const setup = () => {
+const startCamera = () => {
     function success(pos) {
         const crd = pos.coords;
         position.val = { lat: crd.latitude, lng: crd.longitude }
@@ -58,14 +59,25 @@ const setup = () => {
             videoElement.play();
             hasPhoto.val = false
             photo.val = null
+            cameraIsOn.val = true
         })
         .catch(function (err) {
             addWarning("Didn't get camera feed!")
             console.log("An error occurred during camera operation: " + err);
         });
 }
+const stopCamera = () =>{
+    stream.getTracks().forEach((track) => {
+        if (track.readyState == 'live') {
+            track.stop();
+            stream.val = null;
+            hasPhoto.val = true;
+            cameraIsOn.val = false
+        }
+    });
+}
 const clearImage = () => {
-    setup()
+    startCamera()
 }
 
 const takePhoto = () => {
@@ -75,12 +87,8 @@ const takePhoto = () => {
     context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
 
     photo.val = previewElement.toDataURL('image/jpg');
-    stream.getTracks().forEach((track) => {
-        if (track.readyState == 'live') {
-            track.stop();
-            hasPhoto.val = true
-        }
-    });
+    stopCamera()
+   
 }
 
 const createNewItem = async () => {
@@ -93,12 +101,18 @@ const createNewItem = async () => {
 }
 
 
-export const NewItemPage = (params) => {
-    console.log("cone", params)
-
-    clearImage()
+export const NewItemPage = () => {
+    van.derive(()=>{
+        if(cone.isCurrentPage("new") && !cameraIsOn.val){
+            startCamera()
+        }
+        if(!cone.isCurrentPage("new") && cameraIsOn.val){
+            stopCamera()
+        }
+    })
 
     return div({ class: "content" },
+
         div({ class: "new-item-form" },
             div({ class: () => hasPhoto.val ? "preview-container" : "preview-container visible" },
                 videoElement),
