@@ -8,7 +8,8 @@ import { setupDb } from './db/db.js'
 import { setupMap } from './fragments/map.js'
 import { getStore } from './store.js'
 import {Loading} from './fragments/loading'
-import {navBar, routerElement, cone} from './router.js'
+import {routerElement} from './router.js'
+import { navBar } from "./fragments/navBar.js"
 
 
 const store = getStore()

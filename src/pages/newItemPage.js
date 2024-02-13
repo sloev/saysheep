@@ -5,8 +5,9 @@ import { getDb } from '../db/db.js'
 import { getStore, addWarning } from '../store.js'
 import cameraImage from '../images/camera.png'
 import LocationImage from '../images/location.png'
+import { cone } from '../router.js'
 
-const { a, button, canvas, div, h3, img, label, li, nav, p, ul, video } = van.tags
+const { a, button, canvas, div, h3, img, input, label, li, nav, p, textarea, ul, video } = van.tags
 
 const db = getDb();
 const store = getStore()
@@ -14,6 +15,8 @@ let stream = null
 const hasPosition = van.state(false)
 const hasPhoto = van.state(false)
 const photo = van.state(null)
+const title = van.state("")
+const description = van.state("")
 
 const videoElement = video({ class: "preview", id: "camera" }, "allow camera!")
 const previewElement = canvas({ class: "preview" })
@@ -78,11 +81,20 @@ const takePhoto = () => {
             hasPhoto.val = true
         }
     });
+}
 
+const createNewItem = async () => {
+    try {
+        await db.createNewItem({ position: position.val, photo: photo.val, title: title.val, description: description.val })
+        cone.navigate("map", {})
+    } catch (e) {
+        console.log("error", e)
+    }
 }
 
 
-export const NewItemPage = () => {
+export const NewItemPage = (params) => {
+    console.log("cone", params)
 
     clearImage()
 
@@ -95,8 +107,33 @@ export const NewItemPage = () => {
             () => hasPhoto.val ?
                 button({ class: "trigger", onclick: () => clearImage() }, "clear") :
                 button({ disabled: () => !hasPosition.val, class: "trigger", onclick: () => takePhoto() }, hasPosition.val ? img({ src: cameraImage }) : "... waiting for gps position"),
-        )
 
+            div({ class: "new-item-field-container" },
+                input({
+                    class: "new-item-field",
+                    type: "text",
+                    placeholder: "title", value: title,
+                    oninput: e => title.val = e.target.value
+                })),
+            div({ class: "new-item-field-container" },
+                textarea({
+                    class: "new-item-field",
+                    placeholder: "description",
+                    required: "True",
+                    value: description, maxlength: "300",
+                    oninput: e => description.val = e.target.value
+                })),
+
+            div({ class: "new-item-field-container" },
+                button({
+                    disabled: () => title.val.length < 1 || description.val.length < 1 ||
+                        !hasPhoto.val || !hasPosition.val,
+                    class: "new-item-field",
+                    onclick: createNewItem
+                }, "Create"))
+
+
+        )
     )
 
 }

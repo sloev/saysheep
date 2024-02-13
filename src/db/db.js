@@ -53,3 +53,9 @@ export const setupDb = (config, creds) => {
 }
 
 export const getDb = ()=>db
+
+db.createNewItem = async (params)=>{
+    console.log(params)
+    const {photo,position,title,description} = params;
+    console.log("create item with params:", params)
+}
