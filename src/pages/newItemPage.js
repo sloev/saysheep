@@ -11,9 +11,8 @@ const { a, button, canvas, div, h3, img, input, label, li, nav, p, textarea, ul,
 
 const db = getDb();
 const store = getStore()
-let stream = null
+window.store = store;
 const cameraIsOn = van.state(false)
-const hasPosition = van.state(false)
 const hasPhoto = van.state(false)
 const photo = van.state(null)
 const title = van.state("")
@@ -22,59 +21,38 @@ const description = van.state("")
 const videoElement = video({ class: "preview", id: "camera" }, "allow camera!")
 const previewElement = canvas({ class: "preview" })
 
-const position = van.state({
-    lng: 0,
-    lat: 0
-})
-
 
 const startCamera = () => {
-    function success(pos) {
-        const crd = pos.coords;
-        position.val = { lat: crd.latitude, lng: crd.longitude }
-        hasPosition.val = true;
+    if (cameraIsOn.val) {
+        return
     }
-
-    function error(err) {
-        addWarning("Didn't get position!")
-        console.warn(`An error occurred during position acquiering:(${err.code}): ${err.message}`);
-    }
-
-    navigator.geolocation.getCurrentPosition(success, error, {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0,
-    });
-
-
+    console.log("start camera")
+    cameraIsOn.val = true
     navigator.mediaDevices.getUserMedia({
         video: {
             facingMode: 'environment'
         },
         audio: false
     })
-        .then(function (s) {
-            stream = s
+        .then(function (stream) {
             videoElement.srcObject = stream;
             videoElement.play();
             hasPhoto.val = false
             photo.val = null
-            cameraIsOn.val = true
         })
         .catch(function (err) {
             addWarning("Didn't get camera feed!")
             console.log("An error occurred during camera operation: " + err);
         });
 }
-const stopCamera = () =>{
-    stream.getTracks().forEach((track) => {
-        if (track.readyState == 'live') {
-            track.stop();
-            stream.val = null;
-            hasPhoto.val = true;
-            cameraIsOn.val = false
-        }
-    });
+const stopCamera = () => {
+    console.log("stop camera")
+    videoElement.pause()
+    const stream = videoElement.srcObject;
+    stream.getTracks()[0].stop()
+    videoElement.src = "";
+    cameraIsOn.val = false
+    videoElement.load()
 }
 const clearImage = () => {
     startCamera()
@@ -85,15 +63,18 @@ const takePhoto = () => {
     previewElement.height = videoElement.videoHeight;
     var context = previewElement.getContext("2d");
     context.drawImage(videoElement, 0, 0, videoElement.videoWidth, videoElement.videoHeight);
-
+    hasPhoto.val = true;
+    videoElement.pause()
+    const stream = videoElement.srcObject;
+    stream.getTracks()[0].stop()
+    videoElement.src = "";
     photo.val = previewElement.toDataURL('image/jpg');
-    stopCamera()
-   
+
 }
 
 const createNewItem = async () => {
     try {
-        await db.createNewItem({ position: position.val, photo: photo.val, title: title.val, description: description.val })
+        await db.createNewItem({ photo: photo.val, title: title.val, description: description.val })
         cone.navigate("map", {})
     } catch (e) {
         console.log("error", e)
@@ -102,11 +83,11 @@ const createNewItem = async () => {
 
 
 export const NewItemPage = () => {
-    van.derive(()=>{
-        if(cone.isCurrentPage("new") && !cameraIsOn.val){
+    van.derive(() => {
+        if (cone.isCurrentPage("new") && !cameraIsOn.val) {
             startCamera()
         }
-        if(!cone.isCurrentPage("new") && cameraIsOn.val){
+        if (!cone.isCurrentPage("new") && cameraIsOn.val) {
             stopCamera()
         }
     })
@@ -120,7 +101,7 @@ export const NewItemPage = () => {
                 previewElement),
             () => hasPhoto.val ?
                 button({ class: "trigger", onclick: () => clearImage() }, "clear") :
-                button({ disabled: () => !hasPosition.val, class: "trigger", onclick: () => takePhoto() }, hasPosition.val ? img({ src: cameraImage }) : "... waiting for gps position"),
+                button({ disabled: () => !store.hasPosition, class: "trigger", onclick: () => takePhoto() }, store.hasPosition ? img({ src: cameraImage }) : "... waiting for gps position"),
 
             div({ class: "new-item-field-container" },
                 input({
@@ -141,7 +122,7 @@ export const NewItemPage = () => {
             div({ class: "new-item-field-container" },
                 button({
                     disabled: () => title.val.length < 1 || description.val.length < 1 ||
-                        !hasPhoto.val || !hasPosition.val,
+                        !hasPhoto.val || !store.hasPosition,
                     class: "new-item-field",
                     onclick: createNewItem
                 }, "Create"))

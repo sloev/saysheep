@@ -41,7 +41,7 @@ export const setupMap = () => {
         map.map = new maplibregl.Map({
             container: mapDiv,
             style: mapstyle,
-            center: [-74.5, 40], // starting position [lng, lat]
+            center: [store.currentPosition.lng, store.currentPosition.lat], // starting position [lng, lat]
             zoom: 9 // starting zoom
         });
         map.map.on('load', function () {

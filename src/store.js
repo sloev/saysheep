@@ -25,32 +25,51 @@ export const getStore = () => {
             mapIsLoading: false,
             searchIsLoading: false,
             currentPosition: {
+                updatedAt: Date.now() - 10000,
                 lng: 74,
-                lat: 40
+                lat: 40,
+                initialized:false
             },
             query: "",
-            warnings:[]
+            warnings: []
         })
+        store.hasPosition = vanX.calc(() => store.currentPosition.initialized)
         store.isLoading = vanX.calc(() => [store.dbIsLoading, store.mapIsLoading].some(x => !!x))
         addItems(demodata.items).then(() => { console.log("done indexing") })
+        store.watchID = navigator.geolocation.watchPosition(
+            (pos) => {
+                const crd = pos.coords;
+                store.currentPosition = { initialized:true, updatedAt: Date.now(), lat: crd.latitude, lng: crd.longitude }
+                console.log("got new position", store.currentPosition.val)
+            }, (err) => {
+                addWarning("Didn't get position!")
+                console.warn(`An error occurred during position acquiering:(${err.code}): ${err.message}`);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 1
+            });
+
     }
     return store
 }
-const filterByQuery =()=>{
-    if (!store.query.length){
-        vanX.replace(store.matchedIds, l =>  Object.keys(store.items))
-    }else{
-        vanX.replace(store.matchedIds, l=> search.search(store.query).map(res=>res.id))
+
+const filterByQuery = () => {
+    if (!store.query.length) {
+        vanX.replace(store.matchedIds, l => Object.keys(store.items))
+    } else {
+        vanX.replace(store.matchedIds, l => search.search(store.query).map(res => res.id))
     }
-    console.log("matched ids", store.matchedIds )
-    console.log("matched items", store.items )
+    console.log("matched ids", store.matchedIds)
+    console.log("matched items", store.items)
     // let newMatchedItems = ids.map(id => store.items[id])
     // console.log(store.matchedItems)
     // console.log(newMatchedItems)
     // vanX.replace(store.matchedItems, l => newMatchedItems)
     // console.log(store.matchedItems)
 }
-export const updateQuery = async (query) =>{
+export const updateQuery = async (query) => {
     store.query = query
     filterByQuery()
 }
@@ -86,8 +105,8 @@ export const removeItems = async (ids) => {
 
 };
 
-export const addWarning=(warning)=>{
+export const addWarning = (warning) => {
     store.warnings.push(warning)
-    
+
 }
 

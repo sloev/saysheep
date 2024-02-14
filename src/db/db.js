@@ -8,6 +8,7 @@ import 'gun/lib/promise.js'
 import {GunProxy} from './proxy'
 import {getStore} from '../store.js'
 
+
 let db = {
     tables : {
         users: null,
@@ -55,7 +56,10 @@ export const setupDb = (config, creds) => {
 export const getDb = ()=>db
 
 db.createNewItem = async (params)=>{
-    console.log(params)
-    const {photo,position,title,description} = params;
-    console.log("create item with params:", params)
+    store = getStore()
+    const newItem = {
+        photo,title,description,
+        geo:{lng:store.currentPosition.lng, lat:store.currentPosition.lat}
+    }
+    console.log("create item with params:", newItem)
 }
