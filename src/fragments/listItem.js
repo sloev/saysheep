@@ -10,9 +10,11 @@ import {distance} from '../helpers/geo.js'
 
 import { getStore } from '../store.js'
 
-const store = getStore()
 
 export const ListItem = (params) => {
+    const store = getStore()
+
+    console.log(store)
     return div({ class: "list-item" },
         div({ class: "image" }, img({ src: params.verified ? params.image : AuditImage })),
         div({ class: "title" }, params.title),
@@ -20,7 +22,7 @@ export const ListItem = (params) => {
         div({ class: "pills" },
             params.messages ? div({ class: "pill" }, params.messages, img({ src: SpeechImage })) : null,
             div({ class: "pill" }, formatRelative(params.date), img({src:TimeImage})),
-            div({ class: "pill" }, formatDistance(distance(params.geo.lat, params.geo.lng, store.currentPosition.lat, store.currentPosition.lng)), img({src:LocationImage}))
+            div({ class: "pill" }, formatDistance(distance(params.geo.lat, params.geo.lng, store.position.lat, store.position.lng)), img({src:LocationImage}))
         )
     )
 }

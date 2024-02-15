@@ -1,7 +1,6 @@
 import van from "vanjs-core"
 import * as vanX from "vanjs-ext"
 
-import { getDb } from '../db/db.js'
 import { getStore, addWarning } from '../store.js'
 import cameraImage from '../images/camera.png'
 import LocationImage from '../images/location.png'
@@ -9,7 +8,6 @@ import { cone } from '../router.js'
 
 const { a, button, canvas, div, h3, img, input, label, li, nav, p, textarea, ul, video } = van.tags
 
-const db = getDb();
 const store = getStore()
 window.store = store;
 const cameraIsOn = van.state(false)
@@ -74,7 +72,8 @@ const takePhoto = () => {
 
 const createNewItem = async () => {
     try {
-        await db.createNewItem({ photo: photo.val, title: title.val, description: description.val })
+        const data = await store.createNewItem({ photo: photo.val, title: title.val, description: description.val })
+        console.log(data)
         cone.navigate("map", {})
     } catch (e) {
         console.log("error", e)

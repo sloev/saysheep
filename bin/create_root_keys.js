@@ -16,7 +16,8 @@ gun.user().auth(serverAdmin);
 let rules = [
     { "#": { "*": "users" }, ".": { "+": "*" } },
     { "#": { "*": "messages" }, ".": { "+": "*" } },
-    { "#": { "*": "new_article" }, ".": { "+": "*" } }
+    { "#": { "*": "articles" }, ".": { "+": "*" } },
+    { "#": { "*": "geohashes" }, ".": { "+": "*" } }
 ]
 var certificate = await SEA.certify("*", rules, serverAdmin, null)
 
