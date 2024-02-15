@@ -8,7 +8,7 @@
     "create_root_key": "node bin/create_root_keys.js",
     "server": "node bin/server.js",
     "start": "vite --config vite.config.js serve ./src",
-    "build": "vite --config vite.config.js build"
+    "build": "vite --config vite.config.js build ./src"
   },
   "author": "",
   "license": "ISC",
