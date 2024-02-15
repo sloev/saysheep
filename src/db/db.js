@@ -5,8 +5,7 @@ import "gun/lib/open.js";
 import "gun/lib/load.js";
 import "gun/lib/promise.js";
 import { sha256 } from "js-sha256";
-
-import Geohash from "latlon-geohash";
+import Geohash from "ngeohash";
 
 import { GunProxy } from "./proxy";
 
@@ -74,7 +73,7 @@ export const setupDb = async (config, creds) => {
       geo,
       id: uuid(),
       date: Date.now(),
-      geohash: Geohash.encode(geo.lng, geo.lat, 10),
+      geohash: Geohash.encode(geo.lat, geo.lng, 10),
     };
     console.log("create item with params:", newItem);
 
@@ -82,6 +81,7 @@ export const setupDb = async (config, creds) => {
     newItem.hashedSecret = hashSecret(secret);
 
     var geohashItem = db.tables.geohashes;
+    console.log("geohash create", newItem.geohash);
     for (let i = 0; i < newItem.geohash.length; i++) {
       geohashItem = geohashItem.get(newItem.geohash.charAt(i));
     }
@@ -92,6 +92,7 @@ export const setupDb = async (config, creds) => {
       .put(JSON.parse(JSON.stringify(newItem)), null, {
         opt: { cert: db.creds.serverCertificate },
       });
+    console.log("geo:", geohashItem);
     geohashItem
       .get(newItem.id)
       .get(db.user.pub)
@@ -101,17 +102,39 @@ export const setupDb = async (config, creds) => {
   };
 
   // returns an unsubscribe function you can call
-  db.listenForGeoHashes = (geohashPrefix) => {
+  db.listenForGeoHashes = (geohashPrefix, addItem) => {
     var geohashItem = db.tables.geohashes;
+    let ev = null;
     for (let i = 0; i < geohashPrefix.length; i++) {
       geohashItem = geohashItem.get(geohashPrefix.charAt(i));
     }
+    console.log("listen to ", geohashPrefix);
     geohashItem.map().open((data, doc, key, opt, eve) => {
+      ev = eve;
       // console.log(doc, key, opt, eve)
       console.log("got eveeeeent, data:", data);
+
+  
+      let d = data;
+      for (let i = 0; i < 11-geohashPrefix.length; i++) {
+        for (var k in d){
+          d = d[k]
+          break
+        }
+      }
+
+      addItem([d]).then("added items");
       //...
     });
-    return geohashItem.off;
+    // geohashItem.get("foo").get(db.user.pub).put(6,null,
+    //   { opt: { cert: db.creds.serverCertificate } });
+    //  //trigger listener to set e
+
+    return () => {
+      // geohashItem.off()
+      ev ? ev.off() : geohashItem.off();
+      console.log("off'ed", geohashPrefix);
+    };
   };
 
   return db;

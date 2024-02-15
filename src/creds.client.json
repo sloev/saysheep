@@ -1,4 +1,4 @@
 {
-    "serverCertificate": "SEA{\"m\":{\"c\":\"*\",\"w\":[{\"#\":{\"*\":\"users\"},\".\":{\"+\":\"*\"}},{\"#\":{\"*\":\"messages\"},\".\":{\"+\":\"*\"}},{\"#\":{\"*\":\"articles\"},\".\":{\"+\":\"*\"}},{\"#\":{\"*\":\"geohashes\"},\".\":{\"+\":\"*\"}}]},\"s\":\"fV0+g79W8pcz3cWy6mXG5OGeKoiYb2EKfgSmdpNf+owOAqUb/iUPWrtvCgrfHTg4aGz4DhTVpmIf/Mbm0g3ujQ==\"}",
-    "serverPublicKey": "IA2hV5xE2FWq-rQNzMeeaiJ3w3JYYunOf62BM1Jrfik.EETglDnFOVjD-nQ_8H5CKBMmmM7qz5uKFYUonnEHzpY"
+    "serverCertificate": "SEA{\"m\":{\"c\":\"*\",\"w\":[{\"#\":{\"*\":\"users\"},\".\":{\"+\":\"*\"}},{\"#\":{\"*\":\"messages\"},\".\":{\"+\":\"*\"}},{\"#\":{\"*\":\"articles\"},\".\":{\"+\":\"*\"}},{\"#\":{\"*\":\"geohashes\"},\".\":{\"+\":\"*\"}}]},\"s\":\"3dRX1xwEHOTfliQXUgFO5EH3Q+q+fv+Yfl5NZ6ZnqSUq11yOGXXy43yokqurZwnSUsxDcSV4X2CrmcG7yRTmQA==\"}",
+    "serverPublicKey": "DHk9T-ErHo1dQwy9SFbUVLvkGtNsh6DEHqNP1f0uFBc.nCzY-OCHFlVVkLsY_tTPQjERdU_PqPvvH67mqBEfXDY"
 }

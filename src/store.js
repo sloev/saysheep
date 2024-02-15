@@ -1,5 +1,6 @@
 import * as vanX from "vanjs-ext";
 
+import { setupMap } from "./fragments/map.js";
 import config from "./config.json";
 import creds from "./creds.client.json";
 import { setupDb } from "./db/db.js";
@@ -12,8 +13,9 @@ import demodata from "./demoData.js";
 let store;
 let search;
 let db;
-let initializing = false;
-const setupStore = () => {
+let isLoading = false;
+
+const setupStore = async () => {
   search = new MiniSearch({
     fields: ["title", "description"], // fields to index for full-text search
     storeFields: ["id"], // fields to return with search results
@@ -28,7 +30,7 @@ const setupStore = () => {
     matchedIds: [],
     db: { isLoading: true, listeners: {} },
     map: {
-      isLoading: false,
+      isLoading: true,
       bounds: {
         sw: {
           lng: null,
@@ -41,7 +43,10 @@ const setupStore = () => {
       },
       zoom: 17,
     },
-    searchIsLoading: false,
+    search: {
+      isLoading: false,
+      query: "",
+    },
     gpsLocked: true,
 
     position: {
@@ -50,7 +55,6 @@ const setupStore = () => {
       lat: 40,
       isLoading: true,
     },
-    query: "",
     warnings: [],
   });
   store.hasPosition = vanX.calc(() => !store.position.isLoading);
@@ -62,6 +66,9 @@ const setupStore = () => {
   addItems(demodata.items).then(() => {
     console.log("done indexing");
   });
+  
+  db = await setupDb(config, creds);
+  store.db.isLoading = false;
   store.watchID = navigator.geolocation.watchPosition(
     (pos) => {
       updatePosition(pos.coords);
@@ -74,24 +81,31 @@ const setupStore = () => {
     },
     {
       enableHighAccuracy: true,
-      timeout: 5000,
+      timeout: 10000,
       maximumAge: 1,
     }
   );
-  setupDb(config, creds).then((inst) => {
-    db = inst;
-    store.db.isLoading = false;
-  });
 };
 
 export const getStore = () => {
-  if (!store && !initializing) {
-    initializing = true;
-    setupStore();
+  if (!store && !isLoading) {
+    isLoading = true;
+    setupStore().then(() => {
+      isLoading = false;
+    });
   }
   return store;
 };
 const updatePosition = ({ longitude, latitude }) => {
+  if(store.position.isLoading){
+    setupMap(
+      longitude,
+      latitude,
+       updateBounds
+    ).then(()=>{
+      store.map.isLoading = false
+    })
+  }
   store.position = {
     isLoading: false,
     updatedAt: Date.now(),
@@ -101,11 +115,11 @@ const updatePosition = ({ longitude, latitude }) => {
 };
 
 const filterByQuery = () => {
-  if (!store.query.length) {
+  if (!store.search.query.length) {
     vanX.replace(store.matchedIds, (l) => Object.keys(store.items));
   } else {
     vanX.replace(store.matchedIds, (l) =>
-      search.search(store.query).map((res) => res.id)
+      search.search(store.search.query).map((res) => res.id)
     );
   }
   console.log("matched ids", store.matchedIds);
@@ -117,51 +131,59 @@ const filterByQuery = () => {
   // console.log(store.matchedItems)
 };
 export const updateQuery = async (query) => {
-  store.query = query;
+  store.search.query = query;
   filterByQuery();
 };
 
 export const addItems = async (items) => {
-  store.searchIsLoading = true;
+  console.log("adding items:", items)
+  store.search.isLoading = true;
   try {
-    await search.addAllAsync(items);
+    const itemsToBeAdded=[]
     items.map((item) => {
+      if(!store.items[item.id]){
       store.items[item.id] = item;
+      itemsToBeAdded.push(item)
+      }
     });
+    await search.addAllAsync(itemsToBeAdded);
+
     filterByQuery();
   } catch (e) {
     console.error(e);
-  } finally {
-    store.searchIsLoading = false;
   }
+  store.search.isLoading = false;
 };
 
 export const removeItems = async (ids) => {
-  store.searchIsLoading = true;
+  store.search.isLoading = true;
   try {
     search.discardAll(ids);
     filterByQuery();
   } catch (e) {
     console.error(e);
-  } finally {
-    store.searchIsLoading = false;
   }
+  store.search.isLoading = false;
 };
 
 export const createNewItem = async (params) => {
-  return await db.createNewItem({
+  params = {
     geo: { lng: store.position.lng, lat: store.position.lat },
     ...params,
-  });
+  }
+  console.log("create_new_item", params)
+  return await db.createNewItem(params);
 };
 
 export const addWarning = (warning) => {
   store.warnings.push(warning);
 };
 
-export const updateBounds = ({ _sw, _ne }) => {
+export const updateBounds = ({ _sw, _ne, zoom }) => {
   store.map.bounds.sw = { ..._sw };
   store.map.bounds.ne = { ..._ne };
+  store.map.zoom = zoom
+  console.log(zoom)
 
   const widthInMeters = Math.floor(
     distance(
@@ -187,11 +209,7 @@ export const updateBounds = ({ _sw, _ne }) => {
   } else {
     precision = 8;
   }
-  console.log("(4890>widthInMeters>=1220)", 4890 > widthInMeters >= 1220);
-  console.log("(1220>widthInMeters>=153)", 1220 > widthInMeters >= 153);
-  console.log("(153>widthInMeters>=38.2)", 153 > widthInMeters >= 38.2);
-  console.log("precision", precision, widthInMeters);
-
+  
   // Providing polygon as GeoJSON
   shape2geohash(
     {
@@ -214,6 +232,22 @@ export const updateBounds = ({ _sw, _ne }) => {
       customWriter: null,
     }
   ).then((geohashes) => {
-    console.log("got geo hashes:", geohashes);
+    const newListeners = {};
+    geohashes.map((geohash) => {
+      let listener = store.db.listeners[geohash];
+      if (!!listener) {
+        delete store.db.listeners[geohash];
+      } else {
+        listener = db.listenForGeoHashes(geohash, addItems);
+      }
+      newListeners[geohash] = listener;
+    });
+
+    Object.keys(store.db.listeners).map((k) => {
+      store.db.listeners[k]();
+      delete store.db.listeners[k];
+    });
+    store.db.listeners = newListeners;
+    console.log("listeners", Object.keys(store.db.listeners));
   });
 };

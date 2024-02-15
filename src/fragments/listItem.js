@@ -16,8 +16,9 @@ export const ListItem = (params) => {
 
     console.log(store)
     return div({ class: "list-item" },
-        div({ class: "image" }, img({ src: params.verified ? params.image : AuditImage })),
-        div({ class: "title" }, params.title),
+    // div({ class: "image" }, img({ src: params.verified ? params.image : AuditImage })),
+    div({ class: "image" }, img({ src: params.photo})),
+    div({ class: "title" }, params.title),
         div({ class: "description" }, params.description),
         div({ class: "pills" },
             params.messages ? div({ class: "pill" }, params.messages, img({ src: SpeechImage })) : null,

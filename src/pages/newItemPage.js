@@ -70,7 +70,7 @@ const takePhoto = () => {
 
 }
 
-const createNewItem = async () => {
+const create = async () => {
     try {
         const data = await createNewItem({ photo: photo.val, title: title.val, description: description.val })
         console.log(data)
@@ -123,7 +123,7 @@ export const NewItemPage = () => {
                     disabled: () => title.val.length < 1 || description.val.length < 1 ||
                         !hasPhoto.val || !store.hasPosition,
                     class: "new-item-field",
-                    onclick: createNewItem
+                    onclick: create
                 }, "Create"))
 
 

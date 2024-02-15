@@ -7,8 +7,8 @@
   "scripts": {
     "create_root_key": "node bin/create_root_keys.js",
     "server": "node bin/server.js",
-    "start": "parcel",
-    "build": "parcel build"
+    "start": "vite --config vite.config.js serve ./src",
+    "build": "vite --config vite.config.js build"
   },
   "author": "",
   "license": "ISC",
@@ -19,19 +19,21 @@
     "leaflet": "^1.9.4",
     "maplibre-gl": "^3.6.2",
     "minisearch": "^6.3.0",
-    "parcel": "^2.11.0",
+    "ngeohash": "^0.6.3",
     "pmtiles": "^2.11.0",
     "protomaps-leaflet": "^1.24.2",
     "shape2geohash": "^1.2.6",
     "trystero": "^0.16.0",
     "van-cone": "^0.0.7",
     "vanjs-core": "^1.2.8",
-    "vanjs-ext": "^0.2.0"
+    "vanjs-ext": "^0.2.0",
+    "vite": "^5.1.2"
   },
   "devDependencies": {
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "process": "^0.11.10",
-    "stream-browserify": "^3.0.0"
+    "stream-browserify": "^3.0.0",
+    "vite-plugin-node-polyfills": "^0.21.0"
   }
 }

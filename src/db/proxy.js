@@ -2,7 +2,7 @@
 // https://github.com/Dletta/dht-proxy/blob/main/websocketproxy.js
 
 import { joinRoom } from 'trystero';
-const debug = true
+const debug = false
 
 
 export const GunProxy = function () {
