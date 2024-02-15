@@ -63,9 +63,9 @@ const setupStore = async () => {
       (x) => !!x
     )
   );
-  addItems(demodata.items).then(() => {
-    console.log("done indexing");
-  });
+  // addItems(demodata.items).then(() => {
+  //   console.log("done indexing");
+  // });
   
   db = await setupDb(config, creds);
   store.db.isLoading = false;
