@@ -1,7 +1,7 @@
 import van from "vanjs-core"
 import * as vanX from "vanjs-ext"
 
-import { getStore, addWarning } from '../store.js'
+import { getStore, createNewItem, addWarning } from '../store.js'
 import cameraImage from '../images/camera.png'
 import LocationImage from '../images/location.png'
 import { cone } from '../router.js'
@@ -72,7 +72,7 @@ const takePhoto = () => {
 
 const createNewItem = async () => {
     try {
-        const data = await store.createNewItem({ photo: photo.val, title: title.val, description: description.val })
+        const data = await createNewItem({ photo: photo.val, title: title.val, description: description.val })
         console.log(data)
         cone.navigate("map", {})
     } catch (e) {

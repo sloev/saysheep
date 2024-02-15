@@ -149,7 +149,7 @@ export const removeItems = async (ids) => {
 };
 
 export const createNewItem = async (params) => {
-  db.createNewItem({
+  return await db.createNewItem({
     geo: { lng: store.position.lng, lat: store.position.lat },
     ...params,
   });
