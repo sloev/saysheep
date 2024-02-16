@@ -102,7 +102,7 @@ const updatePosition = ({ longitude, latitude }) => {
       longitude,
       latitude,
        updateBounds
-    ).then(()=>{
+    ).then(({addToMap})=>{
       store.map.isLoading = false
     })
   }

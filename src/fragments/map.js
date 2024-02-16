@@ -8,20 +8,6 @@ const { a, div, h3, img, li, nav, p, ul } = van.tags;
 
 const mapDiv = div({ id: "map" });
 
-const state = {
-  map: null,
-  // wolfMarker: new L.Marker(settingsStore.currentLocation, { icon: wolfMarkerIcon })
-};
-
-// const panToPosition = () => {
-//     map.wolfMarker.setLatLng(settingsStore.currentLocation);
-//     map.setView(settingsStore.viewPosition, map.getZoom(), {
-//         animate: true,
-//         pan: {
-//             duration: 1,
-//         },
-//     });
-// };
 
 export const setupMap = async (lng, lat, updateBounds) => {
   await new Promise((resolve) => {
@@ -54,8 +40,9 @@ export const setupMap = async (lng, lat, updateBounds) => {
       let bounds = map.getBounds();
       let zoom = map.getZoom();
       updateBounds({ zoom, ...bounds });
-      resolve();
+      resolve({addToMap:(marker)=>marker.addTo(map)});
     });
+    
   });
 };
 

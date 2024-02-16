@@ -4,6 +4,7 @@ import "gun/sea.js";
 import "gun/lib/open.js";
 import "gun/lib/load.js";
 import "gun/lib/promise.js";
+import "gun/lib/rindexed.js";
 import { sha256 } from "js-sha256";
 import Geohash from "ngeohash";
 
@@ -111,25 +112,35 @@ export const setupDb = async (config, creds) => {
     console.log("listen to ", geohashPrefix);
     geohashItem.map().open((data, doc, key, opt, eve) => {
       ev = eve;
-      // console.log(doc, key, opt, eve)
-      console.log("got eveeeeent, data:", data);
-
-  
-      let d = data;
-      for (let i = 0; i < 11-geohashPrefix.length; i++) {
-        for (var k in d){
-          d = d[k]
-          break
+      console.log("received data", data)
+ 
+      const items = []
+      function loopThroughJSON(obj) {
+        for (let key in obj) {
+          if (typeof obj[key] === 'object') {
+            if (Array.isArray(obj[key])) {
+              // loop through array
+              for (let i = 0; i < obj[key].length; i++) {
+                loopThroughJSON(obj[key][i]);
+              }
+            } else {
+              if(!!obj[key].id){
+                items.push(obj[key])
+              }else{
+              // call function recursively for object
+              loopThroughJSON(obj[key]);
+            }
+          }
+          } else {
+            // do something with value
+            console.log(key + ': ' + obj[key]);
+          }
         }
       }
-
-      addItem([d]).then("added items");
-      //...
+      loopThroughJSON(data)
+      addItem(items).then("added items");
     });
-    // geohashItem.get("foo").get(db.user.pub).put(6,null,
-    //   { opt: { cert: db.creds.serverCertificate } });
-    //  //trigger listener to set e
-
+  
     return () => {
       // geohashItem.off()
       ev ? ev.off() : geohashItem.off();
