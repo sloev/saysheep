@@ -16,7 +16,7 @@ export class GleanIroh {
   }
 
   async start() {
-    const dataDir = path.resolve(process.cwd(), 'data/iroh')
+    const dataDir = path.resolve(process.cwd(), process.env.IROH_DATA_DIR || 'data/iroh')
     if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true })
 
     try {
@@ -24,7 +24,24 @@ export class GleanIroh {
       this.nodeId = (await this.node.node.status()).addr.nodeId
       log.info(`Iroh Node started: ${this.nodeId}`)
 
-      this.sender = await this.node.gossip.subscribe(GOSSIP_TOPIC, [], (err, msg) => {
+      this.bootstrapPeers = new Set()
+      await this.resubscribe()
+    } catch (e) {
+      log.error(`Failed to start Iroh: ${e.message}`)
+    }
+  }
+
+  async resubscribe() {
+    if (!this.node) return
+    try {
+      if (this.sender) {
+        try {
+          await this.sender.close()
+        } catch {}
+      }
+
+      const bootstrapList = Array.from(this.bootstrapPeers)
+      this.sender = await this.node.gossip.subscribe(GOSSIP_TOPIC, bootstrapList, (err, msg) => {
         if (err) {
           log.error(`Gossip error: ${err.message}`)
           return
@@ -32,9 +49,9 @@ export class GleanIroh {
         this._handleGossipMessage(msg)
       })
 
-      log.info(`Joined Gossip topic: glean-nostr-v1`)
+      log.info(`Joined Gossip topic: glean-nostr-v1 | bootstrap peers: ${bootstrapList.length}`)
     } catch (e) {
-      log.error(`Failed to start Iroh: ${e.message}`)
+      log.error(`Failed to resubscribe to Gossip: ${e.message}`)
     }
   }
 
@@ -66,6 +83,31 @@ export class GleanIroh {
       await this.sender.broadcast(bytes)
     } catch (e) {
       log.error(`Iroh broadcast failed: ${e.message}`)
+    }
+  }
+
+  async getNodeAddr() {
+    if (!this.node) return null
+    try {
+      return await this.node.net.nodeAddr()
+    } catch {
+      return null
+    }
+  }
+
+  async addNodeAddr(addr) {
+    if (!this.node) return
+    try {
+      await this.node.net.addNodeAddr(addr)
+      log.info(`Added Iroh node address: ${addr.nodeId.slice(0, 8)}`)
+
+      if (!this.bootstrapPeers.has(addr.nodeId)) {
+        this.bootstrapPeers.add(addr.nodeId)
+        log.info(`Re-subscribing to Gossip topic with new peer: ${addr.nodeId.slice(0, 8)}`)
+        await this.resubscribe()
+      }
+    } catch (e) {
+      log.error(`Failed to add Iroh node address: ${e.message}`)
     }
   }
 

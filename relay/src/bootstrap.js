@@ -1,13 +1,14 @@
 import { WebSocket } from 'ws'
 import { getPublicKey, finalizeEvent } from 'nostr-tools/pure'
 import { createLogger } from './logger.js'
-import config from '../relay.config.json' with { type: 'json' }
+import config from './config.js'
 
 const log = createLogger('bootstrap')
 
 export class RelayBootstrap {
-  constructor(p2p) {
+  constructor(p2p, iroh) {
     this.p2p = p2p
+    this.iroh = iroh
     this.secretKey = Buffer.from(p2p.nodeId, 'hex')
     this.publicKey = getPublicKey(this.secretKey)
     this.seeds = config.federation.seeds || []
@@ -44,19 +45,27 @@ export class RelayBootstrap {
       tags.push(['url', url])
     }
 
-    const presenceEvent = finalizeEvent({
-      kind: 30402,
-      created_at: now,
-      tags,
-      content: JSON.stringify({
-        nodeId: this.p2p.nodeId,
-        url
-      })
-    }, this.secretKey)
-
-    for (const seed of this.seeds) {
-      this.publishAndFetch(seed, presenceEvent)
+    // Get local Iroh node address to publish
+    const getPresenceEvent = async () => {
+      const irohNodeAddr = this.iroh ? await this.iroh.getNodeAddr() : null
+      
+      return finalizeEvent({
+        kind: 30402,
+        created_at: now,
+        tags,
+        content: JSON.stringify({
+          nodeId: this.p2p.nodeId,
+          url,
+          irohNodeAddr
+        })
+      }, this.secretKey)
     }
+
+    getPresenceEvent().then(presenceEvent => {
+      for (const seed of this.seeds) {
+        this.publishAndFetch(seed, presenceEvent)
+      }
+    })
   }
 
   publishAndFetch(seedUrl, presenceEvent) {
@@ -107,6 +116,14 @@ export class RelayBootstrap {
                 type: 'relay',
                 url: peerUrl
               })
+              
+              // Register Iroh address if present
+              try {
+                const parsed = JSON.parse(ev.content)
+                if (parsed.irohNodeAddr && this.iroh) {
+                  this.iroh.addNodeAddr(parsed.irohNodeAddr)
+                }
+              } catch {}
             }
           }
         } else if (msg[0] === 'EOSE' && msg[1] === subId) {

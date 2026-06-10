@@ -8,7 +8,7 @@ import { RelayP2P } from './p2p.js'
 import { GleanIroh } from './iroh.js'
 import { RelayBootstrap } from './bootstrap.js'
 import { createLogger } from './logger.js'
-import config from '../relay.config.json' with { type: 'json' }
+import config from './config.js'
 
 const log = createLogger('relay')
 let iroh
@@ -39,10 +39,10 @@ setInterval(() => {
 export const startRelay = (port) => {
   const p2p = new RelayP2P()
   iroh = new GleanIroh()
-  iroh.start()
-
-  const bootstrap = new RelayBootstrap(p2p)
-  bootstrap.start()
+  iroh.start().then(() => {
+    const bootstrap = new RelayBootstrap(p2p, iroh)
+    bootstrap.start()
+  })
 
   iroh.onEvent = (event) => {
     const stored = storeEvent(event)
