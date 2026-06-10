@@ -8,18 +8,18 @@ Glean is a decentralized, offline-first marketplace for giving away and finding 
 
 ```mermaid
 graph TD
-    subgraph Clients (PWA / Android)
+    subgraph Clients ["Clients (PWA / Android)"]
         C1[Client A - VanJS] <-->|WiFi Direct Mesh| C2[Client B - VanJS]
         C1 <-->|Nostr WS + WebRTC Signaling| R1[Relay A]
         C2 <-->|Nostr WS + WebRTC Signaling| R2[Relay B]
     end
 
-    subgraph Relays (Mesh Federation)
+    subgraph Relays ["Relays (Mesh Federation)"]
         R1 <-->|Iroh Gossip Sub / DHT| R2
         R1 <-->|Nostr NIP-01/NIP-33 Federation| R2
     end
 
-    subgraph Bootstrap Directory
+    subgraph Bootstrap ["Bootstrap Directory"]
         R1 <-->|Presence kind:30402| PB[Public Nostr Relays]
         R2 <-->|Presence kind:30402| PB
     end
