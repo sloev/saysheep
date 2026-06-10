@@ -21,9 +21,9 @@ export const AlertsPage = () => {
     ),
     div({ class: 'form-section' },
       p({ style: 'font-size:13px;color:var(--muted);line-height:1.5' },
-        'Subscribe to categories in your current area. You\'ll see matching items when you open the app.'
+        t('alerts.description')
       ),
-      div({ class: 'form-label' }, 'categories to watch'),
+      div({ class: 'form-label' }, t('alerts.categories')),
       TagInput({ tags: newTags }),
       button({
         class: 'btn btn-submit',

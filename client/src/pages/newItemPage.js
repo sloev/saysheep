@@ -8,11 +8,16 @@ import cameraImg from '../images/camera.png'
 const { div, button, input, textarea, video, canvas, label, span, img } = van.tags
 
 export const NewItemPage = () => {
+  // Pre-fill from Web Share Target API params (?title=...&description=...&url=...)
+  const _params = new URLSearchParams(window.location.search)
+  const _sharedTitle = _params.get('title') || ''
+  const _sharedDesc = [_params.get('text'), _params.get('url')].filter(Boolean).join('\n')
+
   const cameraOn = van.state(false)
   const hasPhoto = van.state(false)
   const photoData = van.state(null)
-  const title = van.state('')
-  const description = van.state('')
+  const title = van.state(_sharedTitle)
+  const description = van.state(_sharedDesc)
   const tags = van.state([])
   const manualLocation = van.state(false)
   const customLat = van.state('')

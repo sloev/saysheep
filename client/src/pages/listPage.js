@@ -16,7 +16,7 @@ export const ListPage = () => {
       input({
         class: 'search-input',
         type: 'search',
-        placeholder: '🔍 search...',
+        placeholder: t('list.search'),
         value: store.ui.searchQuery,
         oninput: e => { store.ui.searchQuery = e.target.value },
       })

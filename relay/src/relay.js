@@ -12,6 +12,27 @@ const log = createLogger('relay')
 
 const subscriptions = new Map()
 
+// --- Simple token-bucket rate limiter (per IP, shared across all clients from same IP) ---
+const RATE_WINDOW_MS = 60_000   // 1 minute window
+const RATE_LIMIT_EVENTS = 60    // max EVENT messages per window per IP
+const _ipCounters = new Map()   // ip -> { count, resetAt }
+
+const _checkRate = (ip) => {
+  const now = Date.now()
+  let bucket = _ipCounters.get(ip)
+  if (!bucket || now > bucket.resetAt) {
+    bucket = { count: 0, resetAt: now + RATE_WINDOW_MS }
+    _ipCounters.set(ip, bucket)
+  }
+  bucket.count++
+  return bucket.count <= RATE_LIMIT_EVENTS
+}
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [ip, b] of _ipCounters) if (now > b.resetAt) _ipCounters.delete(ip)
+}, RATE_WINDOW_MS)
+
 export const startRelay = (port) => {
   const p2p = new RelayP2P()
   const server = createServer((req, res) => {
@@ -45,10 +66,12 @@ export const startRelay = (port) => {
 
   wss.on('connection', (ws, req) => {
     const clientId = crypto.randomUUID()
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown'
     ws.clientId = clientId
+    ws.clientIp = clientIp
     clients.add(ws)
     subscriptions.set(clientId, [])
-    log.info(`+ ${clientId.slice(0,8)} (${req.socket.remoteAddress})`)
+    log.info(`+ ${clientId.slice(0,8)} (${clientIp})`)
 
     ws.on('message', (raw) => {
       if (raw.length > config.max_event_size_bytes) {
@@ -68,7 +91,7 @@ export const startRelay = (port) => {
         return
       }
 
-      handleNostr(ws, msg, clients)
+      handleNostr(ws, msg, clients, ws.clientIp)
     })
 
     ws.on('close', () => {
@@ -98,14 +121,18 @@ export const startRelay = (port) => {
   return server
 }
 
-const handleNostr = (ws, msg, clients) => {
+const handleNostr = (ws, msg, clients, ip) => {
   const [type, ...rest] = msg
-  if (type === 'EVENT') handleEvent(ws, rest[0], clients)
+  if (type === 'EVENT') handleEvent(ws, rest[0], clients, ip)
   else if (type === 'REQ') handleReq(ws, rest[0], rest.slice(1))
   else if (type === 'CLOSE') handleClose(ws, rest[0])
 }
 
-const handleEvent = (ws, event, clients) => {
+const handleEvent = (ws, event, clients, ip) => {
+  if (!_checkRate(ip)) {
+    ws.send(JSON.stringify(['NOTICE', 'rate-limited: slow down']))
+    return
+  }
   if (!event || typeof event !== 'object') {
     ws.send(JSON.stringify(['NOTICE', 'invalid event']))
     return
