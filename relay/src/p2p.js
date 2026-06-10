@@ -49,15 +49,15 @@ export class RelayP2P {
     this.clients.delete(clientId)
   }
 
-  // ["P2P", "HELLO", nodeId, geohashes]
-  _onHello(clientId, ws, [nodeId, geohashes]) {
+  // ["P2P", "HELLO", nodeId, geohashes, isRelay, url]
+  _onHello(clientId, ws, [nodeId, geohashes, isRelay, url]) {
     if (!nodeId) return
 
     // Register client
-    this.clients.set(clientId, { ws, nodeId, geohashes: geohashes || [] })
-    this.kbucket.add({ id: nodeId, clientId, type: 'browser' })
+    this.clients.set(clientId, { ws, nodeId, geohashes: geohashes || [], isRelay: !!isRelay, url })
+    this.kbucket.add({ id: nodeId, clientId, type: isRelay ? 'relay' : 'browser', url })
 
-    log.info(`HELLO from ${nodeId.slice(0,8)}... (${this.kbucket.size()} peers in table)`)
+    log.info(`${isRelay ? 'RELAY' : 'HELLO'} from ${nodeId.slice(0,8)}... (${this.kbucket.size()} peers in table)`)
 
     // Respond: our nodeId + k closest known peers (excluding the caller)
     const closest = this.kbucket
@@ -66,7 +66,7 @@ export class RelayP2P {
       .slice(0, 10)
       .map(p => ({ nodeId: p.id }))
 
-    ws.send(JSON.stringify(['P2P', 'HELLO', this.nodeId, closest]))
+    ws.send(JSON.stringify(['P2P', 'HELLO', this.nodeId, closest, config.public_url]))
   }
 
   // ["P2P", "FIND", requestId, targetId]  — find k peers closest to target
@@ -88,7 +88,7 @@ export class RelayP2P {
   _onSignal(clientId, ws, [from, to, payload]) {
     if (!from || !to || !payload) return
 
-    // Find the target client's WebSocket
+    // 1. Try local routing
     for (const [cid, client] of this.clients) {
       if (client.nodeId === to) {
         try {
@@ -97,8 +97,18 @@ export class RelayP2P {
         } catch {}
       }
     }
-    // Target not connected to this relay — could gossip to peer relays
-    // (federation.js can handle relay-to-relay routing in a future enhancement)
+
+    // 2. Try cross-relay routing: find closest relays to 'to'
+    const closest = this.kbucket.closest(to, 5).filter(p => p.type === 'relay')
+    for (const peer of closest) {
+      const relayClient = this.clients.get(peer.clientId)
+      if (relayClient?.ws?.readyState === 1) { // WebSocket.OPEN
+        try {
+          relayClient.ws.send(JSON.stringify(['P2P', 'SIGNAL', from, to, payload]))
+          return
+        } catch {}
+      }
+    }
   }
 
   // ["P2P", "ANNOUNCE", nodeId, geohash]
@@ -117,10 +127,24 @@ export class RelayP2P {
     )
   }
 
+  // Get unique geohash prefixes that our local clients care about
+  getInterestedGeohashes() {
+    const set = new Set()
+    for (const c of this.clients.values()) {
+      if (!c.isRelay) for (const g of c.geohashes) set.add(g)
+    }
+    return [...set]
+  }
+
   stats() {
     return {
       nodeId: this.nodeId.slice(0, 8) + '...',
       peers: this.kbucket.size(),
+      clients: this.clients.size,
+    }
+  }
+}
+
       clients: this.clients.size,
     }
   }

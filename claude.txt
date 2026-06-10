@@ -1,0 +1,434 @@
+
+Let me check what's still missing or needs fixing before deciding what to tackle next.
+
+
+Ran a command, read 8 files
+Clear picture. Four things to fix and ship:
+
+Relay count never updates — onRelayCount not wired through to the relay client
+9 locale stubs need real translations
+Map marker CSS missing from app.css
+Service worker not registered
+Doing them all now, committing as each lands.
+
+Read
+relay.js
+(1–30, 30–69, 68–127)
+Now I have the full picture. I'll fix relay count, add all locales, map marker CSS, and service worker in one focused pass.
+
+
+Edited 2 files, searched code, read a file
+Good. Now service worker registration in app.js:
+
+
+Read a file, edited a file
+Now write the service worker:
+
+Created
+sw.js
++35
+-0
+Now add map marker CSS. Let me append it to app.css:
+
+
+Read a file, ran a command
+Map marker CSS is already there. Now write all 9 locale files in one pass:
+
+
+Created a file, read a file, ran a command
+Now I'll expand all 9 stubs to the full key set. Doing them all at once:
+
+
+Created 3 files
+Reading all remaining locale stubs before writing the full translations.
+
+
+Read 7 files
+Now writing all 7 full locale files in parallel.
+
+
+Created 7 files
+All 7 locale files written. Now committing everything.
+
+
+Ran 3 commands
+Pushed. All 9 stub locales (zh, es, hi, bn, pt, ru, ja, fr, de) are now fully expanded to 66 keys each, the service worker is in place, and the relay count fix is committed.
+
+What's still remaining if you want to continue:
+
+Capacitor Android: the config is committed but WiFi Direct / offline mesh hookup is future work
+GitHub Pages: needs to be enabled in the repo settings (Settings → Pages → deploy from Actions) — one-click manual step
+Relay deployment: push the Docker image to a server and point the client's default relay URLs at it
+from now on. everytime you finish a task i want you to print out the tasks as a checked list with the remainding tasks unchecked.
+
+remember the android pwa and gh auto release of both server code, pwa pages, android pwa wrapped native
+
+Got it. Here's the current state:
+
+Glean — task checklist
+done
+Monorepo scaffold (client/ + relay/ npm workspaces)
+done
+Nostr protocol core (NIP-01, NIP-09, NIP-33, NIP-40, NIP-99 kind:30402)
+done
+Custom k-bucket DHT (client + relay, Kademlia XOR routing, 257 buckets)
+done
+Custom WebRTC peer layer (no Trystero — native RTCPeerConnection + ICE queuing)
+done
+Custom relay client (GleanRelay, auto-reconnect, dual NIP-01 + P2P protocol)
+done
+Relay server P2P routing (RelayP2P, HELLO/FIND/SIGNAL/ANNOUNCE)
+done
+Three connectivity modes (peers-only / relays-only / peers+relays)
+done
+IndexedDB offline-first store + geohash area subscriptions
+done
+VanJS reactive UI (map, list, new item, settings, alerts, chat)
+done
+MapLibre GL + PMTiles map with reactive markers
+done
+PWA service worker (cache-first, glean-v1)
+done
+WebXDC / DeltaChat dual-mode
+done
+Relay count fix (connectivity indicator updates live)
+done
+Full translations: en, da, zh, es, hi, bn, pt, ru, ja, fr, de (all 66 keys)
+done
+GitHub Actions: deploy client to GitHub Pages on push
+done
+GitHub Actions: build relay Docker image → push to GHCR
+not done
+GitHub Actions: auto-release relay server (tagged semver release + GHCR latest)
+not done
+GitHub Actions: build signed Android APK/AAB via Capacitor + upload to GitHub Release
+not done
+Capacitor config wired up and npx cap sync working cleanly
+not done
+Android WiFi Direct / offline mesh P2P plugin (CapacitorP2P hookup)
+not done
+GitHub Pages enabled in repo settings (manual — Settings → Pages → GitHub Actions)
+not done
+Relay deployed and default relay URL set in client config
+commit push and continue
+
+
+Ran 2 commands, read 7 files, found files
+Good. Now I'll create all three pieces in parallel: the release workflow, the Android workflow, and update client deps for Capacitor.
+
+
+Created 2 files
+Now add Capacitor dependencies to the client package.json and update capacitor.config.json to point to the right webDir relative to the client folder (since cap add android runs from inside client/).
+
+Edited
+package.json
++3
+-0
+The capacitor.config.json at root has webDir: "client/dist" which is correct when running from repo root. But in CI we cd client && npx cap add android, so Capacitor runs from inside client/ and will look for client/dist relative to there — that's wrong. We need a second config that lives inside client/ for CI, or we move the config there and use --config flag. Cleanest: move the config into client/ and update the webDir.
+
+Created
+capacitor.config.json
++13
+-0
+Now remove the root-level capacitor.config.json (superseded by client-local one) and update the root package.json with a cap:sync script.
+
+
+Ran a command, edited a file
+Now also add android/ to .gitignore inside client/ — the Android project will be generated fresh in CI so we don't want to track it.
+
+
+Found files, read a file, edited a file
+Now commit and push.
+
+
+Ran 3 commands
+Pushed. Here's the updated checklist:
+
+Glean — task checklist
+done
+Monorepo scaffold (client/ + relay/ npm workspaces)
+done
+Nostr protocol core (NIP-01, NIP-09, NIP-33, NIP-40, NIP-99 kind:30402)
+done
+Custom k-bucket DHT (client + relay, Kademlia XOR routing, 257 buckets)
+done
+Custom WebRTC peer layer (no Trystero — native RTCPeerConnection + ICE queuing)
+done
+Custom relay client (GleanRelay, auto-reconnect, dual NIP-01 + P2P protocol)
+done
+Relay server P2P routing (RelayP2P, HELLO/FIND/SIGNAL/ANNOUNCE)
+done
+Three connectivity modes (peers-only / relays-only / peers+relays)
+done
+IndexedDB offline-first store + geohash area subscriptions
+done
+VanJS reactive UI (map, list, new item, settings, alerts, chat)
+done
+MapLibre GL + PMTiles map with reactive markers
+done
+PWA service worker (cache-first, glean-v1)
+done
+WebXDC / DeltaChat dual-mode
+done
+Relay count fix (connectivity indicator updates live)
+done
+Full translations: en, da, zh, es, hi, bn, pt, ru, ja, fr, de (all 66 keys)
+done
+GitHub Actions: deploy client to GitHub Pages on push
+done
+GitHub Actions: build relay Docker image → push to GHCR on push to master
+done
+GitHub Actions: auto-release relay (semver tag → GHCR + GitHub Release with changelog)
+done
+GitHub Actions: build signed Android APK/AAB via Capacitor → attach to GitHub Release
+done
+Capacitor config in client/ with correct webDir: "dist"
+done
+@capacitor/core, @capacitor/android, @capacitor/cli added to client deps
+not done
+Android WiFi Direct / offline mesh P2P plugin (CapacitorP2P hookup)
+not done
+Add signing secrets to GitHub repo: KEYSTORE_BASE64, KEY_ALIAS, STORE_PASSWORD, KEY_PASSWORD (user action)
+not done
+GitHub Pages enabled in repo settings → Settings → Pages → Source: GitHub Actions (user action)
+not done
+Relay deployed and default relay URL set in client config
+continue as much as you can without user action
+
+Let me survey what's actionable before diving in.
+
+
+Ran a command, read 6 files
+Let me read the remaining key pages before proceeding.
+
+
+Read 2 files
+Good picture. I'll tackle: (1) WiFi Direct Capacitor plugin with Android native code, (2) wire it into peer.js, (3) fix the lock file so Android CI actually works, (4) set env-based default relay URL. Starting them all in parallel.
+
+
+Ran 8 commands, read a file
+Good — it's an npm workspace, so the lock lives at root. I need to fix the CI workflows to use root-level npm ci + npm run build, and then build the WiFi Direct plugin. Let me do all of this now.
+
+
+Edited 2 files, read a file, created a file
+Now build the WiFi Direct Capacitor plugin. First the plugin package structure, then the Android native code, then the JS integration.
+
+
+Ran a command, created 2 files
+Now the Android Gradle build file:
+
+
+Ran a command, created 2 files
+Now the main Android plugin class:
+
+
+Created 2 files
+Now add the plugin as a file dependency and wire it into the client:
+
+Edited
+package.json
++1
+-0
+Now the JS integration layer in client:
+
+Created
+wifidirect.js
++66
+-0
+Now wire WiFi Direct into peer.js alongside the existing WebRTC layer:
+
+Edited
+peer.js
++28
+-0
+Now set up the env-based default relay URL so a self-hosted relay can be injected at build time:
+
+Edited
+relay.js
++7
+-4
+Now expose VITE_RELAY_URL in the deploy and release workflows:
+
+
+Edited 2 files
+Now update the root package.json to include the plugin in workspaces and run npm install to update the lock file:
+
+
+Edited a file, ran 2 commands
+Lock file is 5749 lines — good. Now check the relay's Dockerfile is solid and the relay/data/ dir is in .gitignore (already done earlier), then commit everything.
+
+
+Read a file, ran 3 commands
+Pushed. Now continuing — there's still more to do. Let me check what else can be improved without user action: the store passes relayUrls: null which means it won't use VITE_RELAY_URL unless we plumb it through. Also worth checking the connStatus.js, alertsPage.js, listPage.js, and making sure the en/da locales are complete and consistent with the other 9.
+
+
+Read 4 files
+Found hardcoded strings in alertsPage.js and listPage.js. Let me fix those and check the Danish locale.
+
+Read
+da.json
+Three hardcoded strings to i18n-ify. Adding keys to all 11 locales and fixing the pages.
+
+
+Edited 2 files
+Now update all 9 other locales in parallel:
+
+
+Edited 9 files
+Now fix the two pages to use the new i18n keys:
+
+
+Edited 2 files
+Now let me also check the relay's federation.js to ensure it's complete, and look at storage.js and i18n.js for any gaps:
+
+
+Read 6 files
+Relay and storage look clean — synchronous SQLite in relay, async IDB in client, correct throughout. Let me read the remaining unread files then commit.
+
+
+Read 4 files
+Let me read the manifest and categories files, then add relay rate limiting.
+
+
+Read 2 files
+Code is solid. I'll add relay rate limiting (IP-based, simple token bucket) and a share_target to the manifest for proper web-share integration with Signal/etc.
+
+First, update the relay:
+
+Edited
+relay.js
++32
+-5
+Now add share_target to the PWA manifest so the app appears in the Android share sheet:
+
+Edited
+manifest.json
++24
+-1
+Now handle the share_target params in newItemPage.js — when the app is opened via a share, pre-fill title and description from URL params:
+
+Edited
+newItemPage.js
++7
+-2
+Now commit and push everything:
+
+
+Ran 3 commands
+Pushed. Let me keep going — there are a few more things I can tighten up. Let me check the mapPage.js and router.js to see if there's anything missing there:
+
+
+Read 3 files
+Found a real bug: map markers don't update their CSS class when an item gets marked as taken (new event replaces old but _markers.has(id) blocks re-creation). Fixing it:
+
+Edited
+map.js
++13
+-5
+Now check the index.html for PWA meta completeness:
+
+
+Read 2 files
+HTML is solid. Adding Open Graph tags for proper Signal/WhatsApp link previews, and mobile-web-app-capable for Android Chrome:
+
+
+Edited a file, read a file
+Let me verify the map.js edit is complete:
+
+Read
+map.js
+Good. Now check filters.js and a sample of app.css for missing styles:
+
+
+Read 2 files
+Found an important bug: when an item is marked as taken, the original event (status=active) stays in the store alongside the taken event, causing the item to still appear as available. Need to handle NIP-33 replaceable events properly.
+
+Also fixing the duplicate relay/data/ in .gitignore.
+
+
+Read a file, edited a file
+Now fix the replaceable event bug. The addEvent function needs to remove the old event when a NIP-33 replaceable event (kind 30402) arrives with same d tag + pubkey:
+
+Edited
+store.js
++19
+-4
+Also fix storage.js so IDB doesn't accumulate stale replaceable events:
+
+Edited
+storage.js
++19
+-0
+Also fix the relay's db.js for the same issue — when a taken event arrives at the relay, delete the old one:
+
+Edited
+db.js
++20
+-0
+Now commit and push everything:
+
+
+Ran 3 commands
+Let me keep going and check for a few more issues — the back-btn is a plain button without type="button" which can cause form submits, and I want to verify the identity.js:
+
+Read
+identity.js
+Let me add in-app notifications for alerts — when a new item arrives that matches a subscription, show a browser notification:
+
+
+Read 2 files, created a file
+Wire it into store.js:
+
+Edited
+store.js
++6
+-0
+Add a notification permission toggle to the settings page:
+
+Edited
+settingsPage.js
++2
+-0
+Now add the notification section before the identity section:
+
+Edited
+settingsPage.js
++18
+-0
+Add the 4 new notification keys to all 11 locale files:
+
+
+Edited 11 files, ran 3 commands
+Pushed. Let me keep going and verify the relay's kbucket.js, then look for anything else:
+
+Read
+kbucket.js
+Found a Docker build issue: the relay Dockerfile uses npm ci but there's no relay/package-lock.json (workspace root has it). Fixing it to use npm install --omit=dev:
+
+Also, the deploy workflow should trigger on version tags so the Pages release matches the GitHub Release:
+
+
+Edited 2 files
+Actually, paths filter with tags in GitHub Actions is unreliable. Let me restructure the deploy workflow to handle this cleanly:
+
+
+Read a file, created a file
+Reverting to the clean deploy.yml — tag-based Pages deploy would require complex YAML (can't have two push keys). The standard flow is: merge to master → Pages deploys, then tag → release.yml handles Docker+GitHub Release:
+
+
+Created a file, ran 4 commands
+Let me now do a final pass — checking what gaps remain and verifying the full file list is consistent:
+
+Ran
+Show recent commits
+Server is temporarily limiting requests
+Too many requests right now — try again in a moment.
+is it possible to use public nostr relays as part of bootstrapping mechanism?
+
+can it be fedrated or something so all data relays somehow talk together about who has what item keys on what geohashes. like a dht or something.
+i just want all sorts of ways to form the mesh plus all sorts of backend syncs that are communicating with eachother through meshes as well.
+
+give me a checklist plan and implement it
+
+Server is temporarily limiting requests
+Too many requests right now — try again in a moment.

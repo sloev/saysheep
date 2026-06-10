@@ -6,8 +6,8 @@
 // discovery; P2P signaling will be silently ignored by those relays.
 const _envRelay = import.meta.env?.VITE_RELAY_URL
 const DEFAULT_RELAYS = _envRelay
-  ? [_envRelay, 'wss://relay.damus.io']
-  : ['wss://relay.damus.io', 'wss://nos.lol']
+  ? [_envRelay, 'wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.snort.social']
+  : ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.snort.social', 'wss://purplepag.es']
 
 // --- Single relay connection ---
 class GleanRelay {

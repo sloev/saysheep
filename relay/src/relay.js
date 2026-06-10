@@ -113,7 +113,13 @@ export const startRelay = (port) => {
     if (n > 0) log.info(`Purged ${n} expired events`)
   }, 3600 * 1000)
 
-  const syncPeers = () => startFederation(config.federation.peers, (ev) => broadcastNostr(ev, null, clients))
+  const syncPeers = () => {
+    const dynamicPeers = p2p.kbucket.all()
+      .filter(p => p.type === 'relay' && p.url) // We need a URL to connect
+      .map(p => p.url)
+    const allPeers = [...new Set([...config.federation.peers, ...config.federation.seeds || [], ...dynamicPeers])]
+    startFederation(allPeers, (ev) => broadcastNostr(ev, null, clients), p2p)
+  }
   syncPeers()
   setInterval(syncPeers, config.federation.sync_interval_minutes * 60 * 1000)
 
