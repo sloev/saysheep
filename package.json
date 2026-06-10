@@ -1,7 +1,7 @@
 {
   "name": "glean",
   "private": true,
-  "workspaces": ["client", "relay"],
+  "workspaces": ["client", "relay", "plugins/glean-wifidirect"],
   "scripts": {
     "dev": "npm run dev --workspace=client",
     "build": "npm run build --workspace=client",

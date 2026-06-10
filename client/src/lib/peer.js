@@ -1,11 +1,13 @@
 // Custom P2P layer: k-bucket peer discovery + WebRTC direct connections
 // Signaling is routed through the relay WebSocket via ["P2P", "SIGNAL", ...] messages.
 // Once a DataChannel is open, Nostr events flow directly peer-to-peer.
+// On Android, also uses WiFi Direct for offline LAN mesh (no internet needed).
 
 import { KBucket, randomNodeId } from './kbucket.js'
 import { sendP2P } from './relay.js'
 import { verifyEvent } from 'nostr-tools'
 import { storeEvent } from './storage.js'
+import { initWifiDirect, sendWifiMessage, connectWifiPeer, stopWifiDirect, isWifiDirectActive } from './wifidirect.js'
 
 const STUN = {
   iceServers: [
@@ -41,6 +43,27 @@ export const initPeer = ({ nodeId, onEvent, onPeerCountChange }) => {
   _kbucket = new KBucket(_nodeId)
   _onEvent = onEvent
   _onPeerCountChange = onPeerCountChange
+
+  // Start WiFi Direct on Android for offline LAN mesh
+  initWifiDirect({
+    onMessage: (msg, fromAddress) => {
+      if (!Array.isArray(msg) || msg[0] !== 'EVENT') return
+      const event = msg[1]
+      if (event && verifyEvent(event)) {
+        storeEvent(event)
+        _onEvent?.(event)
+      }
+    },
+    onPeerChange: (peers) => {
+      // Auto-connect to discovered WiFi Direct peers
+      for (const peer of peers) {
+        if (peer.status === 'available') {
+          connectWifiPeer(peer.address)
+        }
+      }
+    },
+  })
+
   return _nodeId
 }
 
@@ -130,6 +153,11 @@ export const broadcastEvent = (event, geohash) => {
       _dcSend(peer, ['EVENT', event])
       sent++
     }
+  }
+  // Also send over WiFi Direct mesh when available (offline Android)
+  if (isWifiDirectActive()) {
+    sendWifiMessage(['EVENT', event])
+    sent++
   }
   return sent
 }

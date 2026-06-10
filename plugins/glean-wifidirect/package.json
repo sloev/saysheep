@@ -1,0 +1,15 @@
+{
+  "name": "@glean/wifidirect",
+  "version": "1.0.0",
+  "description": "Capacitor plugin for Android WiFi Direct peer-to-peer mesh networking",
+  "main": "src/index.js",
+  "capacitor": {
+    "ios": { "src": "ios" },
+    "android": { "src": "android" }
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=6.0.0"
+  },
+  "keywords": ["capacitor", "plugin", "wifidirect", "p2p"],
+  "license": "MIT"
+}

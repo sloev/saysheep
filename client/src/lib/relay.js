@@ -1,10 +1,13 @@
 // Custom relay client — multiplexes Nostr NIP-01 + P2P protocol
 // on the same WebSocket connection.
 
-const DEFAULT_RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-]
+// VITE_RELAY_URL can be set at build time to inject the self-hosted relay as the
+// first default. Falls back to public Nostr relays that support NIP-01 for item
+// discovery; P2P signaling will be silently ignored by those relays.
+const _envRelay = import.meta.env?.VITE_RELAY_URL
+const DEFAULT_RELAYS = _envRelay
+  ? [_envRelay, 'wss://relay.damus.io']
+  : ['wss://relay.damus.io', 'wss://nos.lol']
 
 // --- Single relay connection ---
 class GleanRelay {
