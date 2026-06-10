@@ -4,6 +4,7 @@ import { setMode, CONNECTIVITY } from '../lib/sync.js'
 import { addRelay, removeRelay, getRelays } from '../lib/relay.js'
 import { getLang, setLang, getSupportedLangs, t } from '../lib/i18n.js'
 import { getPubkey, getSecretKeyHex } from '../lib/identity.js'
+import { requestNotificationPermission, getNotificationPermission } from '../lib/notifications.js'
 const { div, button, input, span, select, option, label, p } = van.tags
 
 export const SettingsPage = () => {
@@ -11,6 +12,7 @@ export const SettingsPage = () => {
   const showPrivkey = van.state(false)
   const currentLang = van.state(getLang())
   const relays = van.state(getRelays())
+  const notifPerm = van.state(getNotificationPermission())
 
   const modes = [
     { value: CONNECTIVITY.BOTH, label: t('settings.connectivity.both') },
@@ -102,6 +104,24 @@ export const SettingsPage = () => {
           }
         }, '+')
       )
+    ),
+
+    // Notifications
+    div({ class: 'settings-section' },
+      div({ class: 'settings-section-title' }, t('settings.notifications')),
+      () => {
+        const perm = notifPerm.val
+        if (perm === 'unsupported') return div({ style: 'font-size:13px;color:var(--muted)' }, t('settings.notifications.unsupported'))
+        if (perm === 'granted') return div({ style: 'font-size:13px;color:var(--mint)' }, '✓ ', t('settings.notifications.enabled'))
+        if (perm === 'denied') return div({ style: 'font-size:13px;color:var(--muted)' }, t('settings.notifications.denied'))
+        return button({
+          class: 'btn btn-sm btn-primary',
+          onclick: async () => {
+            await requestNotificationPermission()
+            notifPerm.val = getNotificationPermission()
+          }
+        }, t('settings.notifications.enable'))
+      }
     ),
 
     // Identity

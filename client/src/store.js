@@ -6,6 +6,7 @@ import { getIdentity } from './lib/identity.js'
 import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.js'
 import { getRelays } from './lib/relay.js'
 import { getItemGeohash, isTaken, isExpired } from './lib/nostr.js'
+import { notifyIfMatches } from './lib/notifications.js'
 
 export const currentItemId = van.state(null)
 
@@ -123,6 +124,11 @@ export const addEvent = (event) => {
   const existing = store.items[event.id]
   if (existing && existing.created_at >= event.created_at) return
   store.items[event.id] = event
+
+  // Notify if this new item matches any alert subscription
+  if (event.kind === 30402 && !isTaken(event)) {
+    notifyIfMatches(event, store.subscriptions)
+  }
 }
 
 export const saveSubscriptions = () => {
