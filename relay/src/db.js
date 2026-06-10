@@ -53,8 +53,28 @@ export const storeEvent = (event) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `)
   const insertTag = db.prepare(`INSERT INTO event_tags (event_id, name, value) VALUES (?, ?, ?)`)
+  const deleteStale = db.prepare(`DELETE FROM events WHERE id = ?`)
+  const findByD = db.prepare(`
+    SELECT e.id, e.created_at FROM events e
+    JOIN event_tags t ON t.event_id = e.id
+    WHERE e.kind = 30402 AND e.pubkey = ? AND t.name = 'd' AND t.value = ?
+    AND e.id != ?
+    LIMIT 1
+  `)
 
   const run = db.transaction((ev) => {
+    // NIP-33: replace older replaceable events with same (pubkey, d-tag)
+    if (ev.kind === 30402) {
+      const dTag = ev.tags.find(t => t[0] === 'd')
+      if (dTag) {
+        const stale = findByD.get(ev.pubkey, dTag[1], ev.id)
+        if (stale) {
+          if (stale.created_at >= ev.created_at) return false // already newer
+          deleteStale.run(stale.id)
+        }
+      }
+    }
+
     const r = insert.run(ev.id, ev.pubkey, ev.created_at, ev.kind,
       JSON.stringify(ev.tags), ev.content, ev.sig, expiry)
     if (r.changes === 0) return false

@@ -48,14 +48,22 @@ export const setupMap = (lng, lat) => {
   van.derive(() => {
     const items = store.items
     for (const [id, event] of Object.entries(items)) {
-      if (_markers.has(id)) continue
+      const taken = isTaken(event)
+      const mine = event.pubkey === store.identity.pubkey
+      const cls = `map-marker ${taken ? 'taken' : ''} ${mine ? 'mine' : ''}`.trim()
+
+      const existing = _markers.get(id)
+      if (existing) {
+        // Update CSS class if taken state changed (e.g. item was just taken)
+        if (existing.el.className !== cls) existing.el.className = cls
+        continue
+      }
+
       const geo = getItemGeo(event)
       if (!geo) continue
 
       const el = document.createElement('div')
-      const taken = isTaken(event)
-      const mine = event.pubkey === store.identity.pubkey
-      el.className = `map-marker ${taken ? 'taken' : ''} ${mine ? 'mine' : ''}`
+      el.className = cls
       el.title = getItemTitle(event) || '📦'
 
       const marker = new maplibregl.Marker({ element: el })
@@ -67,7 +75,7 @@ export const setupMap = (lng, lat) => {
         cone.navigate('item', {})
       })
 
-      _markers.set(id, marker)
+      _markers.set(id, { marker, el })
     }
   })
 }

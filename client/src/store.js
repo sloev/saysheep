@@ -102,11 +102,26 @@ export const onMapBoundsChange = async ({ sw, ne, zoom }) => {
 
 export const addEvent = (event) => {
   if (!event?.id) return
-  const existingRaw = store.items[event.id]
-  const existing = existingRaw
-  // Prefer newer events (replaceable events)
-  if (existing && existing.created_at >= event.created_at) return
   if (isExpired(event)) return
+
+  // NIP-33: kind 30402 is a replaceable event keyed by (pubkey, d-tag).
+  // If a newer version arrives, remove the old event from the store.
+  if (event.kind === 30402) {
+    const d = event.tags.find(t => t[0] === 'd')?.[1]
+    if (d) {
+      for (const [id, ev] of Object.entries(store.items)) {
+        if (ev.kind === 30402 && ev.pubkey === event.pubkey &&
+            ev.tags.find(t => t[0] === 'd')?.[1] === d) {
+          if (ev.created_at >= event.created_at) return // already have newer/same
+          delete store.items[id] // remove stale version
+          break
+        }
+      }
+    }
+  }
+
+  const existing = store.items[event.id]
+  if (existing && existing.created_at >= event.created_at) return
   store.items[event.id] = event
 }
 

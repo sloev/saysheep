@@ -22,6 +22,25 @@ const db = async () => {
 export const storeEvent = async (event) => {
   const d = await db()
   const tx = d.transaction('events', 'readwrite')
+
+  // NIP-33: for kind 30402, replace older events with same (pubkey, d-tag)
+  if (event.kind === 30402) {
+    const dTag = event.tags.find(t => t[0] === 'd')?.[1]
+    if (dTag) {
+      const all = await tx.store.index('kind').getAll(30402)
+      for (const ev of all) {
+        if (ev.pubkey === event.pubkey &&
+            ev.tags.find(t => t[0] === 'd')?.[1] === dTag &&
+            ev.id !== event.id) {
+          if (ev.created_at >= event.created_at) {
+            await tx.done; return // already have newer
+          }
+          await tx.store.delete(ev.id) // remove stale
+        }
+      }
+    }
+  }
+
   const existing = await tx.store.get(event.id)
   if (!existing) await tx.store.put(event)
   await tx.done
