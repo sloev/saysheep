@@ -90,7 +90,14 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+
+# Build output (keep client/dist out of git — CI deploys it)
+client/dist/
+relay/data/
+
+# Capacitor Android project — generated fresh in CI
+client/android/
+client/ios/
 
 # Gatsby files
 .cache/

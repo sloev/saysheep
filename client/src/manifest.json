@@ -1,0 +1,39 @@
+{
+  "name": "Glean",
+  "short_name": "Glean",
+  "description": "free stuff, found together ✿",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f0e8",
+  "theme_color": "#e8547a",
+  "icons": [
+    { "src": "images/icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "images/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "categories": ["shopping", "lifestyle", "social"],
+  "screenshots": [],
+  "share_target": {
+    "action": "/new",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "description",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "Give something away",
+      "short_name": "Give away",
+      "url": "/new",
+      "icons": [{ "src": "images/new.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Browse nearby",
+      "short_name": "Browse",
+      "url": "/list",
+      "icons": [{ "src": "images/list.png", "sizes": "192x192" }]
+    }
+  ]
+}
