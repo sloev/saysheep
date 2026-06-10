@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npm run dev --workspace=client",
     "build": "npm run build --workspace=client",
-    "relay": "npm run start --workspace=relay"
+    "relay": "npm run start --workspace=relay",
+    "cap:sync": "npm run build --workspace=client && cd client && npx cap sync android"
   }
 }

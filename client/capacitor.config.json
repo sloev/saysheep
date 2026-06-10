@@ -1,7 +1,7 @@
 {
   "appId": "earth.glean.app",
   "appName": "Glean",
-  "webDir": "client/dist",
+  "webDir": "dist",
   "server": {
     "androidScheme": "https"
   },

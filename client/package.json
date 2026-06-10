@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
     "@noble/hashes": "^1.4.0",
     "idb": "^8.0.0",
     "maplibre-gl": "^3.6.2",
@@ -23,6 +25,7 @@
     "vanjs-ext": "^0.2.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "process": "^0.11.10",
