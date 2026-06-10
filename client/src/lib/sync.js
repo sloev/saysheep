@@ -1,6 +1,6 @@
 import { getIdentity } from './identity.js'
-import { initRelay, publishEvent as relayPublish, subscribeArea as relaySubscribeArea, subscribeChat as relaySubscribeChat, getRelays } from './relay.js'
-import { initPeer, joinAreaRoom, broadcastEvent as peerBroadcast, leaveAreaRoom } from './peer.js'
+import { initRelay, publishEvent as relayPublish, subscribeArea as relaySubscribeArea, subscribeChat as relaySubscribeChat } from './relay.js'
+import { initPeer, handleP2PMessage, announceGeohash, leaveGeohash, broadcastEvent as peerBroadcast } from './peer.js'
 import { storeEvent, getItemsByGeohash, getChatForItem, purgeExpired } from './storage.js'
 import { isWebXDC, webxdcSend, webxdcListen } from './webxdc.js'
 import { buildItemEvent, buildTakenEvent, buildChatEvent, buildDeleteEvent, getItemGeohash } from './nostr.js'
@@ -12,10 +12,11 @@ export const CONNECTIVITY = {
 }
 
 let _mode = CONNECTIVITY.BOTH
-let _areaUnsubs = new Map() // geohash -> [unsub fns]
-let _chatUnsubs = new Map() // itemId -> [unsub fns]
+let _areaUnsubs = new Map()
+let _chatUnsubs = new Map()
 let _onPeerCount = null
 let _onRelayCount = null
+let _peerEventHandler = null
 
 export const getMode = () => _mode
 export const setMode = (mode) => {
@@ -30,45 +31,43 @@ export const initSync = ({ onPeerCount, onRelayCount, relayUrls }) => {
 
   if (!isWebXDC()) {
     if (_mode !== CONNECTIVITY.PEERS) {
-      initRelay(relayUrls)
+      // Pass P2P message router so relay WebSocket forwards signaling to peer layer
+      initRelay(relayUrls, handleP2PMessage)
     }
     if (_mode !== CONNECTIVITY.RELAYS) {
-      initPeer(onPeerCount)
+      initPeer({
+        nodeId: null, // loads from localStorage or generates fresh
+        onEvent: (event) => _peerEventHandler?.(event),
+        onPeerCountChange: onPeerCount,
+      })
     }
   } else {
-    webxdcListen((event) => {
-      storeEvent(event)
-    })
+    webxdcListen((event) => storeEvent(event))
   }
 
-  // Purge old events on startup
   purgeExpired()
 }
 
 export const subscribeArea = async (geohash, onEvent) => {
-  // First serve from local cache
+  _peerEventHandler = onEvent
+
+  // Serve local cache immediately
   const cached = await getItemsByGeohash(geohash)
   cached.forEach(onEvent)
 
-  // Active subscriptions
   const unsubs = []
 
   if (!isWebXDC()) {
     if (_mode !== CONNECTIVITY.PEERS) {
-      // Subscribe to relay for this area (use multiple precision prefixes)
       const prefixes = []
-      for (let i = 2; i <= Math.min(geohash.length, 6); i++) {
-        prefixes.push(geohash.slice(0, i))
-      }
-      const unsub = relaySubscribeArea(prefixes, onEvent, null)
-      unsubs.push(unsub)
+      for (let i = 2; i <= Math.min(geohash.length, 6); i++) prefixes.push(geohash.slice(0, i))
+      unsubs.push(relaySubscribeArea(prefixes, onEvent, null))
     }
 
     if (_mode !== CONNECTIVITY.RELAYS) {
-      // Join Trystero room for this geohash
-      const areaHash = geohash.slice(0, 4) // ~40x20km room
-      const unsub = joinAreaRoom(areaHash, onEvent)
-      unsubs.push(unsub)
+      const areaHash = geohash.slice(0, 4)
+      announceGeohash(areaHash)
+      unsubs.push(() => leaveGeohash(areaHash))
     }
   }
 
@@ -83,7 +82,7 @@ export const unsubscribeArea = (geohash) => {
   const unsubs = _areaUnsubs.get(geohash) || []
   unsubs.forEach(fn => fn())
   _areaUnsubs.delete(geohash)
-  leaveAreaRoom(geohash.slice(0, 4))
+  leaveGeohash(geohash.slice(0, 4))
 }
 
 export const subscribeChat = async (itemEventId, onMessage) => {
@@ -91,10 +90,8 @@ export const subscribeChat = async (itemEventId, onMessage) => {
   cached.forEach(onMessage)
 
   const unsubs = []
-
   if (!isWebXDC() && _mode !== CONNECTIVITY.PEERS) {
-    const unsub = relaySubscribeChat(itemEventId, onMessage)
-    unsubs.push(unsub)
+    unsubs.push(relaySubscribeChat(itemEventId, onMessage))
   }
 
   _chatUnsubs.set(itemEventId, unsubs)
@@ -105,10 +102,8 @@ export const subscribeChat = async (itemEventId, onMessage) => {
 }
 
 export const publishItem = async ({ title, description, tags, photo, geo, availableUntil }) => {
-  const { secretKey, pubkey } = getIdentity()
-  const id = crypto.randomUUID()
-  const event = buildItemEvent({ secretKey, id, title, description, tags, photo, geo, availableUntil })
-
+  const { secretKey } = getIdentity()
+  const event = buildItemEvent({ secretKey, id: crypto.randomUUID(), title, description, tags, photo, geo, availableUntil })
   await storeEvent(event)
   await _broadcast(event, geo)
   return event
@@ -147,10 +142,7 @@ export const deleteItem = async (event) => {
 }
 
 const _broadcast = async (event, geo, originalEvent) => {
-  if (isWebXDC()) {
-    webxdcSend(event)
-    return
-  }
+  if (isWebXDC()) { webxdcSend(event); return }
   if (_mode !== CONNECTIVITY.PEERS) await relayPublish(event)
   if (_mode !== CONNECTIVITY.RELAYS) {
     const src = originalEvent || event

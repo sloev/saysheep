@@ -1,77 +1,326 @@
-import { joinRoom } from 'trystero'
-import { storeEvent } from './storage.js'
+// Custom P2P layer: k-bucket peer discovery + WebRTC direct connections
+// Signaling is routed through the relay WebSocket via ["P2P", "SIGNAL", ...] messages.
+// Once a DataChannel is open, Nostr events flow directly peer-to-peer.
+
+import { KBucket, randomNodeId } from './kbucket.js'
+import { sendP2P } from './relay.js'
 import { verifyEvent } from 'nostr-tools'
+import { storeEvent } from './storage.js'
 
-const APP_ID = 'glean-v1'
-const TRACKER_URLS = [
-  'wss://tracker.btorrent.xyz',
-  'wss://tracker.openwebtorrent.com',
-]
+const STUN = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+  ],
+}
 
-const rooms = new Map() // geohash -> { room, sendEvent, onEvent, peerCount }
+// --- State ---
+let _nodeId = null
+let _kbucket = null
+let _peers = new Map()          // nodeId -> PeerConn
+let _pendingIce = new Map()     // nodeId -> [ICE candidates queued before remote desc]
+let _onEvent = null
 let _onPeerCountChange = null
-let _totalPeers = 0
+let _activeGeohashes = new Set()
 
-export const initPeer = (onPeerCountChange) => {
+class PeerConn {
+  constructor(nodeId, initiator) {
+    this.nodeId = nodeId
+    this.initiator = initiator
+    this.pc = new RTCPeerConnection(STUN)
+    this.dc = null
+    this.state = 'connecting' // connecting | open | closed
+    this.geohashes = []
+  }
+}
+
+// --- Init ---
+
+export const initPeer = ({ nodeId, onEvent, onPeerCountChange }) => {
+  _nodeId = nodeId || getOrCreateNodeId()
+  _kbucket = new KBucket(_nodeId)
+  _onEvent = onEvent
   _onPeerCountChange = onPeerCountChange
+  return _nodeId
 }
 
-const getRoomKey = (geohash) => `${APP_ID}:${geohash}`
+export const getNodeId = () => _nodeId
 
-export const joinAreaRoom = (geohash, onEvent) => {
-  if (rooms.has(geohash)) {
-    const existing = rooms.get(geohash)
-    return () => leaveAreaRoom(geohash)
+const getOrCreateNodeId = () => {
+  let id = localStorage.getItem('glean_node_id')
+  if (!id) {
+    id = randomNodeId()
+    localStorage.setItem('glean_node_id', id)
   }
-
-  let room
-  try {
-    room = joinRoom(
-      { appId: APP_ID, trackerUrls: TRACKER_URLS },
-      getRoomKey(geohash)
-    )
-  } catch (e) {
-    console.warn('Trystero room join failed:', e)
-    return () => {}
-  }
-
-  const [sendEvent, receiveEvent] = room.makeAction('nostr-event')
-
-  room.onPeerJoin(() => {
-    _totalPeers++
-    _onPeerCountChange?.(_totalPeers)
-  })
-  room.onPeerLeave(() => {
-    _totalPeers = Math.max(0, _totalPeers - 1)
-    _onPeerCountChange?.(_totalPeers)
-  })
-
-  receiveEvent((data) => {
-    try {
-      const event = typeof data === 'string' ? JSON.parse(data) : data
-      if (!verifyEvent(event)) return
-      storeEvent(event)
-      onEvent(event)
-    } catch {}
-  })
-
-  rooms.set(geohash, { room, sendEvent })
-  return () => leaveAreaRoom(geohash)
+  return id
 }
 
+// --- Called by relay.js when a P2P message arrives from the relay ---
+
+export const handleP2PMessage = (msg) => {
+  if (!Array.isArray(msg)) return
+  const [, type, ...args] = msg
+
+  switch (type) {
+    case 'HELLO': {
+      // Relay responds with its nodeId + list of k closest known peers
+      const [relayNodeId, peers] = args
+      if (relayNodeId) _kbucket.add({ id: relayNodeId, type: 'relay' })
+      for (const p of (peers || []).slice(0, 20)) {
+        if (p.nodeId && p.nodeId !== _nodeId) {
+          _kbucket.add({ id: p.nodeId })
+          _maybeConnect(p.nodeId)
+        }
+      }
+      break
+    }
+
+    case 'PEERS': {
+      // Response to a FIND query
+      const peers = args[1] || []
+      for (const p of peers.slice(0, 20)) {
+        if (p.nodeId && p.nodeId !== _nodeId) {
+          _kbucket.add({ id: p.nodeId })
+          _maybeConnect(p.nodeId)
+        }
+      }
+      break
+    }
+
+    case 'SIGNAL': {
+      // Inbound WebRTC signaling routed from another peer via relay
+      const [from, to, payload] = args
+      if (to !== _nodeId) return
+      _handleSignal(from, payload)
+      break
+    }
+
+    case '_connected': {
+      // Relay WebSocket just connected — announce ourselves
+      sendP2P(['P2P', 'HELLO', _nodeId, [..._activeGeohashes]])
+      break
+    }
+  }
+}
+
+// --- Area subscription (geohash-based pub/sub) ---
+
+export const announceGeohash = (geohash) => {
+  _activeGeohashes.add(geohash)
+  sendP2P(['P2P', 'ANNOUNCE', _nodeId, geohash])
+  // Find peers serving this geohash
+  const reqId = Math.random().toString(36).slice(2)
+  sendP2P(['P2P', 'FIND', reqId, geohash])
+}
+
+export const leaveGeohash = (geohash) => {
+  _activeGeohashes.delete(geohash)
+}
+
+// Broadcast a Nostr event to all peers interested in any matching geohash prefix
 export const broadcastEvent = (event, geohash) => {
-  const roomData = rooms.get(geohash)
-  if (!roomData) return
+  const prefix = geohash.slice(0, 4)
+  let sent = 0
+  for (const peer of _peers.values()) {
+    if (peer.state !== 'open') continue
+    const interested = peer.geohashes.some(g =>
+      g.startsWith(prefix) || prefix.startsWith(g.slice(0, 4))
+    )
+    if (interested || peer.geohashes.length === 0) {
+      _dcSend(peer, ['EVENT', event])
+      sent++
+    }
+  }
+  return sent
+}
+
+export const getPeerCount = () =>
+  [..._peers.values()].filter(p => p.state === 'open').length
+
+// --- WebRTC connection management ---
+
+const _maybeConnect = (targetNodeId) => {
+  if (targetNodeId === _nodeId) return
+  if (_peers.has(targetNodeId)) return
+  if (_peers.size >= 30) return // cap connections
+  _initiateConnection(targetNodeId)
+}
+
+const _initiateConnection = async (targetNodeId) => {
+  const peer = new PeerConn(targetNodeId, true)
+  _peers.set(targetNodeId, peer)
+
+  peer.dc = peer.pc.createDataChannel('glean', { ordered: false, maxRetransmits: 2 })
+  _wireDataChannel(peer)
+  _wireICE(peer)
+
   try {
-    roomData.sendEvent(event)
-  } catch {}
+    const offer = await peer.pc.createOffer()
+    await peer.pc.setLocalDescription(offer)
+    sendP2P(['P2P', 'SIGNAL', _nodeId, targetNodeId, { type: 'offer', sdp: offer.sdp }])
+  } catch {
+    _cleanupPeer(targetNodeId)
+  }
 }
 
-export const leaveAreaRoom = (geohash) => {
-  const roomData = rooms.get(geohash)
-  if (!roomData) return
-  try { roomData.room.leave() } catch {}
-  rooms.delete(geohash)
+const _handleSignal = async (fromNodeId, payload) => {
+  try {
+    if (payload.type === 'offer') {
+      // We are the answerer — create peer if not exists
+      if (_peers.has(fromNodeId)) return // already connecting, ignore duplicate
+      const peer = new PeerConn(fromNodeId, false)
+      _peers.set(fromNodeId, peer)
+
+      peer.pc.ondatachannel = ({ channel }) => {
+        peer.dc = channel
+        _wireDataChannel(peer)
+      }
+      _wireICE(peer)
+
+      await peer.pc.setRemoteDescription({ type: 'offer', sdp: payload.sdp })
+      await _drainPendingIce(peer)
+
+      const answer = await peer.pc.createAnswer()
+      await peer.pc.setLocalDescription(answer)
+      sendP2P(['P2P', 'SIGNAL', _nodeId, fromNodeId, { type: 'answer', sdp: answer.sdp }])
+
+    } else if (payload.type === 'answer') {
+      const peer = _peers.get(fromNodeId)
+      if (!peer || peer.pc.signalingState !== 'have-local-offer') return
+      await peer.pc.setRemoteDescription({ type: 'answer', sdp: payload.sdp })
+      await _drainPendingIce(peer)
+
+    } else if (payload.type === 'ice') {
+      const peer = _peers.get(fromNodeId)
+      if (!peer) return
+      if (peer.pc.remoteDescription) {
+        await peer.pc.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(() => {})
+      } else {
+        // Queue until remote description is set
+        if (!_pendingIce.has(fromNodeId)) _pendingIce.set(fromNodeId, [])
+        _pendingIce.get(fromNodeId).push(payload.candidate)
+      }
+    }
+  } catch (e) {
+    _cleanupPeer(fromNodeId)
+  }
 }
 
-export const getPeerCount = () => _totalPeers
+const _drainPendingIce = async (peer) => {
+  const queued = _pendingIce.get(peer.nodeId) || []
+  _pendingIce.delete(peer.nodeId)
+  for (const c of queued) {
+    await peer.pc.addIceCandidate(new RTCIceCandidate(c)).catch(() => {})
+  }
+}
+
+const _wireICE = (peer) => {
+  peer.pc.onicecandidate = ({ candidate }) => {
+    if (candidate) {
+      sendP2P(['P2P', 'SIGNAL', _nodeId, peer.nodeId, {
+        type: 'ice',
+        candidate: candidate.toJSON(),
+      }])
+    }
+  }
+  peer.pc.onconnectionstatechange = () => {
+    if (['failed', 'closed', 'disconnected'].includes(peer.pc.connectionState)) {
+      _cleanupPeer(peer.nodeId)
+    }
+  }
+}
+
+const _wireDataChannel = (peer) => {
+  peer.dc.onopen = () => {
+    peer.state = 'open'
+    _kbucket.add({ id: peer.nodeId })
+    _onPeerCountChange?.(getPeerCount())
+
+    // Introduce ourselves: share nodeId + active geohashes
+    _dcSend(peer, ['P2P', 'HELLO', _nodeId, [..._activeGeohashes]])
+
+    // Ask for their k closest peers (expand our routing table)
+    _dcSend(peer, ['P2P', 'FIND', Math.random().toString(36).slice(2), _nodeId])
+  }
+
+  peer.dc.onclose = () => {
+    _cleanupPeer(peer.nodeId)
+  }
+
+  peer.dc.onmessage = ({ data }) => {
+    try {
+      _handlePeerMessage(peer, JSON.parse(data))
+    } catch {}
+  }
+
+  peer.dc.onerror = () => _cleanupPeer(peer.nodeId)
+}
+
+const _handlePeerMessage = (peer, msg) => {
+  if (!Array.isArray(msg) || !msg.length) return
+  const [type, ...args] = msg
+
+  if (type === 'EVENT') {
+    const event = args[0]
+    if (event && verifyEvent(event)) {
+      storeEvent(event)
+      _onEvent?.(event)
+    }
+    return
+  }
+
+  if (type === 'P2P') {
+    const subtype = args[0]
+
+    if (subtype === 'HELLO') {
+      // They shared their geohashes
+      const [, theirNodeId, theirGeohashes] = args
+      peer.geohashes = theirGeohashes || []
+      _kbucket.add({ id: peer.nodeId, geohashes: peer.geohashes })
+
+      // Gossip: share our k closest peers back to them
+      const closest = _kbucket.closest(peer.nodeId, 8)
+        .filter(p => p.id !== peer.nodeId && p.id !== _nodeId)
+        .map(p => ({ nodeId: p.id }))
+      if (closest.length) {
+        _dcSend(peer, ['P2P', 'PEERS', null, closest])
+      }
+    }
+
+    if (subtype === 'PEERS') {
+      // They shared their known peers — try to connect
+      const newPeers = args[2] || []
+      for (const p of newPeers.slice(0, 10)) {
+        if (p.nodeId && p.nodeId !== _nodeId && !_peers.has(p.nodeId)) {
+          _kbucket.add({ id: p.nodeId })
+          if (_peers.size < 25) _initiateConnection(p.nodeId)
+        }
+      }
+    }
+
+    if (subtype === 'FIND') {
+      // They want k peers closest to a target
+      const [, reqId, targetId] = args
+      const closest = _kbucket.closest(targetId || _nodeId, 10)
+        .filter(p => p.id !== peer.nodeId)
+        .map(p => ({ nodeId: p.id }))
+      _dcSend(peer, ['P2P', 'PEERS', reqId, closest])
+    }
+  }
+}
+
+const _dcSend = (peer, msg) => {
+  if (peer.dc?.readyState === 'open') {
+    try { peer.dc.send(JSON.stringify(msg)) } catch {}
+  }
+}
+
+const _cleanupPeer = (nodeId) => {
+  const peer = _peers.get(nodeId)
+  if (!peer) return
+  try { peer.pc.close() } catch {}
+  peer.state = 'closed'
+  _peers.delete(nodeId)
+  _kbucket.remove(nodeId)
+  _onPeerCountChange?.(getPeerCount())
+}
