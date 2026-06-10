@@ -5,10 +5,13 @@ import { storeEvent, queryEvents, deleteEvent, deleteExpired } from './db.js'
 import { matchesAny } from './filters.js'
 import { startFederation } from './federation.js'
 import { RelayP2P } from './p2p.js'
+import { GleanIroh } from './iroh.js'
+import { RelayBootstrap } from './bootstrap.js'
 import { createLogger } from './logger.js'
-import config from '../relay.config.json' assert { type: 'json' }
+import config from '../relay.config.json' with { type: 'json' }
 
 const log = createLogger('relay')
+let iroh
 
 const subscriptions = new Map()
 
@@ -35,6 +38,20 @@ setInterval(() => {
 
 export const startRelay = (port) => {
   const p2p = new RelayP2P()
+  iroh = new GleanIroh()
+  iroh.start()
+
+  const bootstrap = new RelayBootstrap(p2p)
+  bootstrap.start()
+
+  iroh.onEvent = (event) => {
+    const stored = storeEvent(event)
+    if (stored) {
+      log.info(`[iroh-gossip] Received new event ${event.id.slice(0, 8)}`)
+      broadcastNostr(event, null, clients)
+    }
+  }
+
   const server = createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     if (req.url === '/stats') {
@@ -118,7 +135,10 @@ export const startRelay = (port) => {
       .filter(p => p.type === 'relay' && p.url) // We need a URL to connect
       .map(p => p.url)
     const allPeers = [...new Set([...config.federation.peers, ...config.federation.seeds || [], ...dynamicPeers])]
-    startFederation(allPeers, (ev) => broadcastNostr(ev, null, clients), p2p)
+    startFederation(allPeers, (ev) => {
+      broadcastNostr(ev, null, clients)
+      iroh?.broadcastEvent(ev)
+    }, p2p)
   }
   syncPeers()
   setInterval(syncPeers, config.federation.sync_interval_minutes * 60 * 1000)
@@ -159,7 +179,10 @@ const handleEvent = (ws, event, clients, ip) => {
   }
   const stored = storeEvent(event)
   ws.send(JSON.stringify(['OK', event.id, true, stored ? '' : 'duplicate']))
-  if (stored) broadcastNostr(event, ws, clients)
+  if (stored) {
+    broadcastNostr(event, ws, clients)
+    iroh?.broadcastEvent(event)
+  }
 }
 
 const broadcastNostr = (event, senderWs, clients) => {

@@ -144,8 +144,3 @@ export class RelayP2P {
     }
   }
 }
-
-      clients: this.clients.size,
-    }
-  }
-}

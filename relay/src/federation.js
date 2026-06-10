@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws'
 import { storeEvent, getMeta, setMeta } from './db.js'
 import { createLogger } from './logger.js'
-import config from '../relay.config.json' assert { type: 'json' }
+import config from '../relay.config.json' with { type: 'json' }
 
 const log = createLogger('federation')
 
