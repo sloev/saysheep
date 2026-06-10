@@ -1,0 +1,14 @@
+{
+  "app.name": "Glean",
+  "app.tagline": "मुफ्त सामान, साथ मिलें ✿",
+  "nav.map": "नक्शा",
+  "nav.list": "सूची",
+  "nav.new": "दान करें",
+  "nav.alerts": "अलर्ट",
+  "nav.settings": "सेटिंग्स",
+  "item.take": "लो! ✿",
+  "item.taken": "लिया गया ✓",
+  "new.submit": "पोस्ट करें! ✿",
+  "list.empty": "अभी कुछ नहीं — पहले पोस्ट करें!",
+  "connectivity.offline": "ऑफलाइन"
+}

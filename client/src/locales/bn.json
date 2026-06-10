@@ -1,0 +1,14 @@
+{
+  "app.name": "Glean",
+  "app.tagline": "বিনামূল্যের জিনিস, একসাথে খুঁজুন ✿",
+  "nav.map": "মানচিত্র",
+  "nav.list": "তালিকা",
+  "nav.new": "দান করুন",
+  "nav.alerts": "সতর্কতা",
+  "nav.settings": "সেটিংস",
+  "item.take": "নিন! ✿",
+  "item.taken": "নেওয়া হয়েছে ✓",
+  "new.submit": "পোস্ট করুন! ✿",
+  "list.empty": "এখনো কিছু নেই — প্রথম পোস্ট করুন!",
+  "connectivity.offline": "অফলাইন"
+}

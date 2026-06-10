@@ -1,0 +1,14 @@
+{
+  "app.name": "Glean",
+  "app.tagline": "coisas grátis, encontradas juntos ✿",
+  "nav.map": "mapa",
+  "nav.list": "lista",
+  "nav.new": "dar",
+  "nav.alerts": "alertas",
+  "nav.settings": "configurações",
+  "item.take": "PEGAR! ✿",
+  "item.taken": "pego ✓",
+  "new.submit": "publicar! ✿",
+  "list.empty": "Nada aqui ainda — seja o primeiro!",
+  "connectivity.offline": "offline"
+}

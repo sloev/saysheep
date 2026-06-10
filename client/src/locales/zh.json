@@ -1,0 +1,14 @@
+{
+  "app.name": "Glean",
+  "app.tagline": "免费物品，一起找 ✿",
+  "nav.map": "地图",
+  "nav.list": "列表",
+  "nav.new": "赠送",
+  "nav.alerts": "提醒",
+  "nav.settings": "设置",
+  "item.take": "拿走! ✿",
+  "item.taken": "已被拿走 ✓",
+  "new.submit": "发布! ✿",
+  "list.empty": "这里还没有东西 — 成为第一个发布的人!",
+  "connectivity.offline": "离线"
+}

@@ -1,0 +1,14 @@
+{
+  "app.name": "Glean",
+  "app.tagline": "無料のもの、みんなで見つけよう ✿",
+  "nav.map": "地図",
+  "nav.list": "リスト",
+  "nav.new": "あげる",
+  "nav.alerts": "通知",
+  "nav.settings": "設定",
+  "item.take": "もらう! ✿",
+  "item.taken": "もらわれました ✓",
+  "new.submit": "投稿! ✿",
+  "list.empty": "まだ何もありません — 最初に投稿して!",
+  "connectivity.offline": "オフライン"
+}
