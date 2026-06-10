@@ -122,9 +122,13 @@ class GleanRelay {
 let _relays = []
 let _connections = new Map() // url -> GleanRelay
 let _p2pHandler = null
+let _onCountChange = null
 
-export const initRelay = (relayUrls, onP2PMessage) => {
+const _emitCount = () => _onCountChange?.(getRelayCount())
+
+export const initRelay = (relayUrls, onP2PMessage, onCountChange) => {
   _p2pHandler = onP2PMessage
+  _onCountChange = onCountChange
   _relays = relayUrls?.length ? relayUrls : getStoredRelays()
   for (const url of _relays) {
     if (!_connections.has(url)) {
@@ -133,7 +137,10 @@ export const initRelay = (relayUrls, onP2PMessage) => {
   }
 }
 
-const _routeP2P = (msg) => _p2pHandler?.(msg)
+const _routeP2P = (msg) => {
+  if (msg?.type === '_connected' || msg?.type === '_disconnected') _emitCount()
+  _p2pHandler?.(msg)
+}
 
 export const getRelays = () => _relays
 

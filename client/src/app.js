@@ -1,8 +1,14 @@
 import van from 'vanjs-core'
-import { initStore, store } from './store.js'
+import { initStore } from './store.js'
 import { Loading } from './fragments/loading.js'
 import { NavBar } from './fragments/navBar.js'
 import { routerElement } from './router.js'
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () =>
+    navigator.serviceWorker.register('./sw.js').catch(() => {})
+  )
+}
 
 const { div } = van.tags
 

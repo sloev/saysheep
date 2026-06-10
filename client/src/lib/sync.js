@@ -31,8 +31,7 @@ export const initSync = ({ onPeerCount, onRelayCount, relayUrls }) => {
 
   if (!isWebXDC()) {
     if (_mode !== CONNECTIVITY.PEERS) {
-      // Pass P2P message router so relay WebSocket forwards signaling to peer layer
-      initRelay(relayUrls, handleP2PMessage)
+      initRelay(relayUrls, handleP2PMessage, onRelayCount)
     }
     if (_mode !== CONNECTIVITY.RELAYS) {
       initPeer({
