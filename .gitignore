@@ -90,7 +90,10 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+
+# Build output (keep client/dist out of git — CI deploys it)
+client/dist/
+relay/data/
 
 # Gatsby files
 .cache/

@@ -1,0 +1,13 @@
+{
+  "appId": "earth.glean.app",
+  "appName": "Glean",
+  "webDir": "client/dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
