@@ -54,7 +54,7 @@ export const initStore = async () => {
 
   // Load subscriptions from localStorage
   try {
-    const s = localStorage.getItem('glean_subscriptions')
+    const s = localStorage.getItem('saysheep_subscriptions')
     if (s) store.subscriptions = JSON.parse(s) || []
   } catch {}
 
@@ -134,7 +134,7 @@ export const addEvent = (event) => {
 }
 
 export const saveSubscriptions = () => {
-  localStorage.setItem('glean_subscriptions', JSON.stringify(store.subscriptions || []))
+  localStorage.setItem('saysheep_subscriptions', JSON.stringify(store.subscriptions || []))
 }
 
 export const addSubscription = (geohash, tags, label) => {

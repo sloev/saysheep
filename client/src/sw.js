@@ -1,4 +1,4 @@
-const CACHE = 'glean-v1'
+const CACHE = 'saysheep-v1'
 const PRECACHE = ['./', './app.css', './maplibre-gl.css', './manifest.json', './images/icon.png']
 
 self.addEventListener('install', (e) => {

@@ -1,4 +1,4 @@
-package earth.glean.wifidirect;
+package earth.saysheep.wifidirect;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;

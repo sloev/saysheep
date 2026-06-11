@@ -36,8 +36,8 @@ export class RelayBootstrap {
     // Construct NIP-99 kind:30402 presence event
     // The "d" tag makes it replaceable so we don't spam the relay.
     const tags = [
-      ['d', `glean-relay:${this.p2p.nodeId}`],
-      ['t', 'glean-relay'],
+      ['d', `saysheep-relay:${this.p2p.nodeId}`],
+      ['t', 'saysheep-relay'],
       ['g', '00000'],
       ['expiry', String(now + 2 * 86400)]
     ]
@@ -85,12 +85,12 @@ export class RelayBootstrap {
         ws.send(JSON.stringify(['EVENT', presenceEvent]))
       }
 
-      // 2. Query for other Glean relays' presence
+      // 2. Query for other saysheep relays' presence
       // Fetch active relays (since 2 days ago)
       const since = Math.floor(Date.now() / 1000) - 2 * 86400
       ws.send(JSON.stringify(['REQ', subId, {
         kinds: [30402],
-        '#t': ['glean-relay'],
+        '#t': ['saysheep-relay'],
         since
       }]))
     })
@@ -101,8 +101,8 @@ export class RelayBootstrap {
         if (msg[0] === 'EVENT' && msg[1] === subId) {
           const ev = msg[2]
           const dTag = ev.tags.find(t => t[0] === 'd')
-          if (dTag && dTag[1].startsWith('glean-relay:')) {
-            const peerNodeId = dTag[1].replace('glean-relay:', '')
+          if (dTag && dTag[1].startsWith('saysheep-relay:')) {
+            const peerNodeId = dTag[1].replace('saysheep-relay:', '')
             if (peerNodeId === this.p2p.nodeId) return // Skip ourselves
 
             const urlTag = ev.tags.find(t => t[0] === 'url')

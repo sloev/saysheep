@@ -11,7 +11,7 @@
   "dependencies": {
     "@capacitor/android": "^6.0.0",
     "@capacitor/core": "^6.0.0",
-    "@glean/wifidirect": "file:../plugins/glean-wifidirect",
+    "@saysheep/wifidirect": "file:../plugins/saysheep-wifidirect",
     "@noble/hashes": "^1.4.0",
     "idb": "^8.0.0",
     "maplibre-gl": "^3.6.2",

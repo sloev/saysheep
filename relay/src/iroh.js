@@ -5,10 +5,10 @@ import fs from 'fs'
 
 const log = createLogger('iroh')
 const topicBytes = Buffer.alloc(32)
-Buffer.from('glean-nostr-v1').copy(topicBytes)
+Buffer.from('saysheep-nostr-v1').copy(topicBytes)
 const GOSSIP_TOPIC = Array.from(topicBytes)
 
-export class GleanIroh {
+export class saysheepIroh {
   constructor() {
     this.node = null
     this.nodeId = null
@@ -49,7 +49,7 @@ export class GleanIroh {
         this._handleGossipMessage(msg)
       })
 
-      log.info(`Joined Gossip topic: glean-nostr-v1 | bootstrap peers: ${bootstrapList.length}`)
+      log.info(`Joined Gossip topic: saysheep-nostr-v1 | bootstrap peers: ${bootstrapList.length}`)
     } catch (e) {
       log.error(`Failed to resubscribe to Gossip: ${e.message}`)
     }
@@ -115,7 +115,7 @@ export class GleanIroh {
     if (!this.node) return {}
     return {
       nodeId: this.nodeId,
-      topic: 'glean-nostr-v1'
+      topic: 'saysheep-nostr-v1'
     }
   }
 }

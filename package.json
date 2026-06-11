@@ -1,7 +1,7 @@
 {
-  "name": "glean",
+  "name": "saysheep",
   "private": true,
-  "workspaces": ["client", "relay", "plugins/glean-wifidirect"],
+  "workspaces": ["client", "relay", "plugins/saysheep-wifidirect"],
   "scripts": {
     "dev": "npm run dev --workspace=client",
     "build": "npm run build --workspace=client",

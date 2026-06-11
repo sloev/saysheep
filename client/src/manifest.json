@@ -1,7 +1,7 @@
 {
-  "name": "Glean",
-  "short_name": "Glean",
-  "description": "free stuff, found together ✿",
+  "name": "saysheep",
+  "short_name": "saysheep",
+  "description": "free stuff, found together 🐑",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",

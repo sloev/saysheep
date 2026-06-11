@@ -21,11 +21,11 @@ let _peerEventHandler = null
 export const getMode = () => _mode
 export const setMode = (mode) => {
   _mode = mode
-  localStorage.setItem('glean_connectivity', mode)
+  localStorage.setItem('saysheep_connectivity', mode)
 }
 
 export const initSync = ({ onPeerCount, onRelayCount, relayUrls }) => {
-  _mode = localStorage.getItem('glean_connectivity') || CONNECTIVITY.BOTH
+  _mode = localStorage.getItem('saysheep_connectivity') || CONNECTIVITY.BOTH
   _onPeerCount = onPeerCount
   _onRelayCount = onRelayCount
 

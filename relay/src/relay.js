@@ -5,7 +5,7 @@ import { storeEvent, queryEvents, deleteEvent, deleteExpired } from './db.js'
 import { matchesAny } from './filters.js'
 import { startFederation } from './federation.js'
 import { RelayP2P } from './p2p.js'
-import { GleanIroh } from './iroh.js'
+import { saysheepIroh } from './iroh.js'
 import { RelayBootstrap } from './bootstrap.js'
 import { createLogger } from './logger.js'
 import config from './config.js'
@@ -38,7 +38,7 @@ setInterval(() => {
 
 export const startRelay = (port) => {
   const p2p = new RelayP2P()
-  iroh = new GleanIroh()
+  iroh = new saysheepIroh()
   iroh.start().then(() => {
     const bootstrap = new RelayBootstrap(p2p, iroh)
     bootstrap.start()
@@ -65,7 +65,7 @@ export const startRelay = (port) => {
         name: config.name,
         description: config.description,
         supported_nips: config.supported_nips,
-        software: 'glean-relay',
+        software: 'saysheep-relay',
         version: '1.0.0',
         limitation: {
           max_message_length: config.max_event_size_bytes,
@@ -75,7 +75,7 @@ export const startRelay = (port) => {
       }))
       return
     }
-    res.end('Glean Relay — connect via WebSocket')
+    res.end('saysheep Relay — connect via WebSocket')
   })
 
   const wss = new WebSocketServer({ server, maxPayload: config.max_event_size_bytes })

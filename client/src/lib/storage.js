@@ -1,6 +1,6 @@
 import { openDB } from 'idb'
 
-const DB_NAME = 'glean'
+const DB_NAME = 'saysheep'
 const DB_VERSION = 1
 
 let _db = null

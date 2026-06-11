@@ -1,4 +1,4 @@
-// Android WiFi Direct mesh layer — wraps the @glean/wifidirect Capacitor plugin.
+// Android WiFi Direct mesh layer — wraps the @saysheep/wifidirect Capacitor plugin.
 // Falls back gracefully to a no-op on web and iOS.
 
 let _plugin = null
@@ -15,7 +15,7 @@ export const initWifiDirect = async ({ onMessage, onPeerChange }) => {
   if (!isCapacitorAndroid()) return false
 
   try {
-    const { WifiDirect } = await import('@glean/wifidirect')
+    const { WifiDirect } = await import('@saysheep/wifidirect')
     _plugin = WifiDirect
     _onMessage = onMessage
     _onPeerChange = onPeerChange

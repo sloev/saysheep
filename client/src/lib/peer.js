@@ -70,10 +70,10 @@ export const initPeer = ({ nodeId, onEvent, onPeerCountChange }) => {
 export const getNodeId = () => _nodeId
 
 const getOrCreateNodeId = () => {
-  let id = localStorage.getItem('glean_node_id')
+  let id = localStorage.getItem('saysheep_node_id')
   if (!id) {
     id = randomNodeId()
-    localStorage.setItem('glean_node_id', id)
+    localStorage.setItem('saysheep_node_id', id)
   }
   return id
 }
@@ -178,7 +178,7 @@ const _initiateConnection = async (targetNodeId) => {
   const peer = new PeerConn(targetNodeId, true)
   _peers.set(targetNodeId, peer)
 
-  peer.dc = peer.pc.createDataChannel('glean', { ordered: false, maxRetransmits: 2 })
+  peer.dc = peer.pc.createDataChannel('saysheep', { ordered: false, maxRetransmits: 2 })
   _wireDataChannel(peer)
   _wireICE(peer)
 

@@ -1,7 +1,7 @@
 {
   "port": 3001,
   "public_url": "",
-  "name": "Glean Relay",
+  "name": "saysheep Relay",
   "description": "Free stuff geo-marketplace relay",
   "supported_nips": [1, 9, 11, 12, 13, 33, 40],
   "max_event_size_bytes": 524288,

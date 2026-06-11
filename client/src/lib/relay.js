@@ -10,7 +10,7 @@ const DEFAULT_RELAYS = _envRelay
   : ['wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.snort.social', 'wss://purplepag.es']
 
 // --- Single relay connection ---
-class GleanRelay {
+class saysheepRelay {
   constructor(url, onP2PMessage) {
     this.url = url
     this.ws = null
@@ -123,7 +123,7 @@ class GleanRelay {
 
 // --- Multi-relay pool ---
 let _relays = []
-let _connections = new Map() // url -> GleanRelay
+let _connections = new Map() // url -> saysheepRelay
 let _p2pHandler = null
 let _onCountChange = null
 
@@ -135,7 +135,7 @@ export const initRelay = (relayUrls, onP2PMessage, onCountChange) => {
   _relays = relayUrls?.length ? relayUrls : getStoredRelays()
   for (const url of _relays) {
     if (!_connections.has(url)) {
-      _connections.set(url, new GleanRelay(url, _routeP2P))
+      _connections.set(url, new saysheepRelay(url, _routeP2P))
     }
   }
 }
@@ -151,7 +151,7 @@ export const addRelay = (url) => {
   if (_relays.includes(url)) return
   _relays.push(url)
   saveRelays(_relays)
-  _connections.set(url, new GleanRelay(url, _routeP2P))
+  _connections.set(url, new saysheepRelay(url, _routeP2P))
 }
 
 export const removeRelay = (url) => {
@@ -166,14 +166,14 @@ export const getRelayCount = () =>
 
 const getStoredRelays = () => {
   try {
-    const s = localStorage.getItem('glean_relays')
+    const s = localStorage.getItem('saysheep_relays')
     const p = s ? JSON.parse(s) : null
     return p?.length ? p : [...DEFAULT_RELAYS]
   } catch { return [...DEFAULT_RELAYS] }
 }
 
 const saveRelays = (relays) =>
-  localStorage.setItem('glean_relays', JSON.stringify(relays))
+  localStorage.setItem('saysheep_relays', JSON.stringify(relays))
 
 export const publishEvent = async (event) => {
   const results = await Promise.allSettled(

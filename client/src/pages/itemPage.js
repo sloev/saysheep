@@ -71,7 +71,7 @@ export const ItemPage = () => {
     const title = getItemTitle(ev) || 'Free item'
     const url = window.location.href
     if (navigator.share) {
-      navigator.share({ title, text: `${title} — free on Glean`, url })
+      navigator.share({ title, text: `${title} — free on saysheep`, url })
     } else {
       navigator.clipboard.writeText(`${title}\n${url}`)
     }

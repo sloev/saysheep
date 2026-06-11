@@ -1,6 +1,6 @@
-# Glean — Decentralized Free-Stuff Geo-Marketplace
+# saysheep — Decentralized Free-Stuff Geo-Marketplace
 
-Glean is a decentralized, offline-first marketplace for giving away and finding free stuff in local communities. Built on the Nostr protocol, it features a hybrid mesh synchronization layer powered by **Iroh Gossip** and **Nostr Federation**, paired with **Capacitor WiFi Direct** mesh networking for local offline sharing on Android.
+saysheep is a decentralized, offline-first marketplace for giving away and finding free stuff in local communities. Built on the Nostr protocol, it features a hybrid mesh synchronization layer powered by **Iroh Gossip** and **Nostr Federation**, paired with **Capacitor WiFi Direct** mesh networking for local offline sharing on Android.
 
 ---
 
@@ -31,7 +31,7 @@ graph TD
 3. **Nostr Protocol Core**: Employs standard Nostr protocols (NIP-01, NIP-09, NIP-12, NIP-33 replaceable events, and NIP-99 classified listings kind: 30402).
 4. **Iroh Gossip Relay Sync**: Relays organize into a DHT k-bucket mesh network using `@number0/iroh` NAPI-RS bindings. Stored events are automatically gossiped to peer relays in the swarm.
 5. **Decentralized Bootstrap Discovery**: Relays announce their public WebSocket URL and dynamic Iroh `NodeAddr` to public bootstrap Nostr relays (`wss://relay.damus.io`, `wss://nos.lol`) using kind 30402 presence events. Peer relays fetch these presence cards, register the peer addresses, and subscribe to the gossip swarm automatically.
-6. **Capacitor Android WiFi Direct Plugin**: A custom Java plugin (`glean-wifidirect`) enables Android devices to discover each other and exchange listings peer-to-peer over local WiFi Direct without cellular/internet access.
+6. **Capacitor Android WiFi Direct Plugin**: A custom Java plugin (`saysheep-wifidirect`) enables Android devices to discover each other and exchange listings peer-to-peer over local WiFi Direct without cellular/internet access.
 
 ---
 
@@ -39,7 +39,7 @@ graph TD
 
 - `client/`: The PWA frontend built with VanJS, MapLibre GL, and IndexedDB.
 - `relay/`: The Node.js Nostr relay server featuring SQLite, P2P DHT routing, and Iroh Gossip.
-- `plugins/glean-wifidirect/`: The Capacitor Android plugin for native WiFi Direct mesh networking.
+- `plugins/saysheep-wifidirect/`: The Capacitor Android plugin for native WiFi Direct mesh networking.
 
 ---
 
@@ -69,7 +69,7 @@ npm run relay
 
 ## End-to-End Testing
 
-Glean includes a comprehensive multi-relay, multi-client E2E test runner to verify that listings successfully synchronize across the mesh network via public Nostr bootstrapping and Iroh Gossip.
+saysheep includes a comprehensive multi-relay, multi-client E2E test runner to verify that listings successfully synchronize across the mesh network via public Nostr bootstrapping and Iroh Gossip.
 
 To execute the test runner:
 ```bash
@@ -80,7 +80,7 @@ npm run test:e2e
 
 ## CI/CD and GitHub Repository Configuration
 
-Glean includes automated GitHub Actions pipelines to deploy client code, build and release the relay Docker image, and build signed Android binaries.
+saysheep includes automated GitHub Actions pipelines to deploy client code, build and release the relay Docker image, and build signed Android binaries.
 
 ### Configure GitHub Pages
 To configure the repository to deploy the client PWA directly via GitHub Actions:
@@ -93,7 +93,7 @@ To build signed production APK/AAB packages in GitHub Actions, you need to confi
 
 1. **Generate a signing keystore locally**:
    ```bash
-   keytool -genkey -v -keystore release.keystore -alias glean-alias -keyalg RSA -keysize 2048 -validity 10000
+   keytool -genkey -v -keystore release.keystore -alias saysheep-alias -keyalg RSA -keysize 2048 -validity 10000
    ```
 2. **Base64 encode the keystore file**:
    ```bash
@@ -102,7 +102,7 @@ To build signed production APK/AAB packages in GitHub Actions, you need to confi
 3. **Upload the secrets via GitHub CLI**:
    ```bash
    gh secret set KEYSTORE_BASE64 < keystore_base64.txt
-   gh secret set KEY_ALIAS -b "glean-alias"
+   gh secret set KEY_ALIAS -b "saysheep-alias"
    gh secret set STORE_PASSWORD -b "your_keystore_password"
    gh secret set KEY_PASSWORD -b "your_key_password"
    ```

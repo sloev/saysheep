@@ -15,9 +15,9 @@ export const setupMap = (lng, lat) => {
   const protocol = new pmtiles.Protocol()
   maplibregl.addProtocol('pmtiles', protocol.tile)
 
-  const savedLat = localStorage.getItem('glean_last_lat')
-  const savedLng = localStorage.getItem('glean_last_lng')
-  const savedZoom = localStorage.getItem('glean_last_zoom')
+  const savedLat = localStorage.getItem('saysheep_last_lat')
+  const savedLng = localStorage.getItem('saysheep_last_lng')
+  const savedZoom = localStorage.getItem('saysheep_last_zoom')
 
   const initialCenter = (savedLat && savedLng)
     ? [parseFloat(savedLng), parseFloat(savedLat)]
@@ -44,9 +44,9 @@ export const setupMap = (lng, lat) => {
     const zoom = _map.getZoom()
     const center = _map.getCenter()
 
-    localStorage.setItem('glean_last_lat', center.lat)
-    localStorage.setItem('glean_last_lng', center.lng)
-    localStorage.setItem('glean_last_zoom', zoom)
+    localStorage.setItem('saysheep_last_lat', center.lat)
+    localStorage.setItem('saysheep_last_lng', center.lng)
+    localStorage.setItem('saysheep_last_zoom', zoom)
 
     onMapBoundsChange({
       sw: { lat: bounds._sw.lat, lng: bounds._sw.lng },

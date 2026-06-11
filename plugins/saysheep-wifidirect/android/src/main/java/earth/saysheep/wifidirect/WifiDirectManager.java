@@ -1,4 +1,4 @@
-package earth.glean.wifidirect;
+package earth.saysheep.wifidirect;
 
 import android.content.Intent;
 import android.net.NetworkInfo;
@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 
 public class WifiDirectManager {
 
-    private static final String TAG = "GleanWifiDirect";
+    private static final String TAG = "saysheepWifiDirect";
     private static final int PORT = 8988;
 
     private final WifiP2pManager manager;

@@ -6,7 +6,7 @@ export const currentLanguage = van.state('en')
 const SUPPORTED = ['en', 'da', 'de', 'es', 'fr', 'hi', 'ja', 'pt', 'ru', 'zh', 'bn']
 
 export const initI18n = async () => {
-  const stored = localStorage.getItem('glean_lang')
+  const stored = localStorage.getItem('saysheep_lang')
   const browserLang = navigator.language?.split('-')[0]
   const lang = stored || (SUPPORTED.includes(browserLang) ? browserLang : 'en')
   await setLang(lang)
@@ -28,7 +28,7 @@ export const setLang = async (lang) => {
     }
   }
   currentLanguage.val = lang
-  localStorage.setItem('glean_lang', lang)
+  localStorage.setItem('saysheep_lang', lang)
   document.documentElement.lang = lang
 }
 

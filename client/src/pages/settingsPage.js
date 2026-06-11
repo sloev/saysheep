@@ -174,7 +174,7 @@ export const SettingsPage = () => {
               const url = URL.createObjectURL(blob)
               const a = document.createElement('a')
               a.href = url
-              a.download = `glean-backup-${getPubkey().substring(0, 8)}.json`
+              a.download = `saysheep-backup-${getPubkey().substring(0, 8)}.json`
               a.click()
               URL.revokeObjectURL(url)
             }

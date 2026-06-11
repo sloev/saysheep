@@ -81,7 +81,7 @@ jobs:
         if: ${{ env.KEYSTORE_BASE64 == '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: glean-unsigned
+          name: saysheep-unsigned
           path: |
             client/android/app/build/outputs/bundle/release/*.aab
             client/android/app/build/outputs/apk/release/*.apk

@@ -20,7 +20,7 @@ export const TopBar = () => {
           t('slogan.5'),
           t('slogan.6'),
         ]
-        const text = slogans.join('  ✿  ') + '  ✿  ' + slogans.join('  ✿  ')
+        const text = slogans.join('  🐑  ') + '  🐑  ' + slogans.join('  🐑  ')
         return div({ class: 'marquee-content' }, text)
       }
     )

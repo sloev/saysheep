@@ -1,7 +1,7 @@
 import { generateSecretKey, getPublicKey } from 'nostr-tools'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
 
-const STORAGE_KEY = 'glean_identity_v1'
+const STORAGE_KEY = 'saysheep_identity_v1'
 let _identity = null
 
 export const getIdentity = () => {
@@ -38,7 +38,7 @@ export const isWebAuthnSupported = () => {
 }
 
 export const hasPasskey = () => {
-  return typeof localStorage !== 'undefined' && !!localStorage.getItem('glean_passkey_cred_id')
+  return typeof localStorage !== 'undefined' && !!localStorage.getItem('saysheep_passkey_cred_id')
 }
 
 export const registerPasskey = async () => {
@@ -68,7 +68,7 @@ export const registerPasskey = async () => {
 
   if (credential) {
     const rawId = bytesToHex(new Uint8Array(credential.rawId))
-    localStorage.setItem('glean_passkey_cred_id', rawId)
+    localStorage.setItem('saysheep_passkey_cred_id', rawId)
     return rawId
   }
   return null
@@ -76,7 +76,7 @@ export const registerPasskey = async () => {
 
 export const verifyPasskey = async () => {
   if (!isWebAuthnSupported()) throw new Error('WebAuthn not supported')
-  const credId = localStorage.getItem('glean_passkey_cred_id')
+  const credId = localStorage.getItem('saysheep_passkey_cred_id')
   if (!credId) throw new Error('No passkey registered')
 
   const challenge = new Uint8Array(32)
@@ -98,6 +98,6 @@ export const verifyPasskey = async () => {
 }
 
 export const clearPasskey = () => {
-  localStorage.removeItem('glean_passkey_cred_id')
+  localStorage.removeItem('saysheep_passkey_cred_id')
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "@glean/wifidirect",
+  "name": "@saysheep/wifidirect",
   "version": "1.0.0",
   "description": "Capacitor plugin for Android WiFi Direct peer-to-peer mesh networking",
   "main": "src/index.js",
