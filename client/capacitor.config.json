@@ -1,6 +1,6 @@
 {
-  "appId": "earth.glean.app",
-  "appName": "Glean",
+  "appId": "net.skifting.saysheep",
+  "appName": "saysheep",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"

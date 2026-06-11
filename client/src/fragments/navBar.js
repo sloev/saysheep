@@ -16,14 +16,14 @@ import { NotFoundPage } from '../pages/notFoundPage.js'
 const { nav, div, img, span } = van.tags
 
 // Register routes
-cone.route('home', '/', MapPage, { title: 'Glean' })
-cone.route('map', '/map', MapPage, { title: 'Glean | map' })
-cone.route('list', '/list', ListPage, { title: 'Glean | list' })
-cone.route('new', '/new', NewItemPage, { title: 'Glean | give away' })
-cone.route('item', '/item', ItemPage, { title: 'Glean | item' })
-cone.route('agents', '/agents', AgentsPage, { title: 'Glean | agents' })
-cone.route('settings', '/settings', SettingsPage, { title: 'Glean | settings' })
-cone.route('notFound', '.*', NotFoundPage, { title: 'Glean | not found' })
+cone.route('home', '/', MapPage, { title: 'saysheep' })
+cone.route('map', '/map', MapPage, { title: 'saysheep | map' })
+cone.route('list', '/list', ListPage, { title: 'saysheep | list' })
+cone.route('new', '/new', NewItemPage, { title: 'saysheep | give away' })
+cone.route('item', '/item', ItemPage, { title: 'saysheep | item' })
+cone.route('agents', '/agents', AgentsPage, { title: 'saysheep | agents' })
+cone.route('settings', '/settings', SettingsPage, { title: 'saysheep | settings' })
+cone.route('notFound', '.*', NotFoundPage, { title: 'saysheep | not found' })
 
 export const NavBar = () => {
   return nav({ class: 'navbar' },

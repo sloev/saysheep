@@ -1,5 +1,5 @@
 {
-  "app.name": "Glean",
+  "app.name": "saysheep",
   "app.tagline": "gratis ting, fundet sammen ✿",
   "nav.new": "giv væk",
   "map.loading": "indlæser kort...",
@@ -80,5 +80,11 @@
   "map": "kort",
   "list": "liste",
   "agents": "alarmer",
-  "settings": "indstillinger"
+  "settings": "indstillinger",
+  "slogan.1": "find din næste middag på saysheep",
+  "slogan.2": "giv din sofa væk på saysheep",
+  "slogan.3": "del friske haveurter på saysheep",
+  "slogan.4": "opdag skjulte skatte på saysheep",
+  "slogan.5": "giv det, du ikke skal bruge, på saysheep",
+  "slogan.6": "reducer spild sammen på saysheep"
 }

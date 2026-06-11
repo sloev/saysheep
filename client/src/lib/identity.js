@@ -51,11 +51,11 @@ export const registerPasskey = async () => {
   const credential = await navigator.credentials.create({
     publicKey: {
       challenge,
-      rp: { name: 'Glean' },
+      rp: { name: 'saysheep' },
       user: {
         id: userId,
-        name: 'user@glean.pwa',
-        displayName: 'Glean PWA User'
+        name: 'user@saysheep.pwa',
+        displayName: 'saysheep PWA User'
       },
       pubKeyCredParams: [{ alg: -7, type: 'public-key' }], // ES256
       authenticatorSelection: {

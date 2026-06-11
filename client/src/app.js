@@ -2,6 +2,7 @@ import van from 'vanjs-core'
 import { initStore } from './store.js'
 import { Loading } from './fragments/loading.js'
 import { NavBar } from './fragments/navBar.js'
+import { TopBar } from './fragments/topBar.js'
 import { routerElement, cone } from './router.js'
 import { MapComponent, MapSearchBox } from './fragments/map.js'
 
@@ -28,6 +29,7 @@ const App = () => {
       MapSearchBox()
     ),
     div({ id: 'main-layout' },
+      TopBar(),
       div({ class: 'page-content', id: 'main-content' }, routerElement),
       NavBar(),
     )

@@ -1,5 +1,7 @@
+import van from 'vanjs-core'
+
 const translations = {}
-let _lang = 'en'
+export const currentLanguage = van.state('en')
 
 const SUPPORTED = ['en', 'da', 'de', 'es', 'fr', 'hi', 'ja', 'pt', 'ru', 'zh', 'bn']
 
@@ -25,15 +27,17 @@ export const setLang = async (lang) => {
       }
     }
   }
-  _lang = lang
+  currentLanguage.val = lang
   localStorage.setItem('glean_lang', lang)
   document.documentElement.lang = lang
 }
 
-export const getLang = () => _lang
+export const getLang = () => currentLanguage.val
 export const getSupportedLangs = () => SUPPORTED
 
 export const t = (key, vars = {}) => {
-  const str = translations[_lang]?.[key] || translations['en']?.[key] || key
+  const lang = currentLanguage.val
+  const str = translations[lang]?.[key] || translations['en']?.[key] || key
   return str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? `{${k}}`)
 }
+

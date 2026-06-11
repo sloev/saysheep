@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig(({ mode }) => ({
   root: 'src',
-  base: process.env.VITE_BASE || '/',
+  base: process.env.VITE_BASE !== undefined ? process.env.VITE_BASE : '/',
   plugins: [
     nodePolyfills(),
     {

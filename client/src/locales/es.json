@@ -1,5 +1,5 @@
 {
-  "app.name": "Glean",
+  "app.name": "saysheep",
   "app.tagline": "cosas gratis, encontradas juntos ✿",
   "nav.new": "regalar",
   "map.loading": "cargando mapa...",
@@ -80,5 +80,11 @@
   "map": "mapa",
   "list": "lista",
   "agents": "alertas",
-  "settings": "ajustes"
+  "settings": "ajustes",
+  "slogan.1": "encuentra tu próxima cena en saysheep",
+  "slogan.2": "regala tu sofá en saysheep",
+  "slogan.3": "comparte hierbas frescas de tu jardín en saysheep",
+  "slogan.4": "descubre tesoros ocultos en saysheep",
+  "slogan.5": "regala lo que no necesitas en saysheep",
+  "slogan.6": "reduzcamos residuos juntos en saysheep"
 }

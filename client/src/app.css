@@ -103,6 +103,73 @@ html, body {
 }
 
 
+/* ── TOPBAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  background: var(--surface);
+  border-bottom: var(--border);
+  z-index: 101;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-weight: 900;
+  font-size: 18px;
+  text-transform: lowercase;
+  border-right: var(--border);
+  height: 100%;
+  background: var(--yellow);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.logo-text-say {
+  font-weight: 400;
+}
+
+.logo-text-sheep {
+  font-weight: 900;
+}
+
+.topbar-marquee {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  height: 100%;
+  cursor: pointer;
+}
+
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee-scroll 35s linear infinite;
+  padding-left: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: lowercase;
+}
+
+.topbar-marquee:hover .marquee-content {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+
 /* ── NAVBAR ── */
 .navbar {
   position: fixed;
@@ -736,7 +803,7 @@ select.form-select {
   }
   /* Avoid overlapping with navbar at the bottom of the sidebar */
   .page-content {
-    height: calc(100vh - var(--nav-h) - var(--safe-bottom)) !important;
+    height: calc(100vh - var(--nav-h) - var(--safe-bottom) - 50px) !important;
     overflow-y: auto !important;
     padding-bottom: 24px !important;
   }

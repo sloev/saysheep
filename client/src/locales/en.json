@@ -1,5 +1,5 @@
 {
-  "app.name": "Glean",
+  "app.name": "saysheep",
   "app.tagline": "free stuff, found together ✿",
   "nav.new": "give away",
   "map.loading": "loading map...",
@@ -80,5 +80,11 @@
   "map": "map",
   "list": "list",
   "agents": "agents",
-  "settings": "settings"
+  "settings": "settings",
+  "slogan.1": "find your next dinner on saysheep",
+  "slogan.2": "give your sofa away on saysheep",
+  "slogan.3": "share fresh garden herbs on saysheep",
+  "slogan.4": "discover hidden treasures on saysheep",
+  "slogan.5": "give what you don't need on saysheep",
+  "slogan.6": "reduce waste together on saysheep"
 }

@@ -1,5 +1,5 @@
 {
-  "app.name": "Glean",
+  "app.name": "saysheep",
   "app.tagline": "免费物品，一起找 ✿",
   "nav.new": "赠送",
   "map.loading": "加载地图中...",
@@ -80,5 +80,11 @@
   "map": "地图",
   "list": "列表",
   "agents": "提醒",
-  "settings": "设置"
+  "settings": "设置",
+  "slogan.1": "在 saysheep 上寻找你的下一顿晚餐",
+  "slogan.2": "在 saysheep 上把你的沙发送给有需要的人",
+  "slogan.3": "在 saysheep 上分享新鲜的花园草药",
+  "slogan.4": "在 saysheep 上发现隐藏的宝藏",
+  "slogan.5": "在 saysheep 上赠送你不需要的物品",
+  "slogan.6": "在 saysheep 上一起减少浪费"
 }

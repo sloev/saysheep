@@ -1,5 +1,5 @@
 {
-  "app.name": "Glean",
+  "app.name": "saysheep",
   "app.tagline": "無料のもの、みんなで見つけよう ✿",
   "nav.new": "あげる",
   "map.loading": "地図を読み込み中...",
@@ -80,5 +80,11 @@
   "map": "地図",
   "list": "リスト",
   "agents": "通知",
-  "settings": "設定"
+  "settings": "設定",
+  "slogan.1": "saysheepで次のディナーを見つけよう",
+  "slogan.2": "saysheepでソファを譲ろう",
+  "slogan.3": "saysheepで採れたてのハーブをシェアしよう",
+  "slogan.4": "saysheepで隠れたお宝を見つけよう",
+  "slogan.5": "不要なものをsaysheepで譲ろう",
+  "slogan.6": "saysheepで一緒にゴミを減らそう"
 }

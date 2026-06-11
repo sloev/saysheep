@@ -1,5 +1,5 @@
 {
-  "app.name": "Glean",
+  "app.name": "saysheep",
   "app.tagline": "бесплатные вещи, найденные вместе ✿",
   "nav.new": "отдать",
   "map.loading": "загрузка карты...",
@@ -80,5 +80,11 @@
   "map": "карта",
   "list": "список",
   "agents": "оповещения",
-  "settings": "настройки"
+  "settings": "настройки",
+  "slogan.1": "найди свой следующий ужин на saysheep",
+  "slogan.2": "отдай свой диван на saysheep",
+  "slogan.3": "поделись свежей зеленью из сада на saysheep",
+  "slogan.4": "найди скрытые сокровища на saysheep",
+  "slogan.5": "отдай то, что тебе не нужно, на saysheep",
+  "slogan.6": "сократим отходы вместе на saysheep"
 }
