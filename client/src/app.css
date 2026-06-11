@@ -391,15 +391,25 @@ html, body {
 
 /* ── TAGS / PILLS ── */
 .tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
   font-weight: 700;
   text-transform: lowercase;
-  padding: 2px 9px;
+  padding: 0 9px;
+  height: 20px;
+  box-sizing: border-box;
   border-radius: 20px;
   border: 1.5px solid var(--ink);
   background: var(--yellow-light);
   color: var(--ink);
   white-space: nowrap;
+  line-height: 1;
+}
+
+.mobile-only {
+  display: block;
 }
 
 .pill {
@@ -806,6 +816,22 @@ select.form-select {
     height: calc(100vh - var(--nav-h) - var(--safe-bottom) - 50px) !important;
     overflow-y: auto !important;
     padding-bottom: 24px !important;
+  }
+  .mobile-only {
+    display: none !important;
+  }
+  .desktop-sidebar-only .page-content {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  #app.route-home .page-content.full-height,
+  #app.route-map .page-content.full-height {
+    overflow-y: auto !important;
+  }
+  .route-list .page-header,
+  .desktop-sidebar-only .page-header {
+    display: none !important;
   }
 }
 

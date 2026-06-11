@@ -9,7 +9,7 @@ const { div, input, span } = van.tags
 export const ListPage = () => {
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
-      div({ class: 'app-logo' }, 'gl', span('✿'), 'an'),
+      div({ class: 'app-logo' }, 'say', span('✿'), 'sheep'),
       ConnStatus()
     ),
     div({ class: 'search-bar' },

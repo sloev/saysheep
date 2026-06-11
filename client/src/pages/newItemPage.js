@@ -179,9 +179,15 @@ export const NewItemPage = () => {
       ),
       // Photo buttons
       div({ style: 'display:flex;gap:8px' },
-        () => hasPhoto.val
-          ? button({ class: 'btn btn-sm', onclick: retake }, t('new.photo.retake'))
-          : button({ class: 'btn btn-sm', onclick: startCamera }, t('new.photo.take')),
+        () => {
+          if (hasPhoto.val) {
+            return button({ class: 'btn btn-sm', onclick: retake }, t('new.photo.retake'))
+          }
+          if (cameraOn.val) {
+            return button({ class: 'btn btn-sm btn-primary', onclick: takePhoto }, t('new.photo.take'))
+          }
+          return button({ class: 'btn btn-sm', onclick: startCamera }, t('new.photo.take'))
+        },
         label({ class: 'btn btn-sm', style: 'cursor:pointer' },
           t('new.photo.upload'),
           input({ type: 'file', accept: 'image/*', style: 'display:none', onchange: handleFileUpload })
