@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 import { store, addSubscription, removeSubscription, saveSubscriptions } from '../store.js'
-import { encodeGeohash } from '../lib/geo.js'
+import { encodeGeohash, getHumanReadableLocation } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
 import { TagInput } from '../fragments/tagInput.js'
 const { div, button, span, h2, p } = van.tags
@@ -8,15 +8,29 @@ const { div, button, span, h2, p } = van.tags
 export const AgentsPage = () => {
   const newTags = van.state([])
 
-  const addAgent = () => {
+  const addAgent = async () => {
     if (store.position.loading || !store.position.lat) return
-    const gh = encodeGeohash(store.position.lat, store.position.lng, 5)
+    const lat = store.position.lat
+    const lng = store.position.lng
+    const gh = encodeGeohash(lat, lng, 5)
     // Subscriptions/Agents default to notificationsEnabled: true
     const id = crypto.randomUUID()
     if (!store.subscriptions) store.subscriptions = []
-    store.subscriptions.push({ id, geohash: gh, tags: [...newTags.val], label: gh, notificationsEnabled: true })
+    
+    // Add subscription immediately with default label
+    store.subscriptions.push({ id, geohash: gh, tags: [...newTags.val], label: `${gh} + 5km`, notificationsEnabled: true })
     saveSubscriptions()
     newTags.val = []
+
+    // Fetch human readable name asynchronously
+    try {
+      const label = await getHumanReadableLocation(lat, lng, gh)
+      const idx = store.subscriptions.findIndex(s => s.id === id)
+      if (idx !== -1) {
+        store.subscriptions[idx].label = label
+        saveSubscriptions()
+      }
+    } catch {}
   }
 
   return div({ class: 'page-content' },

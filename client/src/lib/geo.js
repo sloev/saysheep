@@ -43,3 +43,27 @@ export const haversineDistance = (lat1, lng1, lat2, lng2) => {
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
+
+export const getHumanReadableLocation = async (lat, lng, geohash) => {
+  const radius = geohash.length === 5 ? '5km' : '1.2km'
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1`, {
+      headers: {
+        'User-Agent': 'saysheep-pwa'
+      }
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const addr = data.address
+      if (addr) {
+        const name = addr.neighbourhood || addr.suburb || addr.quarter || addr.town || addr.city_district || addr.city || addr.railway || addr.road || addr.county || ''
+        if (name) {
+          return `${name.toLowerCase()} + ${radius}`
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to reverse geocode:', err)
+  }
+  return `${geohash} + ${radius}`
+}
