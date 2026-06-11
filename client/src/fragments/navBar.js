@@ -27,7 +27,7 @@ cone.route('notFound', '.*', NotFoundPage, { title: 'saysheep | not found' })
 
 export const NavBar = () => {
   return nav({ class: 'navbar' },
-    cone.link({ name: 'map', class: 'nav-link' },
+    cone.link({ name: 'map', class: 'nav-link nav-link-map' },
       img({ src: mapImg }), span(() => t('map'))
     ),
     cone.link({ name: 'list', class: 'nav-link' },

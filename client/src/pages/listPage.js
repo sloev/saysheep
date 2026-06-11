@@ -9,8 +9,8 @@ const { div, input, span } = van.tags
 export const ListPage = () => {
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
-      div({ class: 'app-logo' }, 'say', span('✿'), 'sheep'),
-      ConnStatus()
+      div({ class: 'page-title' }, t('list')),
+      div({ class: 'mobile-only' }, ConnStatus())
     ),
     div({ class: 'search-bar' },
       input({

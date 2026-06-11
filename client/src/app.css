@@ -829,8 +829,7 @@ select.form-select {
   #app.route-map .page-content.full-height {
     overflow-y: auto !important;
   }
-  .route-list .page-header,
-  .desktop-sidebar-only .page-header {
+  .nav-link-map {
     display: none !important;
   }
 }
