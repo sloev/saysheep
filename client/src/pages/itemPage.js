@@ -3,7 +3,7 @@ import { store, currentItemId } from '../store.js'
 import { subscribeChat, sendChatMessage, markTaken, deleteItem } from '../lib/sync.js'
 import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey } from '../lib/nostr.js'
 import { getTagColor } from '../lib/categories.js'
-import { formatRelative, formatDistance, formatDate } from '../helpers/format.js'
+import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
@@ -41,7 +41,13 @@ export const ItemPage = () => {
     if (!text || !ev || sending.val) return
     sending.val = true
     chatInput.val = ''
-    await sendChatMessage(ev.id, text, ev)
+    const newMsg = await sendChatMessage(ev.id, text, ev)
+    if (newMsg) {
+      const existing = messages.val.find(m => m.id === newMsg.id)
+      if (!existing) {
+        messages.val = [...messages.val, newMsg].sort((a, b) => a.created_at - b.created_at)
+      }
+    }
     sending.val = false
   }
 
@@ -109,7 +115,7 @@ export const ItemPage = () => {
           div({ class: 'item-detail-meta' },
             div({ class: 'pill' }, img({ src: timeImg }), formatRelative(ev.created_at)),
             dist !== null ? div({ class: 'pill' }, img({ src: locationImg }), formatDistance(dist)) : null,
-            expiry ? div({ class: 'pill' }, '⏰ ', t('item.available_until'), ' ', formatDate(expiry)) : null,
+            expiry ? div({ class: 'pill' }, '⏰ ', formatExpiry(expiry)) : null,
           ),
 
           // Description

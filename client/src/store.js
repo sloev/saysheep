@@ -2,8 +2,10 @@ import van from 'vanjs-core'
 import * as vanX from 'vanjs-ext'
 import { initSync, subscribeArea, CONNECTIVITY, getMode } from './lib/sync.js'
 import { initI18n } from './lib/i18n.js'
-import { getIdentity } from './lib/identity.js'
+import { getIdentity, importIdentity } from './lib/identity.js'
 import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.js'
+
+
 import { getRelays } from './lib/relay.js'
 import { getItemGeohash, isTaken, isExpired } from './lib/nostr.js'
 import { notifyIfMatches } from './lib/notifications.js'
@@ -158,3 +160,9 @@ export const getFilteredItems = () => {
     return (title + ' ' + tags + ' ' + content).toLowerCase().includes(q)
   })
 }
+
+export const updateIdentity = (secretKeyHex) => {
+  const ident = importIdentity(secretKeyHex)
+  store.identity.pubkey = ident.pubkey
+}
+

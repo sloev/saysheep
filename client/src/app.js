@@ -2,7 +2,8 @@ import van from 'vanjs-core'
 import { initStore } from './store.js'
 import { Loading } from './fragments/loading.js'
 import { NavBar } from './fragments/navBar.js'
-import { routerElement } from './router.js'
+import { routerElement, cone } from './router.js'
+import { MapComponent, MapSearchBox } from './fragments/map.js'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () =>
@@ -17,11 +18,21 @@ const App = () => {
 
   initStore().then(() => { loading.val = false })
 
-  return div({ id: 'app' },
+  return div({
+    id: 'app',
+    class: () => 'route-' + cone.currentPage.val
+  },
     Loading(loading),
-    div({ class: 'page-content', id: 'main-content' }, routerElement),
-    NavBar(),
+    div({ id: 'global-map-container' },
+      MapComponent(),
+      MapSearchBox()
+    ),
+    div({ id: 'main-layout' },
+      div({ class: 'page-content', id: 'main-content' }, routerElement),
+      NavBar(),
+    )
   )
 }
 
 document.body.replaceChildren(App())
+

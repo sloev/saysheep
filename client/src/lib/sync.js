@@ -100,9 +100,9 @@ export const subscribeChat = async (itemEventId, onMessage) => {
   }
 }
 
-export const publishItem = async ({ title, description, tags, photo, geo, availableUntil }) => {
+export const publishItem = async ({ description, tags, photo, geo, availableUntil }) => {
   const { secretKey } = getIdentity()
-  const event = buildItemEvent({ secretKey, id: crypto.randomUUID(), title, description, tags, photo, geo, availableUntil })
+  const event = buildItemEvent({ secretKey, id: crypto.randomUUID(), description, tags, photo, geo, availableUntil })
   await storeEvent(event)
   await _broadcast(event, geo)
   return event

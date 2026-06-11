@@ -5,24 +5,23 @@ import { TagInput } from '../fragments/tagInput.js'
 import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
 import cameraImg from '../images/camera.png'
-const { div, button, input, textarea, video, canvas, label, span, img } = van.tags
+const { div, button, input, textarea, video, canvas, label, span, img, select, option } = van.tags
 
 export const NewItemPage = () => {
   // Pre-fill from Web Share Target API params (?title=...&description=...&url=...)
   const _params = new URLSearchParams(window.location.search)
   const _sharedTitle = _params.get('title') || ''
-  const _sharedDesc = [_params.get('text'), _params.get('url')].filter(Boolean).join('\n')
+  const _sharedDesc = [_sharedTitle, _params.get('text'), _params.get('url')].filter(Boolean).join('\n')
 
   const cameraOn = van.state(false)
   const hasPhoto = van.state(false)
   const photoData = van.state(null)
-  const title = van.state(_sharedTitle)
   const description = van.state(_sharedDesc)
   const tags = van.state([])
   const manualLocation = van.state(false)
   const customLat = van.state('')
   const customLng = van.state('')
-  const customExpiry = van.state('')
+  const customExpiry = van.state(7)
   const submitting = van.state(false)
   const error = van.state('')
 
@@ -46,13 +45,32 @@ export const NewItemPage = () => {
   }
 
   const takePhoto = () => {
-    const maxW = 800
-    const ratio = maxW / videoEl.videoWidth
-    canvasEl.width = Math.min(maxW, videoEl.videoWidth)
-    canvasEl.height = videoEl.videoHeight * ratio
-    canvasEl.getContext('2d').drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height)
-    photoData.val = canvasEl.toDataURL('image/jpeg', 0.8)
-    hasPhoto.val = true
+    const w = videoEl.videoWidth || 640
+    const h = videoEl.videoHeight || 480
+    const maxDim = 800
+    let targetW = w
+    let targetH = h
+    if (w > maxDim || h > maxDim) {
+      if (w > h) {
+        targetH = Math.round((h * maxDim) / w)
+        targetW = maxDim
+      } else {
+        targetW = Math.round((w * maxDim) / h)
+        targetH = maxDim
+      }
+    }
+
+    canvasEl.width = targetW
+    canvasEl.height = targetH
+    const ctx = canvasEl.getContext('2d')
+    ctx.drawImage(videoEl, 0, 0, targetW, targetH)
+
+    try {
+      photoData.val = canvasEl.toDataURL('image/jpeg', 0.7)
+      hasPhoto.val = true
+    } catch (err) {
+      console.error('Failed to capture photo:', err)
+    }
     stopCamera()
   }
 
@@ -67,8 +85,33 @@ export const NewItemPage = () => {
     if (!file) return
     const reader = new FileReader()
     reader.onload = (ev) => {
-      photoData.val = ev.target.result
-      hasPhoto.val = true
+      const imgEl = document.createElement('img')
+      imgEl.onload = () => {
+        const w = imgEl.width || 640
+        const h = imgEl.height || 480
+        const maxDim = 800
+        let targetW = w
+        let targetH = h
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            targetH = Math.round((h * maxDim) / w)
+            targetW = maxDim
+          } else {
+            targetW = Math.round((w * maxDim) / h)
+            targetH = maxDim
+          }
+        }
+        canvasEl.width = targetW
+        canvasEl.height = targetH
+        const ctx = canvasEl.getContext('2d')
+        ctx.drawImage(imgEl, 0, 0, targetW, targetH)
+        photoData.val = canvasEl.toDataURL('image/jpeg', 0.7)
+        hasPhoto.val = true
+      }
+      imgEl.onerror = () => {
+        alert('Failed to load uploaded image.')
+      }
+      imgEl.src = ev.target.result
     }
     reader.readAsDataURL(file)
   }
@@ -103,10 +146,9 @@ export const NewItemPage = () => {
     error.val = ''
     submitting.val = true
     try {
-      let availableUntil = null
-      if (customExpiry.val) availableUntil = new Date(customExpiry.val).getTime()
+      const days = customExpiry.val
+      const availableUntil = Date.now() + days * 24 * 3600 * 1000
       await publishItem({
-        title: title.val,
         description: description.val,
         tags: tags.val,
         photo: photoData.val,
@@ -119,9 +161,6 @@ export const NewItemPage = () => {
     }
     submitting.val = false
   }
-
-  // Max date = 14 days from now
-  const maxDate = new Date(Date.now() + 14 * 86400 * 1000).toISOString().slice(0, 16)
 
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
@@ -155,12 +194,7 @@ export const NewItemPage = () => {
         TagInput({ tags, onTagsChange: (v) => tags.val = v })
       ),
 
-      // Title
-      div(
-        div({ class: 'form-label' }, t('new.title')),
-        input({ class: 'form-input', type: 'text', placeholder: t('new.title'),
-          value: title, oninput: e => title.val = e.target.value })
-      ),
+
 
       // Description
       div(
@@ -192,9 +226,19 @@ export const NewItemPage = () => {
       // Available until
       div(
         div({ class: 'form-label' }, t('new.available_until')),
-        input({ class: 'form-input', type: 'datetime-local', max: maxDate,
-          oninput: e => customExpiry.val = e.target.value })
+        select({
+          class: 'form-select',
+          value: customExpiry,
+          onchange: e => customExpiry.val = parseInt(e.target.value)
+        },
+          ...Array.from({ length: 14 }, (_, i) => i + 1).map(day =>
+            option({ value: day, selected: () => customExpiry.val === day },
+              `${day} ${day === 1 ? 'day' : 'days'}`
+            )
+          )
+        )
       ),
+
 
       // Error
       () => error.val ? div({ style: 'color:var(--pink);font-size:13px;font-weight:600' }, error.val) : div(),

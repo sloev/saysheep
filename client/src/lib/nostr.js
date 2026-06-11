@@ -6,7 +6,7 @@ import Geohash from 'ngeohash'
 export { generateSecretKey, getPublicKey, verifyEvent, nip19 }
 
 // Build a free-item listing event (NIP-99 kind 30402)
-export const buildItemEvent = ({ secretKey, id, title, description, tags, photo, geo, availableUntil }) => {
+export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil }) => {
   const now = Math.floor(Date.now() / 1000)
   const expiry = availableUntil
     ? Math.floor(availableUntil / 1000)
@@ -19,9 +19,12 @@ export const buildItemEvent = ({ secretKey, id, title, description, tags, photo,
     geoTags.push(['g', geohash.slice(0, i)])
   }
 
+  const firstLine = (description || '').split('\n')[0] || ''
+  const title = firstLine.length > 40 ? firstLine.slice(0, 40) + '...' : firstLine
+
   const eventTags = [
     ['d', id],
-    ['title', title || ''],
+    ['title', title],
     ['summary', description || ''],
     ['status', 'active'],
     ['expiry', String(expiry)],
@@ -97,4 +100,40 @@ export const isExpired = (event) => {
   const expiry = getItemExpiry(event)
   return expiry ? expiry < Date.now() : false
 }
-export const shortPubkey = (pubkey) => pubkey ? pubkey.slice(0, 8) + '…' : '?'
+export const shortPubkey = (pubkey) => {
+  if (!pubkey) return '?'
+  const ADJECTIVES = [
+    'blue', 'red', 'green', 'yellow', 'happy', 'sad', 'fast', 'slow',
+    'bright', 'dark', 'cozy', 'warm', 'cold', 'wild', 'tame', 'brave',
+    'calm', 'sweet', 'sour', 'salty', 'bitter', 'spicy', 'fresh', 'clean',
+    'dirty', 'loud', 'soft', 'rough', 'smooth', 'sharp', 'dull', 'clever',
+    'silly', 'funny', 'friendly', 'shy', 'proud', 'gentle', 'light', 'heavy',
+    'young', 'old', 'new', 'fancy', 'plain', 'curly', 'sleepy', 'sunny',
+    'windy', 'rainy', 'snowy', 'cloudy', 'stormy', 'muddy', 'golden', 'silver',
+    'bronze', 'copper', 'wooden', 'stony', 'glassy', 'silky', 'fluffy', 'fuzzy',
+    'bumpy', 'shiny', 'dusty', 'misty', 'mossy', 'leafy', 'lazy', 'crazy',
+    'lucky', 'rusty', 'frosty', 'sparky', 'peachy', 'cheery', 'merry', 'jolly'
+  ]
+  const NOUNS = [
+    'sheep', 'weasel', 'badger', 'otter', 'fox', 'wolf', 'bear', 'deer',
+    'rabbit', 'hare', 'squirrel', 'mouse', 'rat', 'beaver', 'hedgehog', 'mole',
+    'frog', 'toad', 'newt', 'lizard', 'snake', 'turtle', 'snail', 'slug',
+    'crab', 'lobster', 'shrimp', 'clam', 'oyster', 'squid', 'octopus', 'fish',
+    'bird', 'owl', 'hawk', 'eagle', 'falcon', 'robin', 'sparrow', 'finch',
+    'crow', 'raven', 'jay', 'magpie', 'dove', 'pigeon', 'swan', 'duck',
+    'bee', 'wasp', 'ant', 'beetle', 'butterfly', 'moth', 'dragonfly', 'spider',
+    'cat', 'dog', 'horse', 'cow', 'pig', 'goat', 'donkey', 'mule',
+    'apple', 'pear', 'peach', 'plum', 'cherry', 'grape', 'berry', 'melon',
+    'oak', 'pine', 'birch', 'maple', 'fern', 'moss', 'flower', 'rose'
+  ]
+  try {
+    const clean = pubkey.startsWith('npub') ? pubkey : pubkey
+    const val1 = parseInt(clean.slice(0, 4), 16)
+    const val2 = parseInt(clean.slice(4, 8), 16)
+    const adj = ADJECTIVES[val1 % ADJECTIVES.length]
+    const noun = NOUNS[val2 % NOUNS.length]
+    return `${adj}-${noun}`
+  } catch {
+    return pubkey.slice(0, 8) + '…'
+  }
+}

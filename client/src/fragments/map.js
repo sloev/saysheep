@@ -15,11 +15,20 @@ export const setupMap = (lng, lat) => {
   const protocol = new pmtiles.Protocol()
   maplibregl.addProtocol('pmtiles', protocol.tile)
 
+  const savedLat = localStorage.getItem('glean_last_lat')
+  const savedLng = localStorage.getItem('glean_last_lng')
+  const savedZoom = localStorage.getItem('glean_last_zoom')
+
+  const initialCenter = (savedLat && savedLng)
+    ? [parseFloat(savedLng), parseFloat(savedLat)]
+    : [lng, lat]
+  const initialZoom = savedZoom ? parseFloat(savedZoom) : 14
+
   _map = new maplibregl.Map({
     container: mapDiv,
     style: mapstyle,
-    center: [lng, lat],
-    zoom: 14,
+    center: initialCenter,
+    zoom: initialZoom,
     maxZoom: 18,
     minZoom: 8,
   })
@@ -33,6 +42,12 @@ export const setupMap = (lng, lat) => {
   const notifyBounds = () => {
     const bounds = _map.getBounds()
     const zoom = _map.getZoom()
+    const center = _map.getCenter()
+
+    localStorage.setItem('glean_last_lat', center.lat)
+    localStorage.setItem('glean_last_lng', center.lng)
+    localStorage.setItem('glean_last_zoom', zoom)
+
     onMapBoundsChange({
       sw: { lat: bounds._sw.lat, lng: bounds._sw.lng },
       ne: { lat: bounds._ne.lat, lng: bounds._ne.lng },
@@ -81,3 +96,51 @@ export const setupMap = (lng, lat) => {
 }
 
 export const MapComponent = () => mapDiv
+
+export const MapSearchBox = () => {
+  const query = van.state('')
+  const searching = van.state(false)
+
+  const handleSearch = async () => {
+    const q = query.val.trim()
+    if (!q || !_map) return
+    searching.val = true
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
+      const data = await res.json()
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0]
+        _map.flyTo({
+          center: [parseFloat(lon), parseFloat(lat)],
+          zoom: 14,
+          essential: true
+        })
+      } else {
+        alert('Location not found')
+      }
+    } catch (err) {
+      alert('Error searching location: ' + err.message)
+    } finally {
+      searching.val = false
+    }
+  }
+
+  return van.tags.div({ class: 'map-searchbox' },
+    van.tags.input({
+      class: 'map-search-input',
+      type: 'text',
+      placeholder: '🔍 Search location...',
+      value: query,
+      oninput: (e) => query.val = e.target.value,
+      onkeydown: (e) => {
+        if (e.key === 'Enter') handleSearch()
+      }
+    }),
+    van.tags.button({
+      class: () => `btn btn-primary map-search-btn ${searching.val ? 'loading' : ''}`,
+      onclick: handleSearch,
+      disabled: searching
+    }, 'Go')
+  )
+}
+

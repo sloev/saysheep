@@ -28,6 +28,27 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border-radius: 4px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pink);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink) var(--bg);
+}
+
 /* ── LAYOUT ── */
 #app {
   display: flex;
@@ -36,6 +57,37 @@ html, body {
   max-width: 600px;
   margin: 0 auto;
   position: relative;
+}
+
+#global-map-container {
+  display: none;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: calc(100dvh - var(--nav-h) - var(--safe-bottom));
+  z-index: 1;
+}
+
+#app.route-home #global-map-container,
+#app.route-map #global-map-container {
+  display: block;
+}
+
+#main-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+/* On mobile, map page background needs to be transparent so map underneath is visible */
+#app.route-home .map-page-container,
+#app.route-map .map-page-container {
+  background: transparent !important;
+}
+
+.desktop-sidebar-only {
+  display: none;
 }
 
 .page-content {
@@ -49,6 +101,7 @@ html, body {
   padding-bottom: 0;
   overflow: hidden;
 }
+
 
 /* ── NAVBAR ── */
 .navbar {
@@ -104,6 +157,10 @@ html, body {
   padding: 0;
   font-size: 24px;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .nav-link.nav-new:hover { transform: translateY(-2px); box-shadow: 4px 4px 0 var(--ink); }
 .nav-link.nav-new img { display: none; }
@@ -163,7 +220,7 @@ html, body {
   padding: 8px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .list-empty {
@@ -487,7 +544,7 @@ html, body {
 .settings-section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
 .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
 .settings-label { font-size: 15px; font-weight: 600; }
-.relay-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.relay-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
 .relay-item {
   display: flex;
   align-items: center;
@@ -553,7 +610,7 @@ html, body {
   30% { transform: translateY(-8px); }
 }
 
-/* ── ALERTS PAGE ── */
+/* ── AGENTS PAGE ── */
 .alert-card {
   background: var(--surface);
   border: var(--border);
@@ -563,7 +620,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 .alert-info { flex: 1; }
 .alert-area { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
@@ -635,3 +692,86 @@ select.form-select {
 .text-sm { font-size: 12px; }
 .mt-8 { margin-top: 8px; }
 .section-pad { padding: 0 16px; }
+
+/* ── RESPONSIVE DESKTOP LAYOUT ── */
+@media (min-width: 768px) {
+  #app {
+    max-width: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: row !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+  #global-map-container {
+    display: block !important;
+    position: relative !important;
+    flex: 1 !important;
+    height: 100vh !important;
+    order: 2 !important;
+  }
+  #main-layout {
+    width: 400px !important;
+    height: 100vh !important;
+    flex-shrink: 0 !important;
+    border-right: var(--border) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    order: 1 !important;
+    position: relative !important;
+    z-index: 10 !important;
+    background: var(--bg) !important;
+  }
+  .navbar {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .desktop-sidebar-only {
+    display: block !important;
+  }
+  /* Avoid overlapping with navbar at the bottom of the sidebar */
+  .page-content {
+    height: calc(100vh - var(--nav-h) - var(--safe-bottom)) !important;
+    overflow-y: auto !important;
+    padding-bottom: 24px !important;
+  }
+}
+
+/* ── MAP SEARCHBOX ── */
+.map-searchbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius);
+  padding: 6px;
+  width: 280px;
+  max-width: calc(100% - 120px); /* Leave room for navigation controls on the right */
+}
+.map-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 4px 6px;
+  color: var(--ink);
+}
+.map-search-btn {
+  padding: 4px 12px !important;
+  font-size: 13px !important;
+  min-height: auto !important;
+}
+
+

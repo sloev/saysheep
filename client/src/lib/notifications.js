@@ -26,10 +26,14 @@ export const notifyIfMatches = (event, subscriptions) => {
   const title = event.tags.find(t => t[0] === 'title')?.[1]
 
   for (const sub of (subscriptions || [])) {
+    // Skip if notifications are disabled for this agent
+    if (sub.notificationsEnabled === false) continue
+
     // Geohash match: event must be within or overlap the subscription area
     const geoMatch = eventGeoTags.some(g =>
       g.startsWith(sub.geohash) || sub.geohash.startsWith(g)
     )
+
     if (!geoMatch) continue
 
     // Tag match: if sub has tags, at least one must match
