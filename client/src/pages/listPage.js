@@ -22,6 +22,12 @@ export const ListPage = () => {
       })
     ),
     () => {
+      if (store.position.loading) {
+        return div({ class: 'list-empty' },
+          span({ class: 'empty-emoji' }, '⏳'),
+          t('list.loading')
+        )
+      }
       const items = getFilteredItems()
       if (!items.length) {
         return div({ class: 'list-empty' },

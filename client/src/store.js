@@ -79,6 +79,19 @@ export const initStore = async () => {
   store.ui.loading = false
 }
 
+// Automatically subscribe to user's local geohash when GPS location is acquired
+van.derive(async () => {
+  if (!store.position.loading && store.position.lat && store.position.lng) {
+    const precision = 5
+    const gh = encodeGeohash(store.position.lat, store.position.lng, precision)
+    if (!store.areaUnsubs[gh]) {
+      const unsub = await subscribeArea(gh, (event) => addEvent(event))
+      store.areaUnsubs[gh] = unsub
+    }
+  }
+})
+
+
 // Called when map bounds change
 export const onMapBoundsChange = async ({ sw, ne, zoom }) => {
   store.map.bounds = { sw, ne }
