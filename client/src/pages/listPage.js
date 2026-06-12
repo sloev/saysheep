@@ -32,8 +32,8 @@ export const ListPage = () => {
       const totalCount = Object.keys(store.items).length
       
       const metaInfo = div({ class: 'list-meta-info', style: 'padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; background: var(--bg); border: 1.5px solid var(--ink); border-radius: 8px; margin-bottom: 12px; box-shadow: var(--shadow-sm);' },
-        span(`Showing ${items.length} items inside map view`),
-        span(`Total: ${totalCount}`)
+        span(t('list.showing_count', { count: items.length })),
+        span(t('list.total_count', { count: totalCount }))
       )
 
       if (!items.length) {

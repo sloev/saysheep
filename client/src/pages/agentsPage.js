@@ -2,8 +2,9 @@ import van from 'vanjs-core'
 import { store, addSubscription, removeSubscription, saveSubscriptions } from '../store.js'
 import { encodeGeohash, getHumanReadableLocation } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
-import { TagInput } from '../fragments/tagInput.js'
 import { randomUUID } from '../lib/nostr.js'
+import { translateTag } from '../lib/categories.js'
+import { TagInput } from '../fragments/tagInput.js'
 const { div, button, span, h2, p } = van.tags
 
 export const AgentsPage = () => {
@@ -62,7 +63,7 @@ export const AgentsPage = () => {
             div({ class: 'alert-info' },
               div({ class: 'alert-area' }, '📍 ', sub.label || sub.geohash),
               div({ class: 'alert-tags' },
-                ...( (sub.tags || []).map(tag => span({ class: 'tag' }, tag)) )
+                ...( (sub.tags || []).map(tag => span({ class: 'tag' }, translateTag(tag))) )
               )
             ),
             div({ style: 'display:flex;gap:8px;align-items:center' },

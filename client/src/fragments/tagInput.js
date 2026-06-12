@@ -1,5 +1,5 @@
 import van from 'vanjs-core'
-import { searchTags, getCategoryForTag, getTagColor } from '../lib/categories.js'
+import { searchTags, getCategoryForTag, getTagColor, translateTag, UNIQUE_TAGS } from '../lib/categories.js'
 import { t } from '../lib/i18n.js'
 const { div, input, button, span } = van.tags
 
@@ -10,8 +10,34 @@ export const TagInput = ({ tags, onTagsChange }) => {
 
   const addTag = (tag) => {
     tag = tag.trim().toLowerCase()
-    if (!tag || tags.val.includes(tag)) { inputVal.val = ''; suggestions.val = []; return }
-    tags.val = [...tags.val, tag]
+    // Find if this tag matches any tag ID or localized name in the taxonomy
+    const matchedTag = UNIQUE_TAGS.find(t => {
+      if (t === tag) return true
+      const localized = translateTag(t).toLowerCase()
+      return localized === tag
+    })
+
+    if (!matchedTag) {
+      const sugg = suggestions.val
+      if (sugg.length > 0) {
+        const firstSugg = sugg[0]
+        if (!tags.val.includes(firstSugg)) {
+          tags.val = [...tags.val, firstSugg]
+          onTagsChange?.(tags.val)
+        }
+      }
+      inputVal.val = ''
+      suggestions.val = []
+      return
+    }
+
+    if (tags.val.includes(matchedTag)) {
+      inputVal.val = ''
+      suggestions.val = []
+      return
+    }
+
+    tags.val = [...tags.val, matchedTag]
     onTagsChange?.(tags.val)
     inputVal.val = ''
     suggestions.val = []
@@ -57,7 +83,7 @@ export const TagInput = ({ tags, onTagsChange }) => {
         ...currentTags.map(tag => {
           const color = getTagColor(tag)
           return div({ class: 'tag-removable', style: `background:${color}` },
-            span(tag),
+            span(translateTag(tag)),
             button({ class: 'tag-remove', type: 'button', onclick: () => removeTag(tag) }, '×')
           )
         })
@@ -82,7 +108,7 @@ export const TagInput = ({ tags, onTagsChange }) => {
           return div({
             class: () => `tag-suggestion ${activeIdx.val === i ? 'active' : ''}`,
             onmousedown: (e) => { e.preventDefault(); addTag(s) },
-          }, span(cat.emoji), span(s))
+          }, span(cat.emoji), span(translateTag(s)))
         })
       )
     }

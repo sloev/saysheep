@@ -2,7 +2,7 @@ import van from 'vanjs-core'
 import { store, currentItemId } from '../store.js'
 import { subscribeChat, sendChatMessage, markTaken, deleteItem } from '../lib/sync.js'
 import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey } from '../lib/nostr.js'
-import { getTagColor } from '../lib/categories.js'
+import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
@@ -60,7 +60,7 @@ export const ItemPage = () => {
   const handleDelete = async () => {
     const ev = event()
     if (!ev) return
-    if (!confirm('Delete this post?')) return
+    if (!confirm(t('settings.identity.confirm_delete'))) return
     await deleteItem(ev)
     cone.navigate('list', {})
   }
@@ -68,25 +68,25 @@ export const ItemPage = () => {
   const handleShare = () => {
     const ev = event()
     if (!ev) return
-    const title = getItemTitle(ev) || 'Free item'
+    const title = getItemTitle(ev) || t('item.default_title')
     const url = window.location.href
     if (navigator.share) {
-      navigator.share({ title, text: `${title} — free on saysheep`, url })
+      navigator.share({ title, text: t('item.share_text', { title }), url })
     } else {
       navigator.clipboard.writeText(`${title}\n${url}`)
     }
   }
 
   return div({ class: 'page-content' },
-    button({ class: 'back-btn', onclick: () => cone.navigate('list', {}) }, '← back'),
+    button({ class: 'back-btn', onclick: () => cone.navigate('list', {}) }, t('item.back')),
     () => {
       const ev = event()
-      if (!ev) return div({ style: 'padding:40px;text-align:center;color:var(--muted)' }, 'Item not found')
+      if (!ev) return div({ style: 'padding:40px;text-align:center;color:var(--muted)' }, t('item.not_found'))
 
-      const title = getItemTitle(ev)
+      const tags = getItemTags(ev)
+      const title = getItemTitle(ev) || translateTag(tags[0] || 'other')
       const summary = getItemSummary(ev)
       const photo = getItemImage(ev)
-      const tags = getItemTags(ev)
       const taken = isTaken(ev)
       const geo = getItemGeo(ev)
       const expiry = getItemExpiry(ev)
@@ -108,7 +108,7 @@ export const ItemPage = () => {
 
           // Tags
           tags.length ? div({ class: 'item-card-tags', style: 'margin-bottom:10px' },
-            ...tags.map(tag => div({ class: 'tag', style: `background:${getTagColor(tag)}` }, tag))
+            ...tags.map(tag => div({ class: 'tag', style: `background:${getTagColor(tag)}` }, translateTag(tag)))
           ) : null,
 
           // Meta pills

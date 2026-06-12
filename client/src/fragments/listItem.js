@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, shortPubkey } from '../lib/nostr.js'
-import { getTagColor } from '../lib/categories.js'
+import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
 import { store, currentItemId } from '../store.js'
@@ -13,10 +13,10 @@ import speechImg from '../images/speech.png'
 const { div, img, span } = van.tags
 
 export const ListItem = (event) => {
-  const title = getItemTitle(event)
+  const tags = getItemTags(event)
+  const title = getItemTitle(event) || translateTag(tags[0] || 'other')
   const summary = getItemSummary(event)
   const photo = getItemImage(event)
-  const tags = getItemTags(event)
   const taken = isTaken(event)
   const geo = getItemGeo(event)
 
@@ -44,7 +44,7 @@ export const ListItem = (event) => {
     ),
     div({ class: 'item-card-tags' },
       ...tags.slice(0, 3).map(tag =>
-        div({ class: 'tag', style: `background:${getTagColor(tag)}` }, tag)
+        div({ class: 'tag', style: `background:${getTagColor(tag)}` }, translateTag(tag))
       )
     ),
     div({ class: 'item-card-pills' },

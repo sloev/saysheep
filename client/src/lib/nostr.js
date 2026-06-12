@@ -35,12 +35,22 @@ export const getEventHash = (event) => {
   return bytesToHex(sha256(encoder.encode(serialized)))
 }
 
+export const isTestContext = () => {
+  if (typeof window === 'undefined') return false
+  return !!(
+    window.navigator.webdriver ||
+    window.location.search.includes('test=true') ||
+    localStorage.getItem('saysheep_test_mode') === 'true'
+  )
+}
+
 // Build a free-item listing event (NIP-99 kind 30402) with NIP-13 PoW (difficulty 8)
 export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil }) => {
+  const isTest = isTestContext()
   const now = Math.floor(Date.now() / 1000)
-  const expiry = availableUntil
-    ? Math.floor(availableUntil / 1000)
-    : now + 14 * 86400
+  const expiry = isTest
+    ? now + 300 // 5 minutes for test items
+    : (availableUntil ? Math.floor(availableUntil / 1000) : now + 14 * 86400)
 
   // Multiple geohash precisions for area queries
   const geohash = Geohash.encode(geo.lat, geo.lng, 9)
@@ -63,6 +73,7 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
     ...tags.map(t => ['t', t]),
   ]
   if (photo) eventTags.push(['image', photo])
+  if (isTest) eventTags.push(['test', 'true'])
 
   // Mine NIP-13 PoW (difficulty target 8)
   const targetDifficulty = 8

@@ -1,3 +1,5 @@
+import { t } from '../lib/i18n.js'
+
 export const formatRelative = (timestamp) => {
   const ms = Date.now() - (timestamp > 1e12 ? timestamp : timestamp * 1000)
   const secs = Math.floor(ms / 1000)
@@ -25,7 +27,7 @@ export const formatDate = (timestamp) => {
 export const formatExpiry = (timestamp) => {
   const target = timestamp > 1e12 ? timestamp : timestamp * 1000
   const ms = target - Date.now()
-  if (ms <= 0) return 'expired'
+  if (ms <= 0) return t('format.expired')
   const secs = Math.floor(ms / 1000)
   const mins = Math.floor(secs / 60)
   const hrs = Math.floor(mins / 60)
@@ -35,14 +37,17 @@ export const formatExpiry = (timestamp) => {
   const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 
   if (days > 0) {
-    const unit = days === 1 ? 'day' : 'days'
-    return `${days} ${unit} left (${dateStr})`
+    return days === 1
+      ? t('format.left.day', { n: days, date: dateStr })
+      : t('format.left.days', { n: days, date: dateStr })
   }
   if (hrs > 0) {
-    const unit = hrs === 1 ? 'hour' : 'hours'
-    return `${hrs} ${unit} left (${dateStr})`
+    return hrs === 1
+      ? t('format.left.hour', { n: hrs, date: dateStr })
+      : t('format.left.hours', { n: hrs, date: dateStr })
   }
-  const unit = mins === 1 ? 'minute' : 'minutes'
-  return `${mins} ${unit} left (${dateStr})`
+  return mins === 1
+    ? t('format.left.minute', { n: mins, date: dateStr })
+    : t('format.left.minutes', { n: mins, date: dateStr })
 }
 

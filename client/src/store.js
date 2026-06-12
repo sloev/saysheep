@@ -4,10 +4,10 @@ import { initSync, subscribeArea, CONNECTIVITY, getMode } from './lib/sync.js'
 import { initI18n } from './lib/i18n.js'
 import { getIdentity, importIdentity } from './lib/identity.js'
 import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.js'
-
+import { getSearchableTerms } from './lib/categories.js'
 
 import { getRelays } from './lib/relay.js'
-import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID } from './lib/nostr.js'
+import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext } from './lib/nostr.js'
 import { notifyIfMatches } from './lib/notifications.js'
 
 export const currentItemId = van.state(null)
@@ -132,6 +132,12 @@ export const onMapBoundsChange = async ({ sw, ne, zoom }) => {
 export const addEvent = (event) => {
   if (!event?.id) return
 
+  // Discard test events for general users
+  const isTestItem = event.tags.some(t => t[0] === 'test' && t[1] === 'true')
+  if (isTestItem && !isTestContext()) {
+    return
+  }
+
   // Spam prevention: PoW (Proof of Work) verification
   if (event.kind === 30402 || event.kind === 1) {
     const requiredPow = event.kind === 30402 ? 8 : 4
@@ -220,10 +226,10 @@ export const getFilteredItems = () => {
     }
 
     if (!q) return true
-    const title = ev.tags.find(t => t[0] === 'title')?.[1] || ''
-    const tags = ev.tags.filter(t => t[0] === 't').map(t => t[1]).join(' ')
-    const content = ev.content || ''
-    return (title + ' ' + tags + ' ' + content).toLowerCase().includes(q)
+    const { title, content, tags } = getSearchableTerms(ev)
+    return title.includes(q) ||
+           content.includes(q) ||
+           tags.some(t => t.includes(q))
   })
 }
 

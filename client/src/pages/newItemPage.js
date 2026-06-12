@@ -109,7 +109,7 @@ export const NewItemPage = () => {
         hasPhoto.val = true
       }
       imgEl.onerror = () => {
-        alert('Failed to load uploaded image.')
+        alert(t('new.photo.failed'))
       }
       imgEl.src = ev.target.result
     }
@@ -239,7 +239,7 @@ export const NewItemPage = () => {
         },
           ...Array.from({ length: 14 }, (_, i) => i + 1).map(day =>
             option({ value: day, selected: () => customExpiry.val === day },
-              `${day} ${day === 1 ? 'day' : 'days'}`
+              `${day} ${day === 1 ? t('new.day') : t('new.days')}`
             )
           )
         )

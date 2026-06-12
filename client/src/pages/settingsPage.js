@@ -61,11 +61,11 @@ export const SettingsPage = () => {
           ...relaysStatus.val.map(({ url, connected, nextReconnectAt }) => {
             let statusBadge
             if (connected) {
-              statusBadge = span({ style: 'font-size:11px;color:var(--mint);font-weight:700;margin-top:2px' }, '🟢 Connected')
+              statusBadge = span({ style: 'font-size:11px;color:var(--mint);font-weight:700;margin-top:2px' }, '🟢 ' + t('relay.status.connected'))
             } else {
               const secs = nextReconnectAt ? Math.ceil((nextReconnectAt - Date.now()) / 1000) : 0
               statusBadge = span({ style: 'font-size:11px;color:var(--pink);font-weight:700;margin-top:2px' }, 
-                secs > 0 ? `🔴 Retrying in ${secs}s` : '🔴 Connecting...'
+                secs > 0 ? '🔴 ' + t('relay.status.retry', { secs }) : '🔴 ' + t('relay.status.connecting')
               )
             }
 
@@ -146,7 +146,7 @@ export const SettingsPage = () => {
                   const ok = await verifyPasskey()
                   if (!ok) return
                 } catch (err) {
-                  alert('Passkey verification failed: ' + err.message)
+                  alert(t('settings.identity.passkey.failed_verify', { error: err.message }))
                   return
                 }
               }
@@ -162,7 +162,7 @@ export const SettingsPage = () => {
                   const ok = await verifyPasskey()
                   if (!ok) return
                 } catch (err) {
-                  alert('Passkey verification failed: ' + err.message)
+                  alert(t('settings.identity.passkey.failed_verify', { error: err.message }))
                   return
                 }
               }
@@ -205,9 +205,9 @@ export const SettingsPage = () => {
                 try {
                   updateIdentity(clean)
                   importInput.val = ''
-                  alert('Identity imported successfully!')
+                  alert(t('settings.identity.import.success'))
                 } catch (err) {
-                  alert('Failed to import: ' + err.message)
+                  alert(t('settings.identity.import.failed', { error: err.message }))
                 }
               }
             }, t('settings.identity.import_btn'))
@@ -227,12 +227,12 @@ export const SettingsPage = () => {
                     const parsed = JSON.parse(event.target.result)
                     if (parsed.secretKeyHex && parsed.secretKeyHex.length === 64) {
                       updateIdentity(parsed.secretKeyHex)
-                      alert('Identity imported successfully from backup!')
+                      alert(t('settings.identity.import.success_backup'))
                     } else {
-                      alert('Invalid backup file structure')
+                      alert(t('settings.identity.import.invalid_backup'))
                     }
                   } catch (err) {
-                    alert('Failed to parse backup file')
+                    alert(t('settings.identity.import.failed_parse'))
                   }
                 }
                 reader.readAsText(file)
@@ -261,19 +261,19 @@ export const SettingsPage = () => {
                       try {
                         const ok = await verifyPasskey()
                         if (ok) {
-                          alert('Passkey verified successfully!')
+                          alert(t('settings.identity.passkey.success_verify'))
                         }
                       } catch (err) {
-                        alert('Passkey verification failed: ' + err.message)
+                        alert(t('settings.identity.passkey.failed_verify', { error: err.message }))
                       }
                     }
-                  }, t('settings.identity.passkey_test')),
+                  }, t('settings.identity.passkey.test')),
                   button({
                     class: 'btn btn-sm btn-danger',
                     onclick: () => {
                       clearPasskey()
                       passkeyRegistered.val = false
-                      alert('Passkey protection disabled.')
+                      alert(t('settings.identity.passkey.disabled'))
                     }
                   }, t('settings.identity.passkey_disable'))
                 )
@@ -286,10 +286,10 @@ export const SettingsPage = () => {
                     const ok = await registerPasskey()
                     if (ok) {
                       passkeyRegistered.val = true
-                      alert('Passkey protection enabled successfully!')
+                      alert(t('settings.identity.passkey.success_enable'))
                     }
                   } catch (err) {
-                    alert('Failed to register Passkey: ' + err.message)
+                    alert(t('settings.identity.passkey.failed_register', { error: err.message }))
                   }
                 }
               }, t('settings.identity.passkey_enable'))

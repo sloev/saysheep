@@ -5,6 +5,8 @@ import mapstyle from '../mapstyle.json'
 import { store, onMapBoundsChange, currentItemId } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
+import { t } from '../lib/i18n.js'
+import { getRelays, getRelaysStatus } from '../lib/relay.js'
 
 const mapDiv = van.tags.div({ id: 'map' })
 let _map = null
@@ -13,7 +15,11 @@ const _markers = new Map()
 const isWebGLSupported = () => {
   try {
     const canvas = document.createElement('canvas')
-    return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')))
+    const gl = window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    if (!gl) return false
+    const ext = gl.getExtension('WEBGL_lose_context')
+    if (ext) ext.loseContext()
+    return true
   } catch (e) {
     return false
   }
@@ -31,11 +37,37 @@ export const setupMap = (lng, lat) => {
     mapDiv.style.color = 'var(--ink)'
     mapDiv.style.fontSize = '14px'
     mapDiv.style.fontWeight = 'bold'
-    mapDiv.textContent = 'WebGL is disabled or not supported in your browser. The map cannot be displayed.'
+    mapDiv.textContent = t('map.webgl_unsupported')
     return
   }
   const protocol = new pmtiles.Protocol()
   maplibregl.addProtocol('pmtiles', protocol.tile)
+
+  const isSelfHostedRelay = (url) => {
+    const envUrl = import.meta.env?.VITE_RELAY_URL
+    if (envUrl && url === envUrl) return true
+    if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes('192.168.') || url.includes('10.')) return true
+    try {
+      const relayHost = new URL(url).hostname
+      if (relayHost === window.location.hostname) return true
+    } catch {}
+    return false
+  }
+
+  const status = getRelaysStatus()
+  const selfHostedRelays = status.filter(r => isSelfHostedRelay(r.url))
+  const connectedRelay = selfHostedRelays.find(r => r.connected) || selfHostedRelays[0]
+
+  let mapPmtilesUrl
+  if (connectedRelay) {
+    const relayBaseUrl = connectedRelay.url.replace(/^ws/, 'http')
+    mapPmtilesUrl = `pmtiles://${relayBaseUrl}/map.pmtiles`
+  } else {
+    mapPmtilesUrl = 'pmtiles://https://data.source.coop/protomaps/openstreetmap/v4.pmtiles'
+  }
+
+  const dynamicStyle = JSON.parse(JSON.stringify(mapstyle))
+  dynamicStyle.sources["saysheep-tiles"].url = mapPmtilesUrl
 
   const savedLat = localStorage.getItem('saysheep_last_lat')
   const savedLng = localStorage.getItem('saysheep_last_lng')
@@ -48,7 +80,7 @@ export const setupMap = (lng, lat) => {
 
   _map = new maplibregl.Map({
     container: mapDiv,
-    style: mapstyle,
+    style: dynamicStyle,
     center: initialCenter,
     zoom: initialZoom,
     maxZoom: 18,
@@ -154,10 +186,10 @@ export const MapSearchBox = () => {
           essential: true
         })
       } else {
-        alert('Location not found')
+        alert(t('map.location_not_found'))
       }
     } catch (err) {
-      alert('Error searching location: ' + err.message)
+      alert(t('map.search_error', { error: err.message }))
     } finally {
       searching.val = false
     }
@@ -165,7 +197,7 @@ export const MapSearchBox = () => {
 
   const handleGoToMyLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser')
+      alert(t('map.geolocation_unsupported'))
       return
     }
     locating.val = true
@@ -185,7 +217,7 @@ export const MapSearchBox = () => {
       }
     }, (err) => {
       locating.val = false
-      alert('Error getting location: ' + err.message)
+      alert(t('map.location_error', { error: err.message }))
     })
   }
 
@@ -193,7 +225,7 @@ export const MapSearchBox = () => {
     van.tags.input({
       class: 'map-search-input',
       type: 'text',
-      placeholder: '🔍 Search location...',
+      placeholder: t('map.search_placeholder'),
       value: query,
       oninput: (e) => query.val = e.target.value,
       onkeydown: (e) => {
