@@ -40,6 +40,7 @@ export const setupMap = (lng, lat) => {
   }), 'top-right')
 
   const notifyBounds = () => {
+    if (mapDiv.offsetWidth === 0 || mapDiv.offsetHeight === 0) return
     const bounds = _map.getBounds()
     const zoom = _map.getZoom()
     const center = _map.getCenter()

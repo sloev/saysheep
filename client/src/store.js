@@ -103,6 +103,10 @@ van.derive(async () => {
 
 // Called when map bounds change
 export const onMapBoundsChange = async ({ sw, ne, zoom }) => {
+  if (!sw || !ne) return
+  if (sw.lat === 0 && ne.lat === 0 && sw.lng === 0 && ne.lng === 0) return
+  if (sw.lat === ne.lat && sw.lng === ne.lng) return
+
   store.map.bounds = { sw, ne }
   store.map.zoom = zoom
 

@@ -14,7 +14,7 @@ export const MapPage = () => {
 
   return div({ class: 'page-content full-height map-page-container' },
     div({ class: 'desktop-sidebar-only' }, ListPage()),
-    div({ class: 'mobile-only', style: 'position:absolute;top:70px;left:10px;z-index:10' },
+    div({ class: 'mobile-only', style: 'position:absolute;top:70px;right:10px;z-index:10' },
       ConnStatus()
     )
   )
