@@ -7,7 +7,7 @@ import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.j
 
 
 import { getRelays } from './lib/relay.js'
-import { getItemGeohash, isTaken, isExpired } from './lib/nostr.js'
+import { getItemGeohash, isTaken, isExpired, getEventPow } from './lib/nostr.js'
 import { notifyIfMatches } from './lib/notifications.js'
 
 export const currentItemId = van.state(null)
@@ -48,6 +48,7 @@ export const initStore = async () => {
   initSync({
     onPeerCount: (n) => { store.connectivity.peers = n },
     onRelayCount: (n) => { store.connectivity.relays = n },
+    onEvent: (event) => addEvent(event),
     relayUrls: null, // uses stored/default relays
   })
   store.connectivity.mode = getMode()
@@ -118,6 +119,27 @@ export const onMapBoundsChange = async ({ sw, ne, zoom }) => {
 
 export const addEvent = (event) => {
   if (!event?.id) return
+
+  // Spam prevention: PoW (Proof of Work) verification
+  if (event.kind === 30402 || event.kind === 1) {
+    const requiredPow = event.kind === 30402 ? 8 : 4
+    if (getEventPow(event.id) < requiredPow) {
+      return // Discard spam event
+    }
+  }
+
+  // NIP-09 kind 5: deletion event
+  if (event.kind === 5) {
+    const eTags = event.tags.filter(t => t[0] === 'e').map(t => t[1])
+    for (const id of eTags) {
+      const target = store.items[id]
+      if (target && target.pubkey === event.pubkey) {
+        delete store.items[id]
+      }
+    }
+    return
+  }
+
   if (isExpired(event)) return
 
   // NIP-33: kind 30402 is a replaceable event keyed by (pubkey, d-tag).
@@ -166,6 +188,19 @@ export const getFilteredItems = () => {
   const q = store.ui.searchQuery.toLowerCase().trim()
   return Object.values(store.items).filter(ev => {
     if (isTaken(ev) || isExpired(ev)) return false
+
+    // Filter by visible map bounds
+    if (store.map.bounds) {
+      const geo = getItemGeo(ev)
+      if (!geo) return false
+      const { sw, ne } = store.map.bounds
+      const latOk = geo.lat >= sw.lat && geo.lat <= ne.lat
+      const lngOk = sw.lng <= ne.lng
+        ? (geo.lng >= sw.lng && geo.lng <= ne.lng)
+        : (geo.lng >= sw.lng || geo.lng <= ne.lng)
+      if (!latOk || !lngOk) return false
+    }
+
     if (!q) return true
     const title = ev.tags.find(t => t[0] === 'title')?.[1] || ''
     const tags = ev.tags.filter(t => t[0] === 't').map(t => t[1]).join(' ')

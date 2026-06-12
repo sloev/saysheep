@@ -86,5 +86,22 @@
   "slogan.3": "teile frische Gartenkräuter auf saysheep",
   "slogan.4": "entdecke versteckte Schätze auf saysheep",
   "slogan.5": "gib ab, was du nicht brauchst, auf saysheep",
-  "slogan.6": "gemeinsam Müll reduzieren auf saysheep"
+  "slogan.6": "gemeinsam Müll reduzieren auf saysheep",
+  "item.too_far": "muss innerhalb von 100m sein, um es zu nehmen (du bist {dist} entfernt)",
+  "item.waiting_location": "warte auf Standort... ⏳",
+  "settings.identity.hide_key": "privaten schlüssel ausblenden",
+  "settings.identity.download_backup": "backupdatei herunterladen",
+  "settings.identity.import_heading": "privaten schlüssel / backup importieren",
+  "settings.identity.import_placeholder": "64-stelligen privaten schlüssel einfügen...",
+  "settings.identity.import_btn": "importieren",
+  "settings.identity.upload_backup": "backup-json-datei hochladen",
+  "settings.identity.passkey_heading": "passkey-schutz (webauthn)",
+  "settings.identity.passkey_desc": "fügen sie eine zusätzliche biometrische sicherheitsstufe hinzu, um ihren privaten schlüssel vor unbefugtem ansehen oder exportieren zu schützen.",
+  "settings.identity.passkey_unsupported": "webauthn wird von diesem browser nicht unterstützt.",
+  "settings.identity.passkey_protected": "✓ geschützt durch geräte-passkey",
+  "settings.identity.passkey_test": "passkey testen",
+  "settings.identity.passkey_disable": "passkey deaktivieren",
+  "settings.identity.passkey_enable": "passkey-schutz aktivieren",
+  "settings.identity.confirm_delete": "diesen beitrag löschen?",
+  "settings.identity.invalid_key": "der private schlüssel muss eine 64-stellige hex-zeichenfolge sein"
 }

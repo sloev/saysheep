@@ -86,5 +86,22 @@
   "slogan.3": "partagez des herbes fraîches du jardin sur saysheep",
   "slogan.4": "découvrez des trésors cachés sur saysheep",
   "slogan.5": "donnez ce dont vous n'avez plus besoin sur saysheep",
-  "slogan.6": "réduisons les déchets ensemble sur saysheep"
+  "slogan.6": "réduisons les déchets ensemble sur saysheep",
+  "item.too_far": "doit être à moins de 100m pour le prendre (vous êtes à {dist})",
+  "item.waiting_location": "en attente de la localisation... ⏳",
+  "settings.identity.hide_key": "masquer la clé privée",
+  "settings.identity.download_backup": "télécharger le fichier de sauvegarde",
+  "settings.identity.import_heading": "importer une clé privée / sauvegarde",
+  "settings.identity.import_placeholder": "coller la clé privée de 64 caractères...",
+  "settings.identity.import_btn": "importer",
+  "settings.identity.upload_backup": "téléverser le fichier json de sauvegarde",
+  "settings.identity.passkey_heading": "protection par passkey (webauthn)",
+  "settings.identity.passkey_desc": "ajoutez une couche de sécurité biométrique supplémentaire pour empêcher l'affichage ou l'exportation non autorisés de votre clé privée.",
+  "settings.identity.passkey_unsupported": "webauthn n'est pas pris en charge par ce navigateur.",
+  "settings.identity.passkey_protected": "✓ protégé par la clé d'accès de l'appareil",
+  "settings.identity.passkey_test": "tester la clé d'accès",
+  "settings.identity.passkey_disable": "désactiver la clé d'accès",
+  "settings.identity.passkey_enable": "activer la protection par passkey",
+  "settings.identity.confirm_delete": "supprimer ce message ?",
+  "settings.identity.invalid_key": "la clé privée doit être une chaîne hexadécimale de 64 caractères"
 }

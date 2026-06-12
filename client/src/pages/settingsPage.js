@@ -154,7 +154,7 @@ export const SettingsPage = () => {
               }
               showPrivkey.val = !showPrivkey.val
             }
-          }, () => showPrivkey.val ? 'Hide Private Key' : t('settings.identity.export')),
+          }, () => showPrivkey.val ? t('settings.identity.hide_key') : t('settings.identity.export')),
           
           button({
             class: 'btn btn-sm btn-muted',
@@ -178,7 +178,7 @@ export const SettingsPage = () => {
               a.click()
               URL.revokeObjectURL(url)
             }
-          }, 'Download Backup File')
+          }, t('settings.identity.download_backup'))
         ),
         
         () => showPrivkey.val
@@ -187,12 +187,12 @@ export const SettingsPage = () => {
 
         // Import actions
         div({ style: 'border-top:1.5px dashed rgba(0,0,0,0.1); margin-top:8px; padding-top:12px;' },
-          div({ class: 'form-label', style: 'margin-bottom:6px;' }, 'Import Private Key / Backup'),
+          div({ class: 'form-label', style: 'margin-bottom:6px;' }, t('settings.identity.import_heading')),
           div({ style: 'display:flex; gap:8px;' },
             input({
               class: 'form-input',
               style: 'font-family:monospace; font-size:12px;',
-              placeholder: 'Paste 64-char private key hex...',
+              placeholder: t('settings.identity.import_placeholder'),
               value: importInput,
               oninput: e => importInput.val = e.target.value
             }),
@@ -201,7 +201,7 @@ export const SettingsPage = () => {
               onclick: () => {
                 const clean = importInput.val.trim()
                 if (clean.length !== 64) {
-                  alert('Private key must be a 64-character hex string')
+                  alert(t('settings.identity.invalid_key'))
                   return
                 }
                 try {
@@ -212,10 +212,10 @@ export const SettingsPage = () => {
                   alert('Failed to import: ' + err.message)
                 }
               }
-            }, 'Import')
+            }, t('settings.identity.import_btn'))
           ),
           label({ class: 'btn btn-sm btn-muted', style: 'margin-top:8px; display:inline-block; cursor:pointer; text-align:center;' },
-            'Upload Backup JSON File',
+            t('settings.identity.upload_backup'),
             input({
               type: 'file',
               accept: '.json',
@@ -245,17 +245,17 @@ export const SettingsPage = () => {
 
         // Passkey / WebAuthn protection
         div({ style: 'border-top:1.5px dashed rgba(0,0,0,0.1); margin-top:8px; padding-top:12px;' },
-          div({ class: 'form-label', style: 'margin-bottom:4px;' }, 'Passkey Protection (WebAuthn)'),
+          div({ class: 'form-label', style: 'margin-bottom:4px;' }, t('settings.identity.passkey_heading')),
           p({ style: 'font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.4' },
-            'Add an extra layer of biometric security to protect your private key from being unauthorizedly viewed or exported.'
+            t('settings.identity.passkey_desc')
           ),
           () => {
             if (!isWebAuthnSupported()) {
-              return div({ style: 'font-size:12px; color:var(--muted)' }, 'WebAuthn is not supported by this browser.')
+              return div({ style: 'font-size:12px; color:var(--muted)' }, t('settings.identity.passkey_unsupported'))
             }
             if (passkeyRegistered.val) {
               return div({ style: 'display:flex; flex-direction:column; gap:8px;' },
-                div({ style: 'font-size:12px; color:var(--mint); font-weight:bold;' }, '✓ Protected by Device Passkey'),
+                div({ style: 'font-size:12px; color:var(--mint); font-weight:bold;' }, t('settings.identity.passkey_protected')),
                 div({ style: 'display:flex; gap:8px;' },
                   button({
                     class: 'btn btn-sm btn-primary',
@@ -269,7 +269,7 @@ export const SettingsPage = () => {
                         alert('Passkey verification failed: ' + err.message)
                       }
                     }
-                  }, 'Test Passkey'),
+                  }, t('settings.identity.passkey_test')),
                   button({
                     class: 'btn btn-sm btn-danger',
                     onclick: () => {
@@ -277,7 +277,7 @@ export const SettingsPage = () => {
                       passkeyRegistered.val = false
                       alert('Passkey protection disabled.')
                     }
-                  }, 'Disable Passkey')
+                  }, t('settings.identity.passkey_disable'))
                 )
               )
             } else {
@@ -294,7 +294,7 @@ export const SettingsPage = () => {
                     alert('Failed to register Passkey: ' + err.message)
                   }
                 }
-              }, 'Enable Passkey Protection')
+              }, t('settings.identity.passkey_enable'))
             }
           }
         )

@@ -86,5 +86,22 @@
   "slogan.3": "saysheepで採れたてのハーブをシェアしよう",
   "slogan.4": "saysheepで隠れたお宝を見つけよう",
   "slogan.5": "不要なものをsaysheepで譲ろう",
-  "slogan.6": "saysheepで一緒にゴミを減らそう"
+  "slogan.6": "saysheepで一緒にゴミを減らそう",
+  "item.too_far": "受け取るには100m以内にいる必要があります（現在 {dist} 離れています）",
+  "item.waiting_location": "位置情報を待機中... ⏳",
+  "settings.identity.hide_key": "秘密鍵を非表示にする",
+  "settings.identity.download_backup": "バックアップファイルをダウンロード",
+  "settings.identity.import_heading": "秘密鍵 / バックアップのインポート",
+  "settings.identity.import_placeholder": "64文字の秘密鍵を貼り付け...",
+  "settings.identity.import_btn": "インポート",
+  "settings.identity.upload_backup": "バックアップjsonファイルをアップロード",
+  "settings.identity.passkey_heading": "パスキー保護 (webauthn)",
+  "settings.identity.passkey_desc": "秘密鍵が許可なく表示またはエクスポートされないように、生体認証によるセキュリティを追加します。",
+  "settings.identity.passkey_unsupported": "このブラウザは webauthn をサポートしていません。",
+  "settings.identity.passkey_protected": "✓ デバイスのパスキーで保護されています",
+  "settings.identity.passkey_test": "パスキーをテスト",
+  "settings.identity.passkey_disable": "パスキーを無効化",
+  "settings.identity.passkey_enable": "パスキー保護を有効化",
+  "settings.identity.confirm_delete": "この投稿を削除しますか？",
+  "settings.identity.invalid_key": "秘密鍵は64文字の16進数文字列である必要があります"
 }

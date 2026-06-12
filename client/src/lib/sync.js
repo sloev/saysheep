@@ -17,6 +17,7 @@ let _chatUnsubs = new Map()
 let _onPeerCount = null
 let _onRelayCount = null
 let _peerEventHandler = null
+let _onEventCallback = null
 
 export const getMode = () => _mode
 export const setMode = (mode) => {
@@ -24,10 +25,11 @@ export const setMode = (mode) => {
   localStorage.setItem('saysheep_connectivity', mode)
 }
 
-export const initSync = ({ onPeerCount, onRelayCount, relayUrls }) => {
+export const initSync = ({ onPeerCount, onRelayCount, onEvent, relayUrls }) => {
   _mode = localStorage.getItem('saysheep_connectivity') || CONNECTIVITY.BOTH
   _onPeerCount = onPeerCount
   _onRelayCount = onRelayCount
+  _onEventCallback = onEvent
 
   if (!isWebXDC()) {
     if (_mode !== CONNECTIVITY.PEERS) {
@@ -105,6 +107,7 @@ export const publishItem = async ({ description, tags, photo, geo, availableUnti
   const event = buildItemEvent({ secretKey, id: crypto.randomUUID(), description, tags, photo, geo, availableUntil })
   await storeEvent(event)
   await _broadcast(event, geo)
+  if (_onEventCallback) _onEventCallback(event)
   return event
 }
 
@@ -113,6 +116,7 @@ export const markTaken = async (originalEvent) => {
   const event = buildTakenEvent({ secretKey, originalEvent })
   await storeEvent(event)
   await _broadcast(event, null, originalEvent)
+  if (_onEventCallback) _onEventCallback(event)
   return event
 }
 
@@ -138,6 +142,7 @@ export const deleteItem = async (event) => {
   const delEvent = buildDeleteEvent({ secretKey, eventId: event.id })
   await storeEvent(delEvent)
   if (!isWebXDC() && _mode !== CONNECTIVITY.PEERS) await relayPublish(delEvent)
+  if (_onEventCallback) _onEventCallback(delEvent)
 }
 
 const _broadcast = async (event, geo, originalEvent) => {

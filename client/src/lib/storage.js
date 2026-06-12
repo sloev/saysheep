@@ -23,6 +23,17 @@ export const storeEvent = async (event) => {
   const d = await db()
   const tx = d.transaction('events', 'readwrite')
 
+  // NIP-09 kind 5: deletion event
+  if (event.kind === 5) {
+    const eTags = event.tags.filter(t => t[0] === 'e').map(t => t[1])
+    for (const id of eTags) {
+      const target = await tx.store.get(id)
+      if (target && target.pubkey === event.pubkey) {
+        await tx.store.delete(id)
+      }
+    }
+  }
+
   // NIP-33: for kind 30402, replace older events with same (pubkey, d-tag)
   if (event.kind === 30402) {
     const dTag = event.tags.find(t => t[0] === 'd')?.[1]

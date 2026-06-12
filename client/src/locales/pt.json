@@ -86,5 +86,22 @@
   "slogan.3": "compartilhe ervas frescas do jardim no saysheep",
   "slogan.4": "descubra tesouros escondidos no saysheep",
   "slogan.5": "doe o que você não precisa no saysheep",
-  "slogan.6": "reduza o desperdício junto no saysheep"
+  "slogan.6": "reduza o desperdício junto no saysheep",
+  "item.too_far": "deve estar a menos de 100m para pegar (você está a {dist} de distância)",
+  "item.waiting_location": "aguardando localização... ⏳",
+  "settings.identity.hide_key": "ocultar chave privada",
+  "settings.identity.download_backup": "baixar arquivo de backup",
+  "settings.identity.import_heading": "importar chave privada / backup",
+  "settings.identity.import_placeholder": "colar chave privada de 64 caracteres...",
+  "settings.identity.import_btn": "importar",
+  "settings.identity.upload_backup": "enviar arquivo json de backup",
+  "settings.identity.passkey_heading": "proteção por chave de acesso (webauthn)",
+  "settings.identity.passkey_desc": "adicione uma camada extra de segurança biométrica para proteger sua chave privada de visualizações ou exportações não autorizadas.",
+  "settings.identity.passkey_unsupported": "webauthn não é suportado por este navegador.",
+  "settings.identity.passkey_protected": "✓ protegido por passkey do dispositivo",
+  "settings.identity.passkey_test": "testar passkey",
+  "settings.identity.passkey_disable": "desativar passkey",
+  "settings.identity.passkey_enable": "ativar proteção por passkey",
+  "settings.identity.confirm_delete": "excluir esta postagem?",
+  "settings.identity.invalid_key": "a chave privada deve ser uma string hexadecimal de 64 caracteres"
 }

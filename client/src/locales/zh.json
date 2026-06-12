@@ -86,5 +86,22 @@
   "slogan.3": "在 saysheep 上分享新鲜的花园草药",
   "slogan.4": "在 saysheep 上发现隐藏的宝藏",
   "slogan.5": "在 saysheep 上赠送你不需要的物品",
-  "slogan.6": "在 saysheep 上一起减少浪费"
+  "slogan.6": "在 saysheep 上一起减少浪费",
+  "item.too_far": "必须在100米以内才能领取（您距离 {dist}）",
+  "item.waiting_location": "正在等待定位... ⏳",
+  "settings.identity.hide_key": "隐藏私钥",
+  "settings.identity.download_backup": "下载备份文件",
+  "settings.identity.import_heading": "导入私钥/备份",
+  "settings.identity.import_placeholder": "粘贴64位私钥十六进制字符...",
+  "settings.identity.import_btn": "导入",
+  "settings.identity.upload_backup": "上传备份json文件",
+  "settings.identity.passkey_heading": "通行密钥保护 (webauthn)",
+  "settings.identity.passkey_desc": "添加额外的生物识别安全保护，防止私钥被未授权查看或导出。",
+  "settings.identity.passkey_unsupported": "此浏览器不支持 webauthn。",
+  "settings.identity.passkey_protected": "✓ 已受设备通行密钥保护",
+  "settings.identity.passkey_test": "测试通行密钥",
+  "settings.identity.passkey_disable": "禁用通行密钥",
+  "settings.identity.passkey_enable": "启用通行密钥保护",
+  "settings.identity.confirm_delete": "确定删除此条目吗？",
+  "settings.identity.invalid_key": "私钥必须是64个字符的十六进制字符串"
 }

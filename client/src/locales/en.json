@@ -86,5 +86,22 @@
   "slogan.3": "share fresh garden herbs on saysheep",
   "slogan.4": "discover hidden treasures on saysheep",
   "slogan.5": "give what you don't need on saysheep",
-  "slogan.6": "reduce waste together on saysheep"
+  "slogan.6": "reduce waste together on saysheep",
+  "item.too_far": "must be within 100m to take (you are {dist} away)",
+  "item.waiting_location": "waiting for location... ⏳",
+  "settings.identity.hide_key": "hide private key",
+  "settings.identity.download_backup": "download backup file",
+  "settings.identity.import_heading": "import private key / backup",
+  "settings.identity.import_placeholder": "paste 64-char private key hex...",
+  "settings.identity.import_btn": "import",
+  "settings.identity.upload_backup": "upload backup json file",
+  "settings.identity.passkey_heading": "passkey protection (webauthn)",
+  "settings.identity.passkey_desc": "add an extra layer of biometric security to protect your private key from being unauthorizedly viewed or exported.",
+  "settings.identity.passkey_unsupported": "webauthn is not supported by this browser.",
+  "settings.identity.passkey_protected": "✓ protected by device passkey",
+  "settings.identity.passkey_test": "test passkey",
+  "settings.identity.passkey_disable": "disable passkey",
+  "settings.identity.passkey_enable": "enable passkey protection",
+  "settings.identity.confirm_delete": "delete this post?",
+  "settings.identity.invalid_key": "private key must be a 64-character hex string"
 }

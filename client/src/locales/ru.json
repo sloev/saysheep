@@ -86,5 +86,22 @@
   "slogan.3": "поделись свежей зеленью из сада на saysheep",
   "slogan.4": "найди скрытые сокровища на saysheep",
   "slogan.5": "отдай то, что тебе не нужно, на saysheep",
-  "slogan.6": "сократим отходы вместе на saysheep"
+  "slogan.6": "сократим отходы вместе на saysheep",
+  "item.too_far": "нужно быть в пределах 100м, чтобы забрать (вы в {dist})",
+  "item.waiting_location": "ожидание геолокации... ⏳",
+  "settings.identity.hide_key": "скрыть приватный ключ",
+  "settings.identity.download_backup": "скачать файл резервной копии",
+  "settings.identity.import_heading": "импортировать приватный ключ / резервную копию",
+  "settings.identity.import_placeholder": "вставьте 64-значный приватный ключ...",
+  "settings.identity.import_btn": "импорт",
+  "settings.identity.upload_backup": "загрузить json файл резервной копии",
+  "settings.identity.passkey_heading": "защита ключом доступа (webauthn)",
+  "settings.identity.passkey_desc": "добавьте дополнительный уровень биометрической безопасности для защиты вашего приватного ключа от несанкционированного просмотра или экспорта.",
+  "settings.identity.passkey_unsupported": "webauthn не поддерживается этим браузером.",
+  "settings.identity.passkey_protected": "✓ защищено ключом доступа устройства",
+  "settings.identity.passkey_test": "проверить ключ доступа",
+  "settings.identity.passkey_disable": "отключить ключ доступа",
+  "settings.identity.passkey_enable": "включить защиту ключом доступа",
+  "settings.identity.confirm_delete": "удалить эту публикацию?",
+  "settings.identity.invalid_key": "приватный ключ должен быть 64-значной шестнадцатеричной строкой"
 }

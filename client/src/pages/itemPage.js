@@ -124,7 +124,18 @@ export const ItemPage = () => {
           // Take / taken button
           taken
             ? div({ style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, t('item.taken'))
-            : button({ class: 'btn btn-take', onclick: handleTake }, t('item.take')),
+            : (dist === null
+                ? button({ class: 'btn btn-take', disabled: true }, t('item.waiting_location'))
+                : (dist > 100
+                    ? div({ style: 'display:flex;flex-direction:column;gap:6px;' },
+                        button({ class: 'btn btn-take', disabled: true }, t('item.take')),
+                        span({ style: 'font-size:12px;color:var(--pink);text-align:center;font-weight:700' },
+                          t('item.too_far', { dist: formatDistance(dist) })
+                        )
+                      )
+                    : button({ class: 'btn btn-take', onclick: handleTake }, t('item.take'))
+                  )
+              ),
 
           // Owner actions
           div({ style: 'display:flex;gap:8px;flex-wrap:wrap' },

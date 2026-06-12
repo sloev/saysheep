@@ -8,6 +8,16 @@ import { sendP2P } from './relay.js'
 import { verifyEvent } from 'nostr-tools'
 import { storeEvent } from './storage.js'
 import { initWifiDirect, sendWifiMessage, connectWifiPeer, stopWifiDirect, isWifiDirectActive } from './wifidirect.js'
+import { getEventPow } from './nostr.js'
+
+const isValidEvent = (event) => {
+  if (!event || !verifyEvent(event)) return false
+  if (event.kind === 30402 || event.kind === 1) {
+    const reqPow = event.kind === 30402 ? 8 : 4
+    if (getEventPow(event.id) < reqPow) return false
+  }
+  return true
+}
 
 const STUN = {
   iceServers: [
@@ -49,7 +59,7 @@ export const initPeer = ({ nodeId, onEvent, onPeerCountChange }) => {
     onMessage: (msg, fromAddress) => {
       if (!Array.isArray(msg) || msg[0] !== 'EVENT') return
       const event = msg[1]
-      if (event && verifyEvent(event)) {
+      if (isValidEvent(event)) {
         storeEvent(event)
         _onEvent?.(event)
       }
@@ -290,7 +300,7 @@ const _handlePeerMessage = (peer, msg) => {
 
   if (type === 'EVENT') {
     const event = args[0]
-    if (event && verifyEvent(event)) {
+    if (isValidEvent(event)) {
       storeEvent(event)
       _onEvent?.(event)
     }

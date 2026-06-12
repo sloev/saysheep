@@ -5,7 +5,37 @@ import Geohash from 'ngeohash'
 
 export { generateSecretKey, getPublicKey, verifyEvent, nip19 }
 
-// Build a free-item listing event (NIP-99 kind 30402)
+export const getEventPow = (id) => {
+  let count = 0
+  for (let i = 0; i < id.length; i++) {
+    const val = parseInt(id[i], 16)
+    if (val === 0) {
+      count += 4
+    } else {
+      if (val & 8) {}
+      else if (val & 4) { count += 1 }
+      else if (val & 2) { count += 2 }
+      else if (val & 1) { count += 3 }
+      break
+    }
+  }
+  return count
+}
+
+export const getEventHash = (event) => {
+  const serialized = JSON.stringify([
+    0,
+    event.pubkey,
+    event.created_at,
+    event.kind,
+    event.tags,
+    event.content
+  ])
+  const encoder = new TextEncoder()
+  return bytesToHex(sha256(encoder.encode(serialized)))
+}
+
+// Build a free-item listing event (NIP-99 kind 30402) with NIP-13 PoW (difficulty 8)
 export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil }) => {
   const now = Math.floor(Date.now() / 1000)
   const expiry = availableUntil
@@ -34,6 +64,30 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
   ]
   if (photo) eventTags.push(['image', photo])
 
+  // Mine NIP-13 PoW (difficulty target 8)
+  const targetDifficulty = 8
+  eventTags.push(['nonce', '', String(targetDifficulty)])
+  const nonceIdx = eventTags.length - 1
+
+  const pubkey = getPublicKey(secretKey)
+  const baseEvent = {
+    pubkey,
+    created_at: now,
+    kind: 30402,
+    content: description || '',
+    tags: eventTags
+  }
+
+  let counter = 0
+  while (true) {
+    eventTags[nonceIdx][1] = String(counter)
+    const eventId = getEventHash(baseEvent)
+    if (getEventPow(eventId) >= targetDifficulty) {
+      break
+    }
+    counter++
+  }
+
   return finalizeEvent({
     kind: 30402,
     created_at: now,
@@ -55,12 +109,36 @@ export const buildTakenEvent = ({ secretKey, originalEvent }) => {
   }, secretKey)
 }
 
-// Build a chat message referencing an item
+// Build a chat message referencing an item with NIP-13 PoW (difficulty 4)
 export const buildChatEvent = ({ secretKey, itemEventId, text }) => {
+  const now = Math.floor(Date.now() / 1000)
+  const pubkey = getPublicKey(secretKey)
+  const eventTags = [
+    ['e', itemEventId, '', 'reply'],
+    ['nonce', '', '4']
+  ]
+  const nonceIdx = 1
+  const baseEvent = {
+    pubkey,
+    created_at: now,
+    kind: 1,
+    content: text,
+    tags: eventTags
+  }
+  let counter = 0
+  while (true) {
+    eventTags[nonceIdx][1] = String(counter)
+    const eventId = getEventHash(baseEvent)
+    if (getEventPow(eventId) >= 4) {
+      break
+    }
+    counter++
+  }
+
   return finalizeEvent({
     kind: 1,
-    created_at: Math.floor(Date.now() / 1000),
-    tags: [['e', itemEventId, '', 'reply']],
+    created_at: now,
+    tags: eventTags,
     content: text,
   }, secretKey)
 }

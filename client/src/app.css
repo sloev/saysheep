@@ -7,6 +7,8 @@
   --mint-light: #d4f5eb;
   --yellow: #f5c842;
   --yellow-light: #fef7d4;
+  --red: #ff4d4d;
+  --red-light: #ffe6e6;
   --ink: #1c1c1e;
   --muted: #6e6e73;
   --border: 2px solid var(--ink);
@@ -62,9 +64,9 @@ html, body {
 #global-map-container {
   display: none;
   position: absolute;
-  top: 0; left: 0;
+  top: 50px; left: 0;
   width: 100%;
-  height: calc(100dvh - var(--nav-h) - var(--safe-bottom));
+  height: calc(100dvh - 50px - var(--nav-h) - var(--safe-bottom));
   z-index: 1;
 }
 
@@ -467,7 +469,7 @@ html, body {
 .btn-primary { background: var(--pink); color: white; }
 .btn-take { background: var(--yellow); color: var(--ink); font-size: 16px; width: 100%; margin: 16px 0; }
 .btn-submit { background: var(--mint); color: var(--ink); width: 100%; }
-.btn-danger { background: var(--pink-light); color: var(--pink); }
+.btn-danger { background: var(--red-light); color: var(--red); }
 .btn-sm { padding: 6px 12px; font-size: 12px; box-shadow: var(--shadow-sm); }
 
 /* ── FORMS ── */
@@ -475,7 +477,7 @@ html, body {
 .form-label {
   font-size: 11px;
   font-weight: 800;
-  text-transform: uppercase;
+  text-transform: lowercase;
   letter-spacing: 1px;
   color: var(--muted);
   margin-bottom: 4px;
@@ -588,7 +590,7 @@ html, body {
 
 /* ── CHAT ── */
 .chat-section { border-top: var(--border); }
-.chat-header { padding: 12px 16px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.chat-header { padding: 12px 16px; font-weight: 800; font-size: 14px; text-transform: lowercase; letter-spacing: 1px; color: var(--muted); }
 .chat-messages { padding: 8px 16px; display: flex; flex-direction: column; gap: 8px; min-height: 80px; max-height: 300px; overflow-y: auto; }
 .chat-msg {
   max-width: 80%;
@@ -618,7 +620,7 @@ html, body {
 
 /* ── SETTINGS ── */
 .settings-section { padding: 16px; border-bottom: 1.5px solid rgba(0,0,0,0.08); }
-.settings-section-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+.settings-section-title { font-size: 12px; font-weight: 800; text-transform: lowercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
 .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
 .settings-label { font-size: 15px; font-weight: 600; }
 .relay-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }

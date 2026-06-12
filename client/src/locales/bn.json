@@ -86,5 +86,22 @@
   "slogan.3": "saysheep-এ বাগানের তাজা ভেষজ শেয়ার করুন",
   "slogan.4": "saysheep-এ লুকানো ধনসম্পদ আবিষ্কার করুন",
   "slogan.5": "আপনার প্রয়োজন নেই এমন জিনিস saysheep-এ দিয়ে দিন",
-  "slogan.6": "আসুন saysheep-এ একসাথে অপচয় কমাই"
+  "slogan.6": "আসুন saysheep-এ একসাথে অপচয় কমাই",
+  "item.too_far": "নেওয়ার জন্য ১০০ মিটারের মধ্যে থাকতে হবে (আপনি {dist} দূরে আছেন)",
+  "item.waiting_location": "লোকেশন খোঁজা হচ্ছে... ⏳",
+  "settings.identity.hide_key": "প্রাইভেট কি লুকান",
+  "settings.identity.download_backup": "ব্যাকআপ ফাইল ডাউনলোড করুন",
+  "settings.identity.import_heading": "প্রাইভেট কি / ব্যাকআপ ইম্পোর্ট করুন",
+  "settings.identity.import_placeholder": "৬৪-অক্ষরের প্রাইভেট কি পেস্ট করুন...",
+  "settings.identity.import_btn": "ইম্পোর্ট",
+  "settings.identity.upload_backup": "ব্যাকআপ জেসন ফাইল আপলোড করুন",
+  "settings.identity.passkey_heading": "পাসকি সুরক্ষা (webauthn)",
+  "settings.identity.passkey_desc": "আপনার প্রাইভেট কি অননুমোদিতভাবে দেখা বা এক্সপোর্ট হওয়া থেকে রক্ষা করতে বায়োমেট্রিক সুরক্ষার একটি অতিরিক্ত স্তর যুক্ত করুন।",
+  "settings.identity.passkey_unsupported": "এই ব্রাউজারে webauthn সমর্থিত নয়।",
+  "settings.identity.passkey_protected": "✓ ডিভাইসের পাসকি দিয়ে সুরক্ষিত",
+  "settings.identity.passkey_test": "পাসকি পরীক্ষা করুন",
+  "settings.identity.passkey_disable": "পাসকি নিষ্ক্রিয় করুন",
+  "settings.identity.passkey_enable": "পাসকি সুরক্ষা সক্রিয় করুন",
+  "settings.identity.confirm_delete": "এই পোস্টটি কি মুছে ফেলতে চান?",
+  "settings.identity.invalid_key": "প্রাইভেট কি অবশ্যই ৬৪-অক্ষরের হেক্স স্ট্রিং হতে হবে"
 }

@@ -110,8 +110,13 @@ export const MapSearchBox = () => {
       const data = await res.json()
       if (data && data.length > 0) {
         const { lat, lon } = data[0]
+        const targetLat = parseFloat(lat)
+        const targetLng = parseFloat(lon)
+        store.position.lat = targetLat
+        store.position.lng = targetLng
+        store.position.loading = false
         _map.flyTo({
-          center: [parseFloat(lon), parseFloat(lat)],
+          center: [targetLng, targetLat],
           zoom: 14,
           essential: true
         })
@@ -123,6 +128,29 @@ export const MapSearchBox = () => {
     } finally {
       searching.val = false
     }
+  }
+
+  const handleGoToMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser')
+      return
+    }
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      const lat = coords.latitude
+      const lng = coords.longitude
+      store.position.lat = lat
+      store.position.lng = lng
+      store.position.loading = false
+      if (_map) {
+        _map.flyTo({
+          center: [lng, lat],
+          zoom: 14,
+          essential: true
+        })
+      }
+    }, (err) => {
+      alert('Error getting location: ' + err.message)
+    })
   }
 
   return van.tags.div({ class: 'map-searchbox' },
@@ -140,7 +168,13 @@ export const MapSearchBox = () => {
       class: () => `btn btn-primary map-search-btn ${searching.val ? 'loading' : ''}`,
       onclick: handleSearch,
       disabled: searching
-    }, 'Go')
+    }, 'Go'),
+    van.tags.button({
+      class: 'btn btn-muted map-location-btn',
+      style: 'padding: 4px 8px !important; min-height: auto !important; font-size: 14px;',
+      onclick: handleGoToMyLocation,
+      title: 'Go to my location'
+    }, '📍')
   )
 }
 

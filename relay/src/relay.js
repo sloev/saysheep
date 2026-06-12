@@ -15,6 +15,23 @@ let iroh
 
 const subscriptions = new Map()
 
+const getEventPow = (id) => {
+  let count = 0
+  for (let i = 0; i < id.length; i++) {
+    const val = parseInt(id[i], 16)
+    if (val === 0) {
+      count += 4
+    } else {
+      if (val & 8) {}
+      else if (val & 4) { count += 1 }
+      else if (val & 2) { count += 2 }
+      else if (val & 1) { count += 3 }
+      break
+    }
+  }
+  return count
+}
+
 // --- Simple token-bucket rate limiter (per IP, shared across all clients from same IP) ---
 const RATE_WINDOW_MS = 60_000   // 1 minute window
 const RATE_LIMIT_EVENTS = 60    // max EVENT messages per window per IP
@@ -171,6 +188,16 @@ const handleEvent = (ws, event, clients, ip) => {
   } catch {
     ws.send(JSON.stringify(['OK', event?.id || '', false, 'error: verification failed']))
     return
+  }
+
+  // Spam prevention: PoW (Proof of Work) verification
+  const minPow = config.min_pow_difficulty || 0
+  if (minPow > 0 && (event.kind === 30402 || event.kind === 1)) {
+    const pow = getEventPow(event.id)
+    if (pow < minPow) {
+      ws.send(JSON.stringify(['OK', event.id, false, `pow: difficulty ${pow} < target ${minPow}`]))
+      return
+    }
   }
   if (event.kind === 5) {
     for (const tag of event.tags) if (tag[0] === 'e') deleteEvent(tag[1], event.pubkey)

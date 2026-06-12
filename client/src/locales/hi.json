@@ -86,5 +86,22 @@
   "slogan.3": "saysheep पर बगीचे की ताज़ा जड़ी-बूटियाँ साझा करें",
   "slogan.4": "saysheep पर छिपे हुए खजाने खोजें",
   "slogan.5": "वह सब कुछ दान करें जिसकी आपको आवश्यकता नहीं है",
-  "slogan.6": "saysheep पर मिलकर कचरा कम करें"
+  "slogan.6": "saysheep पर मिलकर कचरा कम करें",
+  "item.too_far": "लेने के लिए 100 मीटर के भीतर होना चाहिए (आप {dist} दूर हैं)",
+  "item.waiting_location": "स्थान की प्रतीक्षा की जा रही है... ⏳",
+  "settings.identity.hide_key": "निजी कुंजी छुपाएं",
+  "settings.identity.download_backup": "बैकअप फ़ाइल डाउनलोड करें",
+  "settings.identity.import_heading": "निजी कुंजी / बैकअप आयात करें",
+  "settings.identity.import_placeholder": "64-अक्षर निजी कुंजी पेस्ट करें...",
+  "settings.identity.import_btn": "आयात",
+  "settings.identity.upload_backup": "बैकअप जेएसओएन फ़ाइल अपलोड करें",
+  "settings.identity.passkey_heading": "पासकी सुरक्षा (webauthn)",
+  "settings.identity.passkey_desc": "अपनी निजी कुंजी को अनधिकृत रूप से देखने या निर्यात होने से बचाने के लिए बायोमेट्रिक सुरक्षा की एक अतिरिक्त परत जोड़ें।",
+  "settings.identity.passkey_unsupported": "यह ब्राउज़र webauthn का समर्थन नहीं करता है।",
+  "settings.identity.passkey_protected": "✓ डिवाइस पासकी द्वारा सुरक्षित",
+  "settings.identity.passkey_test": "पासकी का परीक्षण करें",
+  "settings.identity.passkey_disable": "पासकी अक्षम करें",
+  "settings.identity.passkey_enable": "पासकी सुरक्षा सक्षम करें",
+  "settings.identity.confirm_delete": "क्या आप इस पोस्ट को हटाना चाहते हैं?",
+  "settings.identity.invalid_key": "निजी कुंजी 64-अक्षर की हेक्स स्ट्रिंग होनी चाहिए"
 }

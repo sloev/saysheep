@@ -86,5 +86,22 @@
   "slogan.3": "del friske haveurter på saysheep",
   "slogan.4": "opdag skjulte skatte på saysheep",
   "slogan.5": "giv det, du ikke skal bruge, på saysheep",
-  "slogan.6": "reducer spild sammen på saysheep"
+  "slogan.6": "reducer spild sammen på saysheep",
+  "item.too_far": "skal være inden for 100m for at tage (du er {dist} væk)",
+  "item.waiting_location": "venter på placering... ⏳",
+  "settings.identity.hide_key": "skjul privat nøgle",
+  "settings.identity.download_backup": "download sikkerhedskopi",
+  "settings.identity.import_heading": "importer privat nøgle / backup",
+  "settings.identity.import_placeholder": "indsæt 64-tegn privat nøgle hex...",
+  "settings.identity.import_btn": "importer",
+  "settings.identity.upload_backup": "upload backup json-fil",
+  "settings.identity.passkey_heading": "adgangskodebeskyttelse (webauthn)",
+  "settings.identity.passkey_desc": "tilføj et ekstra lag af biometrisk sikkerhed for at beskytte din private nøgle mod uautoriseret visning eller eksport.",
+  "settings.identity.passkey_unsupported": "webauthn understøttes ikke af denne browser.",
+  "settings.identity.passkey_protected": "✓ beskyttet af enhedens adgangskode",
+  "settings.identity.passkey_test": "test adgangskode",
+  "settings.identity.passkey_disable": "deaktiver adgangskode",
+  "settings.identity.passkey_enable": "aktiver adgangskodebeskyttelse",
+  "settings.identity.confirm_delete": "slet dette indlæg?",
+  "settings.identity.invalid_key": "privat nøgle skal være en 64-tegn hex-streng"
 }
