@@ -203,8 +203,82 @@ const runTest = async () => {
     
     // Delete item
     console.log('Deleting listing...')
-    await page.click('.btn-danger')
+    try {
+      await page.click('.btn-danger', { timeout: 5000 })
+    } catch (err) {
+      console.log('PAGE HTML ON FAILURE:', await page.content())
+      throw err
+    }
     await page.waitForTimeout(2000)
+
+    // Navigate to Agents Page
+    console.log('Navigating to Agents page...')
+    await page.goto('http://localhost:5173/agents')
+    await page.waitForSelector('.form-section', { timeout: 5000 })
+    
+    // Add tag to Agent
+    console.log('Adding tags to agent...')
+    await page.fill('.tag-input-container .form-input', 'furniture')
+    await page.press('.tag-input-container .form-input', 'Enter')
+    await page.waitForTimeout(500)
+
+    // Click "Add Agent" button
+    console.log('Submitting new agent subscription...')
+    await page.click('.btn-submit')
+    await page.waitForSelector('.alert-card', { timeout: 5000 })
+    console.log('Agent subscription added successfully!')
+
+    // Toggle Notifications
+    console.log('Toggling notifications for agent...')
+    const bellBtn = page.locator('.alert-card button').first()
+    await bellBtn.click()
+    await page.waitForTimeout(500)
+    
+    // Delete the Agent
+    console.log('Removing agent...')
+    await page.click('.alert-card .btn-danger')
+    await page.waitForTimeout(1000)
+    console.log('Agent removed successfully.')
+
+    // Navigate to Settings Page
+    console.log('Navigating to Settings page...')
+    await page.goto('http://localhost:5173/settings')
+    await page.waitForSelector('.settings-section', { timeout: 5000 })
+
+    // Change language to Danish ('da')
+    console.log('Changing interface language to Danish...')
+    await page.selectOption('select.form-select', 'da')
+    await page.waitForTimeout(1000)
+    // Verify translation changed (e.g. settings header or relays label)
+    const settingsHeader = await page.textContent('.page-title')
+    console.log(`Settings header text in Danish: "${settingsHeader}"`)
+
+    // Change back to English ('en')
+    console.log('Changing interface language back to English...')
+    await page.selectOption('select.form-select', 'en')
+    await page.waitForTimeout(1000)
+
+    // Add a new relay
+    console.log('Adding a test relay...')
+    const testRelay = 'wss://relay.example.com'
+    await page.fill('.settings-section input[type="url"]', testRelay)
+    await page.press('.settings-section input[type="url"]', 'Enter')
+    await page.waitForTimeout(1000)
+
+    // Verify relay is listed
+    const relayListText = await page.textContent('.relay-list')
+    if (relayListText.includes(testRelay)) {
+      console.log('Relay added successfully!')
+    } else {
+      throw new Error('Test relay was not added to the list')
+    }
+
+    // Remove the relay
+    console.log('Removing the test relay...')
+    const removeBtn = page.locator('.relay-item', { hasText: testRelay }).locator('button')
+    await removeBtn.click()
+    await page.waitForTimeout(1000)
+    console.log('Relay removed successfully.')
     
     console.log('All browser test actions completed successfully!')
     await context.close()

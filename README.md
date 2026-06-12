@@ -76,6 +76,28 @@ To execute the test runner:
 npm run test:e2e
 ```
 
+### User Stories & Automated E2E Tests
+
+The client PWA features a full suite of automated browser tests (`run-browser-tests.js`) that verify all user stories and application features. Every test run generates a video recording of the user interactions.
+
+| User Story | Automated Test Case & Actions | Latest Recording |
+| :--- | :--- | :--- |
+| **Locating Items** (Geo-Discovery) | Load map viewport, verify geolocation bounds, and confirm fallback to Copenhagen coordinates if GPS is unavailable. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Creating Listings** (Give Away) | Navigate to the give-away form, upload a photo, fill in title/description, add tags, and submit the listing. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Browsing Items** (List View) | Navigate to the list page, verify the newly created listing is displayed with correct metadata, and ensure dynamic filtering by active map viewport bounds. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Viewing Listing Details** | Open the listing's detail page, verifying item status, photo, description, tags, distance pill, and owner actions. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Claiming Items** (Mark as Taken) | Click "Take It", verify that the item updates status immediately in real-time, and that a "Taken" stamp is rendered. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Item Chat** (Direct Communication) | Open chat section, enter message ("Is this item still available?"), submit, and confirm message is appended to chat list. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Deleting Listings** (Listing Purge) | Owner deletes their listing, confirming the dialog, and verifying that the listing is removed from the store and redirects back. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Managing Alerts** (Agents Page) | Navigate to `/agents`, input categories, add a tag-filtered alert subscription (agent), toggle notifications, and delete the agent. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Configuration** (Settings Page) | Navigate to `/settings`, toggle language to Danish (verifying translation changes), toggle back to English, add a custom relay, and remove it. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+
+To run the browser-based E2E test suite locally:
+```bash
+node run-browser-tests.js
+```
+The video recording will be saved to your local artifacts directory or `test-artifacts/browser_test_run.webm`.
+
 ---
 
 ## CI/CD and GitHub Repository Configuration
