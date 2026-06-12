@@ -14,7 +14,7 @@
     "@noble/hashes": "^1.4.0",
     "@saysheep/wifidirect": "file:../plugins/saysheep-wifidirect",
     "idb": "^8.0.0",
-    "maplibre-gl": "^3.6.2",
+    "leaflet": "^1.9.4",
     "minisearch": "^6.3.0",
     "ngeohash": "^0.6.3",
     "nostr-tools": "^2.7.2",

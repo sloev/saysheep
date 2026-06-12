@@ -1,60 +1,19 @@
 import van from 'vanjs-core'
-import maplibregl from 'maplibre-gl'
-import * as pmtiles from 'pmtiles'
-import mapstyle from '../mapstyle.json'
+import L from 'leaflet'
+import { leafletLayer } from 'protomaps-leaflet'
 import { store, onMapBoundsChange, currentItemId } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
 import { getRelays, getRelaysStatus } from '../lib/relay.js'
 
+import 'leaflet/dist/leaflet.css'
+
 const mapDiv = van.tags.div({ id: 'map' })
 let _map = null
 const _markers = new Map()
 
-const isWebGLSupported = () => {
-  try {
-    if (!maplibregl.supported()) return false
-    const canvas = document.createElement('canvas')
-    const gl = window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-    if (!gl) return false
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-let _leafletLoadingPromise = null
-
-const loadLeaflet = () => {
-  if (_leafletLoadingPromise) return _leafletLoadingPromise
-
-  _leafletLoadingPromise = new Promise((resolve) => {
-    if (window.L) {
-      resolve()
-      return
-    }
-
-    // Link CSS
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-    document.head.appendChild(link)
-
-    // Script JS
-    const script = document.createElement('script')
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-    script.onload = () => {
-      resolve()
-    }
-    document.body.appendChild(script)
-  })
-
-  return _leafletLoadingPromise
-}
-
-const setupLeafletMap = async (lng, lat) => {
-  await loadLeaflet()
+export const setupMap = (lng, lat) => {
   if (_map) return
 
   mapDiv.innerHTML = ''
@@ -65,7 +24,28 @@ const setupLeafletMap = async (lng, lat) => {
   mapDiv.style.textAlign = ''
   mapDiv.style.background = ''
 
-  const L = window.L
+  const isSelfHostedRelay = (url) => {
+    const envUrl = import.meta.env?.VITE_RELAY_URL
+    if (envUrl && url === envUrl) return true
+    if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes('192.168.') || url.includes('10.')) return true
+    try {
+      const relayHost = new URL(url).hostname
+      if (relayHost === window.location.hostname) return true
+    } catch {}
+    return false
+  }
+
+  const status = getRelaysStatus()
+  const selfHostedRelays = status.filter(r => isSelfHostedRelay(r.url))
+  const connectedRelay = selfHostedRelays.find(r => r.connected) || selfHostedRelays[0]
+
+  let mapPmtilesUrl
+  if (connectedRelay) {
+    const relayBaseUrl = connectedRelay.url.replace(/^ws/, 'http')
+    mapPmtilesUrl = `${relayBaseUrl}/map.pmtiles`
+  } else {
+    mapPmtilesUrl = 'https://data.source.coop/protomaps/openstreetmap/v4.pmtiles'
+  }
 
   const savedLat = localStorage.getItem('saysheep_last_lat')
   const savedLng = localStorage.getItem('saysheep_last_lng')
@@ -77,15 +57,18 @@ const setupLeafletMap = async (lng, lat) => {
   const initialZoom = savedZoom ? parseFloat(savedZoom) : 14
 
   _map = L.map(mapDiv, {
-    zoomControl: false
+    zoomControl: false,
+    maxZoom: 18,
+    minZoom: 8
   }).setView(initialCenter, initialZoom)
 
   L.control.zoom({ position: 'topright' }).addTo(_map)
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap'
-  }).addTo(_map)
+  const pmtilesLayer = leafletLayer({
+    url: mapPmtilesUrl,
+    theme: 'light'
+  })
+  pmtilesLayer.addTo(_map)
 
   const notifyBounds = () => {
     const bounds = _map.getBounds()
@@ -156,145 +139,12 @@ const setupLeafletMap = async (lng, lat) => {
   })
 }
 
+export const MapComponent = () => mapDiv
+
 const flyToMap = (lng, lat, zoom = 14) => {
   if (!_map) return
-  if (window.L && _map instanceof window.L.Map) {
-    _map.flyTo([lat, lng], zoom)
-  } else {
-    _map.flyTo({
-      center: [lng, lat],
-      zoom,
-      essential: true
-    })
-  }
+  _map.flyTo([lat, lng], zoom)
 }
-
-export const setupMap = (lng, lat) => {
-  if (_map) return
-  if (!isWebGLSupported()) {
-    setupLeafletMap(lng, lat)
-    return
-  }
-  const protocol = new pmtiles.Protocol()
-  maplibregl.addProtocol('pmtiles', protocol.tile)
-
-  const isSelfHostedRelay = (url) => {
-    const envUrl = import.meta.env?.VITE_RELAY_URL
-    if (envUrl && url === envUrl) return true
-    if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes('192.168.') || url.includes('10.')) return true
-    try {
-      const relayHost = new URL(url).hostname
-      if (relayHost === window.location.hostname) return true
-    } catch {}
-    return false
-  }
-
-  const status = getRelaysStatus()
-  const selfHostedRelays = status.filter(r => isSelfHostedRelay(r.url))
-  const connectedRelay = selfHostedRelays.find(r => r.connected) || selfHostedRelays[0]
-
-  let mapPmtilesUrl
-  if (connectedRelay) {
-    const relayBaseUrl = connectedRelay.url.replace(/^ws/, 'http')
-    mapPmtilesUrl = `pmtiles://${relayBaseUrl}/map.pmtiles`
-  } else {
-    mapPmtilesUrl = 'pmtiles://https://data.source.coop/protomaps/openstreetmap/v4.pmtiles'
-  }
-
-  const dynamicStyle = JSON.parse(JSON.stringify(mapstyle))
-  dynamicStyle.sources["saysheep-tiles"].url = mapPmtilesUrl
-
-  const savedLat = localStorage.getItem('saysheep_last_lat')
-  const savedLng = localStorage.getItem('saysheep_last_lng')
-  const savedZoom = localStorage.getItem('saysheep_last_zoom')
-
-  const initialCenter = (savedLat && savedLng)
-    ? [parseFloat(savedLng), parseFloat(savedLat)]
-    : [lng, lat]
-  const initialZoom = savedZoom ? parseFloat(savedZoom) : 14
-
-  _map = new maplibregl.Map({
-    container: mapDiv,
-    style: dynamicStyle,
-    center: initialCenter,
-    zoom: initialZoom,
-    maxZoom: 18,
-    minZoom: 8,
-  })
-
-  _map.addControl(new maplibregl.NavigationControl(), 'top-right')
-  _map.addControl(new maplibregl.GeolocateControl({
-    positionOptions: { enableHighAccuracy: true },
-    trackUserLocation: true,
-  }), 'top-right')
-
-  const notifyBounds = () => {
-    if (mapDiv.offsetWidth === 0 || mapDiv.offsetHeight === 0) return
-    const bounds = _map.getBounds()
-    const zoom = _map.getZoom()
-    const center = _map.getCenter()
-
-    localStorage.setItem('saysheep_last_lat', center.lat)
-    localStorage.setItem('saysheep_last_lng', center.lng)
-    localStorage.setItem('saysheep_last_zoom', zoom)
-
-    onMapBoundsChange({
-      sw: { lat: bounds._sw.lat, lng: bounds._sw.lng },
-      ne: { lat: bounds._ne.lat, lng: bounds._ne.lng },
-      zoom,
-    })
-  }
-
-  _map.on('load', notifyBounds)
-  _map.on('moveend', notifyBounds)
-  _map.on('zoomend', notifyBounds)
-
-  // Watch store items and add/update markers
-  van.derive(() => {
-    const items = store.items
-
-    // Clean up markers that are no longer in store.items
-    for (const [id, value] of _markers.entries()) {
-      if (!items[id]) {
-        value.marker.remove()
-        _markers.delete(id)
-      }
-    }
-
-    for (const [id, event] of Object.entries(items)) {
-      const taken = isTaken(event)
-      const mine = event.pubkey === store.identity.pubkey
-      const cls = `map-marker ${taken ? 'taken' : ''} ${mine ? 'mine' : ''}`.trim()
-
-      const existing = _markers.get(id)
-      if (existing) {
-        // Update CSS class if taken state changed (e.g. item was just taken)
-        if (existing.el.className !== cls) existing.el.className = cls
-        continue
-      }
-
-      const geo = getItemGeo(event)
-      if (!geo) continue
-
-      const el = document.createElement('div')
-      el.className = cls
-      el.title = getItemTitle(event) || '📦'
-
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([geo.lng, geo.lat])
-        .addTo(_map)
-
-      el.addEventListener('click', () => {
-        currentItemId.val = id
-        cone.navigate('item', {})
-      })
-
-      _markers.set(id, { marker, el })
-    }
-  })
-}
-
-export const MapComponent = () => mapDiv
 
 export const MapSearchBox = () => {
   const query = van.state('')
@@ -371,4 +221,3 @@ export const MapSearchBox = () => {
     }, () => locating.val ? '⏳' : '📍')
   )
 }
-
