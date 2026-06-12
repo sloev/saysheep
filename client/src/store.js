@@ -7,7 +7,7 @@ import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.j
 
 
 import { getRelays } from './lib/relay.js'
-import { getItemGeohash, isTaken, isExpired, getEventPow } from './lib/nostr.js'
+import { getItemGeohash, isTaken, isExpired, getEventPow, randomUUID } from './lib/nostr.js'
 import { notifyIfMatches } from './lib/notifications.js'
 
 export const currentItemId = van.state(null)
@@ -173,7 +173,7 @@ export const saveSubscriptions = () => {
 }
 
 export const addSubscription = (geohash, tags, label) => {
-  const id = crypto.randomUUID()
+  const id = randomUUID()
   if (!store.subscriptions) store.subscriptions = []
   store.subscriptions.push({ id, geohash, tags: tags || [], label: label || geohash })
   saveSubscriptions()

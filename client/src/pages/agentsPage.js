@@ -3,6 +3,7 @@ import { store, addSubscription, removeSubscription, saveSubscriptions } from '.
 import { encodeGeohash, getHumanReadableLocation } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
 import { TagInput } from '../fragments/tagInput.js'
+import { randomUUID } from '../lib/nostr.js'
 const { div, button, span, h2, p } = van.tags
 
 export const AgentsPage = () => {
@@ -14,7 +15,7 @@ export const AgentsPage = () => {
     const lng = store.position.lng
     const gh = encodeGeohash(lat, lng, 5)
     // Subscriptions/Agents default to notificationsEnabled: true
-    const id = crypto.randomUUID()
+    const id = randomUUID()
     if (!store.subscriptions) store.subscriptions = []
     
     // Add subscription immediately with default label

@@ -3,7 +3,7 @@ import { initRelay, publishEvent as relayPublish, subscribeArea as relaySubscrib
 import { initPeer, handleP2PMessage, announceGeohash, leaveGeohash, broadcastEvent as peerBroadcast } from './peer.js'
 import { storeEvent, getItemsByGeohash, getChatForItem, purgeExpired } from './storage.js'
 import { isWebXDC, webxdcSend, webxdcListen } from './webxdc.js'
-import { buildItemEvent, buildTakenEvent, buildChatEvent, buildDeleteEvent, getItemGeohash } from './nostr.js'
+import { buildItemEvent, buildTakenEvent, buildChatEvent, buildDeleteEvent, getItemGeohash, randomUUID } from './nostr.js'
 
 export const CONNECTIVITY = {
   BOTH: 'both',
@@ -104,7 +104,7 @@ export const subscribeChat = async (itemEventId, onMessage) => {
 
 export const publishItem = async ({ description, tags, photo, geo, availableUntil }) => {
   const { secretKey } = getIdentity()
-  const event = buildItemEvent({ secretKey, id: crypto.randomUUID(), description, tags, photo, geo, availableUntil })
+  const event = buildItemEvent({ secretKey, id: randomUUID(), description, tags, photo, geo, availableUntil })
   await storeEvent(event)
   await _broadcast(event, geo)
   if (_onEventCallback) _onEventCallback(event)
