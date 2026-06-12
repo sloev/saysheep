@@ -51,7 +51,7 @@ jobs:
       - name: Build client
         run: npm run build
         env:
-          VITE_BASE: ""
+          VITE_BASE: "/saysheep/"
           VITE_RELAY_URL: ${{ secrets.RELAY_URL }}
 
       - uses: actions/configure-pages@v4
