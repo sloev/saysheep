@@ -124,17 +124,20 @@ export const ItemPage = () => {
           // Take / taken button
           taken
             ? div({ class: 'taken-stamp', style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, t('item.taken'))
-            : (dist === null
-                ? button({ class: 'btn btn-take', disabled: true }, t('item.waiting_location'))
-                : (dist > 100
-                    ? div({ style: 'display:flex;flex-direction:column;gap:6px;' },
-                        button({ class: 'btn btn-take', disabled: true }, t('item.take')),
-                        span({ style: 'font-size:12px;color:var(--pink);text-align:center;font-weight:700' },
-                          t('item.too_far', { dist: formatDistance(dist) })
-                        )
+            : (isOwner
+                ? (dist === null
+                    ? button({ class: 'btn btn-take', disabled: true }, t('item.waiting_location'))
+                    : (dist > 100
+                        ? div({ style: 'display:flex;flex-direction:column;gap:6px;' },
+                            button({ class: 'btn btn-take', disabled: true }, t('item.take')),
+                            span({ style: 'font-size:12px;color:var(--pink);text-align:center;font-weight:700' },
+                              t('item.too_far', { dist: formatDistance(dist) })
+                            )
+                          )
+                        : button({ class: 'btn btn-take', onclick: handleTake }, t('item.take'))
                       )
-                    : button({ class: 'btn btn-take', onclick: handleTake }, t('item.take'))
                   )
+                : null
               ),
 
           // Owner actions
