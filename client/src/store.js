@@ -7,7 +7,7 @@ import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.j
 
 
 import { getRelays } from './lib/relay.js'
-import { getItemGeohash, isTaken, isExpired, getEventPow, randomUUID } from './lib/nostr.js'
+import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID } from './lib/nostr.js'
 import { notifyIfMatches } from './lib/notifications.js'
 
 export const currentItemId = van.state(null)
@@ -135,6 +135,9 @@ export const addEvent = (event) => {
       const target = store.items[id]
       if (target && target.pubkey === event.pubkey) {
         delete store.items[id]
+        if (currentItemId.val === id) {
+          currentItemId.val = null
+        }
       }
     }
     return
@@ -152,6 +155,9 @@ export const addEvent = (event) => {
             ev.tags.find(t => t[0] === 'd')?.[1] === d) {
           if (ev.created_at >= event.created_at) return // already have newer/same
           delete store.items[id] // remove stale version
+          if (currentItemId.val === id) {
+            currentItemId.val = event.id
+          }
           break
         }
       }

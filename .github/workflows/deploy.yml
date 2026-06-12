@@ -33,6 +33,21 @@ jobs:
       - name: Install deps
         run: npm ci
 
+      - name: Install Playwright Browsers and Dependencies
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E Browser Tests
+        run: node run-browser-tests.js
+        env:
+          CI: true
+
+      - name: Upload Test Video Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-video
+          path: test-artifacts/
+
       - name: Build client
         run: npm run build
         env:

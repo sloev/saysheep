@@ -20,30 +20,31 @@ const db = async () => {
 }
 
 export const storeEvent = async (event) => {
+  const cleanEvent = JSON.parse(JSON.stringify(event))
   const d = await db()
   const tx = d.transaction('events', 'readwrite')
 
   // NIP-09 kind 5: deletion event
-  if (event.kind === 5) {
-    const eTags = event.tags.filter(t => t[0] === 'e').map(t => t[1])
+  if (cleanEvent.kind === 5) {
+    const eTags = cleanEvent.tags.filter(t => t[0] === 'e').map(t => t[1])
     for (const id of eTags) {
       const target = await tx.store.get(id)
-      if (target && target.pubkey === event.pubkey) {
+      if (target && target.pubkey === cleanEvent.pubkey) {
         await tx.store.delete(id)
       }
     }
   }
 
   // NIP-33: for kind 30402, replace older events with same (pubkey, d-tag)
-  if (event.kind === 30402) {
-    const dTag = event.tags.find(t => t[0] === 'd')?.[1]
+  if (cleanEvent.kind === 30402) {
+    const dTag = cleanEvent.tags.find(t => t[0] === 'd')?.[1]
     if (dTag) {
       const all = await tx.store.index('kind').getAll(30402)
       for (const ev of all) {
-        if (ev.pubkey === event.pubkey &&
+        if (ev.pubkey === cleanEvent.pubkey &&
             ev.tags.find(t => t[0] === 'd')?.[1] === dTag &&
-            ev.id !== event.id) {
-          if (ev.created_at >= event.created_at) {
+            ev.id !== cleanEvent.id) {
+          if (ev.created_at >= cleanEvent.created_at) {
             await tx.done; return // already have newer
           }
           await tx.store.delete(ev.id) // remove stale
@@ -52,8 +53,8 @@ export const storeEvent = async (event) => {
     }
   }
 
-  const existing = await tx.store.get(event.id)
-  if (!existing) await tx.store.put(event)
+  const existing = await tx.store.get(cleanEvent.id)
+  if (!existing) await tx.store.put(cleanEvent)
   await tx.done
 }
 

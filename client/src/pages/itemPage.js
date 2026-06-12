@@ -123,7 +123,7 @@ export const ItemPage = () => {
 
           // Take / taken button
           taken
-            ? div({ style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, t('item.taken'))
+            ? div({ class: 'taken-stamp', style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, t('item.taken'))
             : (dist === null
                 ? button({ class: 'btn btn-take', disabled: true }, t('item.waiting_location'))
                 : (dist > 100

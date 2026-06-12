@@ -11,8 +11,8 @@
   "dependencies": {
     "@capacitor/android": "^6.0.0",
     "@capacitor/core": "^6.0.0",
-    "@saysheep/wifidirect": "file:../plugins/saysheep-wifidirect",
     "@noble/hashes": "^1.4.0",
+    "@saysheep/wifidirect": "file:../plugins/saysheep-wifidirect",
     "idb": "^8.0.0",
     "maplibre-gl": "^3.6.2",
     "minisearch": "^6.3.0",
@@ -21,12 +21,13 @@
     "pmtiles": "^2.11.0",
     "protomaps-leaflet": "^1.24.2",
     "shape2geohash": "^1.2.6",
-"van-cone": "^0.0.7",
+    "van-cone": "^0.0.7",
     "vanjs-core": "^1.2.8",
     "vanjs-ext": "^0.2.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.0.0",
+    "@playwright/test": "^1.60.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "process": "^0.11.10",

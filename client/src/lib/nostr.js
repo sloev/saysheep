@@ -100,12 +100,41 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
 export const buildTakenEvent = ({ secretKey, originalEvent }) => {
   const now = Math.floor(Date.now() / 1000)
   const d = originalEvent.tags.find(t => t[0] === 'd')?.[1] || ''
-  const existingTags = originalEvent.tags.filter(t => t[0] !== 'status' && t[0] !== 'expiry')
+  const existingTags = originalEvent.tags.filter(t => t[0] !== 'status' && t[0] !== 'expiry' && t[0] !== 'nonce')
+  
+  const targetDifficulty = 8
+  const eventTags = [
+    ...existingTags,
+    ['status', 'taken'],
+    ['expiry', String(now + 60)],
+    ['nonce', '', String(targetDifficulty)]
+  ]
+  const nonceIdx = eventTags.length - 1
+
+  const pubkey = getPublicKey(secretKey)
+  const baseEvent = {
+    pubkey,
+    created_at: now,
+    kind: 30402,
+    content: originalEvent.content || '',
+    tags: eventTags
+  }
+
+  let counter = 0
+  while (true) {
+    eventTags[nonceIdx][1] = String(counter)
+    const eventId = getEventHash(baseEvent)
+    if (getEventPow(eventId) >= targetDifficulty) {
+      break
+    }
+    counter++
+  }
+
   return finalizeEvent({
     kind: 30402,
     created_at: now,
-    tags: [...existingTags, ['status', 'taken'], ['expiry', String(now + 60)]],
-    content: originalEvent.content,
+    tags: eventTags,
+    content: originalEvent.content || '',
   }, secretKey)
 }
 
