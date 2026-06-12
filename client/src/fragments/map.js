@@ -62,6 +62,15 @@ export const setupMap = (lng, lat) => {
   // Watch store items and add/update markers
   van.derive(() => {
     const items = store.items
+
+    // Clean up markers that are no longer in store.items
+    for (const [id, value] of _markers.entries()) {
+      if (!items[id]) {
+        value.marker.remove()
+        _markers.delete(id)
+      }
+    }
+
     for (const [id, event] of Object.entries(items)) {
       const taken = isTaken(event)
       const mine = event.pubkey === store.identity.pubkey
@@ -100,6 +109,7 @@ export const MapComponent = () => mapDiv
 export const MapSearchBox = () => {
   const query = van.state('')
   const searching = van.state(false)
+  const locating = van.state(false)
 
   const handleSearch = async () => {
     const q = query.val.trim()
@@ -135,12 +145,14 @@ export const MapSearchBox = () => {
       alert('Geolocation is not supported by your browser')
       return
     }
+    locating.val = true
     navigator.geolocation.getCurrentPosition(({ coords }) => {
       const lat = coords.latitude
       const lng = coords.longitude
       store.position.lat = lat
       store.position.lng = lng
       store.position.loading = false
+      locating.val = false
       if (_map) {
         _map.flyTo({
           center: [lng, lat],
@@ -149,6 +161,7 @@ export const MapSearchBox = () => {
         })
       }
     }, (err) => {
+      locating.val = false
       alert('Error getting location: ' + err.message)
     })
   }
@@ -165,16 +178,17 @@ export const MapSearchBox = () => {
       }
     }),
     van.tags.button({
-      class: () => `btn btn-primary map-search-btn ${searching.val ? 'loading' : ''}`,
+      class: 'btn btn-primary map-search-btn',
       onclick: handleSearch,
-      disabled: searching
-    }, 'Go'),
+      disabled: () => searching.val || locating.val
+    }, () => searching.val ? '⏳' : 'Go'),
     van.tags.button({
       class: 'btn btn-muted map-location-btn',
       style: 'padding: 4px 8px !important; min-height: auto !important; font-size: 14px;',
       onclick: handleGoToMyLocation,
+      disabled: () => searching.val || locating.val,
       title: 'Go to my location'
-    }, '📍')
+    }, () => locating.val ? '⏳' : '📍')
   )
 }
 

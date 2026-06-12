@@ -1,5 +1,5 @@
 import van from 'vanjs-core'
-import { initStore } from './store.js'
+import { initStore, store } from './store.js'
 import { Loading } from './fragments/loading.js'
 import { NavBar } from './fragments/navBar.js'
 import { TopBar } from './fragments/topBar.js'
@@ -15,9 +15,15 @@ if ('serviceWorker' in navigator) {
 const { div } = van.tags
 
 const App = () => {
-  const loading = van.state(true)
+  const initDone = van.state(false)
 
-  initStore().then(() => { loading.val = false })
+  initStore().then(() => { initDone.val = true })
+
+  const loading = van.derive(() => {
+    if (!initDone.val) return true
+    if (store.position.loading) return true
+    return false
+  })
 
   return div({
     id: 'app',

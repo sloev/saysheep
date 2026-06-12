@@ -301,6 +301,17 @@ html, body {
 }
 .list-empty .empty-emoji { font-size: 48px; display: block; margin-bottom: 12px; }
 
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── ITEM CARD ── */
 .item-card {
   background: var(--surface);
@@ -318,6 +329,7 @@ html, body {
     "img tags"
     "pills pills";
   position: relative;
+  animation: cardEntrance 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .item-card:hover { transform: translateY(-2px); box-shadow: 5px 5px 0 var(--ink); }
 .item-card:active { transform: translateY(0); box-shadow: var(--shadow); }
@@ -759,9 +771,8 @@ select.form-select {
   transform: rotate(-45deg);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform 0.15s;
 }
-.map-marker:hover { transform: rotate(-45deg) scale(1.2); }
+.map-marker:hover { transform: rotate(-45deg) scale(1.2); transition: transform 0.15s; }
 .map-marker.taken { background: var(--muted); opacity: 0.6; }
 .map-marker.mine { background: var(--yellow); }
 

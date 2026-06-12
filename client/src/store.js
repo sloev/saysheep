@@ -68,12 +68,20 @@ export const initStore = async () => {
         store.position.loading = false
       },
       (err) => {
+        if (!store.position.lat) {
+          store.position.lat = 55.6761
+          store.position.lng = 12.5683
+        }
         store.position.loading = false
         store.position.error = 'location_denied'
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
     )
   } else {
+    if (!store.position.lat) {
+      store.position.lat = 55.6761
+      store.position.lng = 12.5683
+    }
     store.position.loading = false
   }
 
