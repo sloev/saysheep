@@ -14,7 +14,7 @@
   "categories": ["shopping", "lifestyle", "social"],
   "screenshots": [],
   "share_target": {
-    "action": "/new",
+    "action": "new",
     "method": "GET",
     "params": {
       "title": "title",
@@ -26,13 +26,13 @@
     {
       "name": "Give something away",
       "short_name": "Give away",
-      "url": "/new",
+      "url": "new",
       "icons": [{ "src": "images/new.png", "sizes": "192x192" }]
     },
     {
       "name": "Browse nearby",
       "short_name": "Browse",
-      "url": "/list",
+      "url": "list",
       "icons": [{ "src": "images/list.png", "sizes": "192x192" }]
     }
   ]

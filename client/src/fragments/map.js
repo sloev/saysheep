@@ -10,8 +10,30 @@ const mapDiv = van.tags.div({ id: 'map' })
 let _map = null
 const _markers = new Map()
 
+const isWebGLSupported = () => {
+  try {
+    const canvas = document.createElement('canvas')
+    return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')))
+  } catch (e) {
+    return false
+  }
+}
+
 export const setupMap = (lng, lat) => {
   if (_map) return
+  if (!isWebGLSupported()) {
+    mapDiv.style.display = 'flex'
+    mapDiv.style.alignItems = 'center'
+    mapDiv.style.justifyContent = 'center'
+    mapDiv.style.padding = '20px'
+    mapDiv.style.textAlign = 'center'
+    mapDiv.style.background = 'var(--bg)'
+    mapDiv.style.color = 'var(--ink)'
+    mapDiv.style.fontSize = '14px'
+    mapDiv.style.fontWeight = 'bold'
+    mapDiv.textContent = 'WebGL is disabled or not supported in your browser. The map cannot be displayed.'
+    return
+  }
   const protocol = new pmtiles.Protocol()
   maplibregl.addProtocol('pmtiles', protocol.tile)
 
