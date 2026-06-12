@@ -30,12 +30,12 @@ const App = () => {
     class: () => 'route-' + cone.currentPage.val
   },
     Loading(loading),
+    TopBar(),
     div({ id: 'global-map-container' },
       MapComponent(),
       MapSearchBox()
     ),
     div({ id: 'main-layout' },
-      TopBar(),
       div({ class: 'page-content', id: 'main-content' }, routerElement),
       NavBar(),
     )

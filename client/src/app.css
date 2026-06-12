@@ -78,8 +78,9 @@ html, body {
 #main-layout {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   width: 100%;
+  position: relative;
 }
 
 /* On mobile, map page background needs to be transparent so map underneath is visible */
@@ -789,26 +790,34 @@ select.form-select {
     max-width: none !important;
     width: 100vw !important;
     height: 100vh !important;
-    display: flex !important;
-    flex-direction: row !important;
+    display: grid !important;
+    grid-template-rows: 50px 1fr !important;
+    grid-template-columns: 400px 1fr !important;
+    grid-template-areas:
+      "topbar topbar"
+      "sidebar map" !important;
     margin: 0 !important;
     overflow: hidden !important;
   }
+  .topbar {
+    grid-area: topbar !important;
+    width: 100% !important;
+  }
   #global-map-container {
+    grid-area: map !important;
     display: block !important;
     position: relative !important;
-    flex: 1 !important;
-    height: 100vh !important;
-    order: 2 !important;
+    height: 100% !important;
+    width: 100% !important;
+    top: 0 !important;
   }
   #main-layout {
-    width: 400px !important;
-    height: 100vh !important;
-    flex-shrink: 0 !important;
+    grid-area: sidebar !important;
+    width: 100% !important;
+    height: 100% !important;
     border-right: var(--border) !important;
     display: flex !important;
     flex-direction: column !important;
-    order: 1 !important;
     position: relative !important;
     z-index: 10 !important;
     background: var(--bg) !important;
