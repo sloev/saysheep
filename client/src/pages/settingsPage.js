@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
 import { store, updateIdentity } from '../store.js'
 import { setMode, CONNECTIVITY } from '../lib/sync.js'
-import { addRelay, removeRelay, getRelays } from '../lib/relay.js'
+import { addRelay, removeRelay, getRelays, getRelaysStatus } from '../lib/relay.js'
 import { getLang, setLang, getSupportedLangs, t } from '../lib/i18n.js'
 import { getPubkey, getSecretKeyHex, isWebAuthnSupported, hasPasskey, registerPasskey, verifyPasskey, clearPasskey } from '../lib/identity.js'
 import { requestNotificationPermission, getNotificationPermission } from '../lib/notifications.js'
@@ -12,17 +12,22 @@ export const SettingsPage = () => {
   const relayInput = van.state('')
   const showPrivkey = van.state(false)
   const currentLang = van.state(getLang())
-  const relays = van.state(getRelays())
   const notifPerm = van.state(getNotificationPermission())
   const passkeyRegistered = van.state(hasPasskey())
   const importInput = van.state('')
 
+  const relaysStatus = van.state(getRelaysStatus())
+  const updateStatus = () => {
+    relaysStatus.val = getRelaysStatus()
+  }
 
-  const modes = [
-    { value: CONNECTIVITY.BOTH, label: t('settings.connectivity.both') },
-    { value: CONNECTIVITY.PEERS, label: t('settings.connectivity.peers') },
-    { value: CONNECTIVITY.RELAYS, label: t('settings.connectivity.relays') },
-  ]
+  // Update status every second
+  let statusInterval = null
+  van.derive(() => {
+    updateStatus()
+    statusInterval = setInterval(updateStatus, 1000)
+    return () => clearInterval(statusInterval)
+  })
 
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
@@ -48,39 +53,32 @@ export const SettingsPage = () => {
       )
     ),
 
-    // Connectivity
-    div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, t('settings.connectivity')),
-      div({ class: 'connectivity-options' },
-        ...modes.map(m =>
-          div({
-            class: () => `connectivity-option ${store.connectivity.mode === m.value ? 'active' : ''}`,
-            onclick: () => {
-              setMode(m.value)
-              store.connectivity.mode = m.value
-            }
-          },
-            input({ type: 'radio', name: 'mode', value: m.value,
-              checked: () => store.connectivity.mode === m.value }),
-            span(m.label)
-          )
-        )
-      )
-    ),
-
     // Relays
     div({ class: 'settings-section' },
       div({ class: 'settings-section-title' }, t('settings.relays')),
       div({ class: 'relay-list' },
         () => div({ style: 'display:flex;flex-direction:column;gap:8px' },
-          ...relays.val.map(url =>
-            div({ class: 'relay-item' },
-              span({ style: 'flex:1;overflow:hidden;text-overflow:ellipsis' }, url),
+          ...relaysStatus.val.map(({ url, connected, nextReconnectAt }) => {
+            let statusBadge
+            if (connected) {
+              statusBadge = span({ style: 'font-size:11px;color:var(--mint);font-weight:700;margin-top:2px' }, '🟢 Connected')
+            } else {
+              const secs = nextReconnectAt ? Math.ceil((nextReconnectAt - Date.now()) / 1000) : 0
+              statusBadge = span({ style: 'font-size:11px;color:var(--pink);font-weight:700;margin-top:2px' }, 
+                secs > 0 ? `🔴 Retrying in ${secs}s` : '🔴 Connecting...'
+              )
+            }
+
+            return div({ class: 'relay-item', style: 'display:flex;align-items:center' },
+              div({ style: 'flex:1;display:flex;flex-direction:column;min-width:0' },
+                span({ style: 'overflow:hidden;text-overflow:ellipsis;font-size:14px;white-space:nowrap' }, url),
+                statusBadge
+              ),
               button({ class: 'btn btn-sm btn-danger', style: 'margin-left:8px;flex-shrink:0',
-                onclick: () => { removeRelay(url); relays.val = getRelays() }
+                onclick: () => { removeRelay(url); updateStatus() }
               }, '×')
             )
-          )
+          })
         )
       ),
       div({ style: 'display:flex;gap:8px' },
@@ -93,7 +91,7 @@ export const SettingsPage = () => {
           onkeydown: e => {
             if (e.key === 'Enter' && relayInput.val.startsWith('wss://')) {
               addRelay(relayInput.val)
-              relays.val = getRelays()
+              updateStatus()
               relayInput.val = ''
             }
           }
@@ -102,7 +100,7 @@ export const SettingsPage = () => {
           onclick: () => {
             if (relayInput.val.startsWith('wss://')) {
               addRelay(relayInput.val)
-              relays.val = getRelays()
+              updateStatus()
               relayInput.val = ''
             }
           }

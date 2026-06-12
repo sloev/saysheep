@@ -19,14 +19,14 @@ let _onRelayCount = null
 let _peerEventHandler = null
 let _onEventCallback = null
 
-export const getMode = () => _mode
+export const getMode = () => CONNECTIVITY.BOTH
 export const setMode = (mode) => {
-  _mode = mode
-  localStorage.setItem('saysheep_connectivity', mode)
+  _mode = CONNECTIVITY.BOTH
+  localStorage.setItem('saysheep_connectivity', CONNECTIVITY.BOTH)
 }
 
 export const initSync = ({ onPeerCount, onRelayCount, onEvent, relayUrls }) => {
-  _mode = localStorage.getItem('saysheep_connectivity') || CONNECTIVITY.BOTH
+  _mode = CONNECTIVITY.BOTH
   _onPeerCount = onPeerCount
   _onRelayCount = onRelayCount
   _onEventCallback = onEvent

@@ -18,6 +18,7 @@ class saysheepRelay {
     this.pendingOks = new Map() // eventId -> {resolve, reject, timer}
     this.onP2PMessage = onP2PMessage
     this.connected = false
+    this.nextReconnectAt = null
     this._reconnectDelay = 1000
     this._dead = false
     this._connect()
@@ -25,6 +26,7 @@ class saysheepRelay {
 
   _connect() {
     if (this._dead) return
+    this.nextReconnectAt = null
     try {
       this.ws = new WebSocket(this.url)
     } catch {
@@ -34,6 +36,7 @@ class saysheepRelay {
 
     this.ws.onopen = () => {
       this.connected = true
+      this.nextReconnectAt = null
       this._reconnectDelay = 1000
       // Re-send active subscriptions
       for (const [subId, sub] of this.subs) {
@@ -78,8 +81,10 @@ class saysheepRelay {
 
   _scheduleReconnect() {
     if (this._dead) return
+    this.nextReconnectAt = Date.now() + this._reconnectDelay
     setTimeout(() => this._connect(), this._reconnectDelay)
     this._reconnectDelay = Math.min(this._reconnectDelay * 2, 30000)
+    this.onP2PMessage?.({ type: '_reconnect_scheduled', relay: this })
   }
 
   subscribe(subId, filters, onEvent, onEose) {
@@ -141,8 +146,16 @@ export const initRelay = (relayUrls, onP2PMessage, onCountChange) => {
 }
 
 const _routeP2P = (msg) => {
-  if (msg?.type === '_connected' || msg?.type === '_disconnected') _emitCount()
+  if (msg?.type === '_connected' || msg?.type === '_disconnected' || msg?.type === '_reconnect_scheduled') _emitCount()
   _p2pHandler?.(msg)
+}
+
+export const getRelaysStatus = () => {
+  return [..._connections.entries()].map(([url, conn]) => ({
+    url,
+    connected: conn.connected,
+    nextReconnectAt: conn.nextReconnectAt
+  }))
 }
 
 export const getRelays = () => _relays
