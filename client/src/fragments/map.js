@@ -14,30 +14,165 @@ const _markers = new Map()
 
 const isWebGLSupported = () => {
   try {
+    if (!maplibregl.supported()) return false
     const canvas = document.createElement('canvas')
     const gl = window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
     if (!gl) return false
-    const ext = gl.getExtension('WEBGL_lose_context')
-    if (ext) ext.loseContext()
     return true
   } catch (e) {
     return false
   }
 }
 
+let _leafletLoadingPromise = null
+
+const loadLeaflet = () => {
+  if (_leafletLoadingPromise) return _leafletLoadingPromise
+
+  _leafletLoadingPromise = new Promise((resolve) => {
+    if (window.L) {
+      resolve()
+      return
+    }
+
+    // Link CSS
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+    document.head.appendChild(link)
+
+    // Script JS
+    const script = document.createElement('script')
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+    script.onload = () => {
+      resolve()
+    }
+    document.body.appendChild(script)
+  })
+
+  return _leafletLoadingPromise
+}
+
+const setupLeafletMap = async (lng, lat) => {
+  await loadLeaflet()
+  if (_map) return
+
+  mapDiv.innerHTML = ''
+  mapDiv.style.display = 'block'
+  mapDiv.style.alignItems = ''
+  mapDiv.style.justifyContent = ''
+  mapDiv.style.padding = ''
+  mapDiv.style.textAlign = ''
+  mapDiv.style.background = ''
+
+  const L = window.L
+
+  const savedLat = localStorage.getItem('saysheep_last_lat')
+  const savedLng = localStorage.getItem('saysheep_last_lng')
+  const savedZoom = localStorage.getItem('saysheep_last_zoom')
+
+  const initialCenter = (savedLat && savedLng)
+    ? [parseFloat(savedLat), parseFloat(savedLng)]
+    : [lat, lng]
+  const initialZoom = savedZoom ? parseFloat(savedZoom) : 14
+
+  _map = L.map(mapDiv, {
+    zoomControl: false
+  }).setView(initialCenter, initialZoom)
+
+  L.control.zoom({ position: 'topright' }).addTo(_map)
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(_map)
+
+  const notifyBounds = () => {
+    const bounds = _map.getBounds()
+    const zoom = _map.getZoom()
+    const center = _map.getCenter()
+
+    localStorage.setItem('saysheep_last_lat', center.lat)
+    localStorage.setItem('saysheep_last_lng', center.lng)
+    localStorage.setItem('saysheep_last_zoom', zoom)
+
+    onMapBoundsChange({
+      sw: { lat: bounds.getSouthWest().lat, lng: bounds.getSouthWest().lng },
+      ne: { lat: bounds.getNorthEast().lat, lng: bounds.getNorthEast().lng },
+      zoom,
+    })
+  }
+
+  _map.on('moveend', notifyBounds)
+  _map.on('zoomend', notifyBounds)
+
+  notifyBounds()
+
+  van.derive(() => {
+    const items = store.items
+
+    for (const [id, value] of _markers.entries()) {
+      if (!items[id]) {
+        value.marker.remove()
+        _markers.delete(id)
+      }
+    }
+
+    for (const [id, event] of Object.entries(items)) {
+      const taken = isTaken(event)
+      const mine = event.pubkey === store.identity.pubkey
+      const cls = `map-marker ${taken ? 'taken' : ''} ${mine ? 'mine' : ''}`.trim()
+
+      const existing = _markers.get(id)
+      if (existing) {
+        if (existing.el.className !== cls) existing.el.className = cls
+        continue
+      }
+
+      const geo = getItemGeo(event)
+      if (!geo) continue
+
+      const el = document.createElement('div')
+      el.className = cls
+      el.title = getItemTitle(event) || '📦'
+
+      const icon = L.divIcon({
+        html: el,
+        className: 'leaflet-custom-marker',
+        iconSize: [28, 28],
+        iconAnchor: [14, 28]
+      })
+
+      const marker = L.marker([geo.lat, geo.lng], { icon })
+        .addTo(_map)
+
+      el.addEventListener('click', () => {
+        currentItemId.val = id
+        cone.navigate('item', {})
+      })
+
+      _markers.set(id, { marker, el })
+    }
+  })
+}
+
+const flyToMap = (lng, lat, zoom = 14) => {
+  if (!_map) return
+  if (window.L && _map instanceof window.L.Map) {
+    _map.flyTo([lat, lng], zoom)
+  } else {
+    _map.flyTo({
+      center: [lng, lat],
+      zoom,
+      essential: true
+    })
+  }
+}
+
 export const setupMap = (lng, lat) => {
   if (_map) return
   if (!isWebGLSupported()) {
-    mapDiv.style.display = 'flex'
-    mapDiv.style.alignItems = 'center'
-    mapDiv.style.justifyContent = 'center'
-    mapDiv.style.padding = '20px'
-    mapDiv.style.textAlign = 'center'
-    mapDiv.style.background = 'var(--bg)'
-    mapDiv.style.color = 'var(--ink)'
-    mapDiv.style.fontSize = '14px'
-    mapDiv.style.fontWeight = 'bold'
-    mapDiv.textContent = t('map.webgl_unsupported')
+    setupLeafletMap(lng, lat)
     return
   }
   const protocol = new pmtiles.Protocol()
@@ -180,11 +315,7 @@ export const MapSearchBox = () => {
         store.position.lat = targetLat
         store.position.lng = targetLng
         store.position.loading = false
-        _map.flyTo({
-          center: [targetLng, targetLat],
-          zoom: 14,
-          essential: true
-        })
+        flyToMap(targetLng, targetLat, 14)
       } else {
         alert(t('map.location_not_found'))
       }
@@ -208,13 +339,7 @@ export const MapSearchBox = () => {
       store.position.lng = lng
       store.position.loading = false
       locating.val = false
-      if (_map) {
-        _map.flyTo({
-          center: [lng, lat],
-          zoom: 14,
-          essential: true
-        })
-      }
+      flyToMap(lng, lat, 14)
     }, (err) => {
       locating.val = false
       alert(t('map.location_error', { error: err.message }))
