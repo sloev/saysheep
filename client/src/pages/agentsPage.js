@@ -37,26 +37,26 @@ export const AgentsPage = () => {
 
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
-      div({ class: 'page-title' }, t('agents.heading'))
+      div({ class: 'page-title' }, () => t('agents.heading'))
     ),
     div({ class: 'form-section' },
       p({ style: 'font-size:13px;color:var(--muted);line-height:1.5' },
-        t('agents.description')
+        () => t('agents.description')
       ),
-      div({ class: 'form-label' }, t('agents.categories')),
+      div({ class: 'form-label' }, () => t('agents.categories')),
       TagInput({ tags: newTags }),
       button({
         class: 'btn btn-submit',
         onclick: addAgent,
         disabled: () => store.position.loading,
-      }, t('agents.add'))
+      }, () => t('agents.add'))
     ),
     div({ class: 'list-container' },
       () => {
         const subs = store.subscriptions || []
         if (!subs.length) return div({ class: 'list-empty' },
           span({ class: 'empty-emoji' }, '🤖'),
-          t('agents.empty')
+          () => t('agents.empty')
         )
         return div({ style: 'display:flex;flex-direction:column;gap:8px' },
           ...subs.map(sub => div({ class: 'alert-card' },
@@ -78,7 +78,7 @@ export const AgentsPage = () => {
               button({
                 class: 'btn btn-sm btn-danger',
                 onclick: () => removeSubscription(sub.id)
-              }, t('agents.remove'))
+              }, () => t('agents.remove'))
             )
           ))
         )

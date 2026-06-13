@@ -486,17 +486,13 @@ export const searchTags = (query, lang = getLang(), max = 8) => {
   const q = query.toLowerCase().trim()
   
   const matches = UNIQUE_TAGS.filter(tag => {
-    const idMatch = tag.toLowerCase().includes(q)
-    const localized = (LOCALIZED_NAMES[lang]?.[tag] || '').toLowerCase()
-    const localizedMatch = localized.includes(q)
-    return idMatch || localizedMatch
+    const localized = translateTag(tag, lang).toLowerCase()
+    return localized.includes(q)
   })
 
   const exact = matches.filter(tag => {
-    const idStart = tag.toLowerCase().startsWith(q)
-    const localized = (LOCALIZED_NAMES[lang]?.[tag] || '').toLowerCase()
-    const localizedStart = localized.startsWith(q)
-    return idStart || localizedStart
+    const localized = translateTag(tag, lang).toLowerCase()
+    return localized.startsWith(q)
   })
 
   const fuzzy = matches.filter(tag => !exact.includes(tag))

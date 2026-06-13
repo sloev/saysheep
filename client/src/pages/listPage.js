@@ -9,14 +9,14 @@ const { div, input, span } = van.tags
 export const ListPage = () => {
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
-      div({ class: 'page-title' }, t('list')),
+      div({ class: 'page-title' }, () => t('list')),
       div({ class: 'mobile-only' }, ConnStatus())
     ),
     div({ class: 'search-bar' },
       input({
         class: 'search-input',
         type: 'search',
-        placeholder: t('list.search'),
+        placeholder: () => t('list.search'),
         value: store.ui.searchQuery,
         oninput: e => { store.ui.searchQuery = e.target.value },
       })

@@ -149,14 +149,19 @@ export const addEvent = (event) => {
   // NIP-09 kind 5: deletion event
   if (event.kind === 5) {
     const eTags = event.tags.filter(t => t[0] === 'e').map(t => t[1])
+    let deleted = false
     for (const id of eTags) {
       const target = store.items[id]
       if (target && target.pubkey === event.pubkey) {
         delete store.items[id]
+        deleted = true
         if (currentItemId.val === id) {
           currentItemId.val = null
         }
       }
+    }
+    if (deleted) {
+      store.items = { ...store.items }
     }
     return
   }
@@ -185,6 +190,7 @@ export const addEvent = (event) => {
   const existing = store.items[event.id]
   if (existing && existing.created_at >= event.created_at) return
   store.items[event.id] = event
+  store.items = { ...store.items }
 
   // Notify if this new item matches any alert subscription
   if (event.kind === 30402 && !isTaken(event)) {

@@ -175,7 +175,7 @@ export const ItemPage = () => {
             input({
               class: 'chat-input',
               type: 'text',
-              placeholder: t('item.chat.placeholder'),
+              placeholder: () => t('item.chat.placeholder'),
               value: chatInput,
               oninput: e => { chatInput.val = e.target.value },
               onkeydown: e => { if (e.key === 'Enter') sendMsg() },

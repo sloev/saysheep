@@ -10,9 +10,8 @@ export const TagInput = ({ tags, onTagsChange }) => {
 
   const addTag = (tag) => {
     tag = tag.trim().toLowerCase()
-    // Find if this tag matches any tag ID or localized name in the taxonomy
+    // Find if this tag matches any localized name in the active language
     const matchedTag = UNIQUE_TAGS.find(t => {
-      if (t === tag) return true
       const localized = translateTag(t).toLowerCase()
       return localized === tag
     })
@@ -93,7 +92,7 @@ export const TagInput = ({ tags, onTagsChange }) => {
     input({
       class: 'form-input',
       type: 'text',
-      placeholder: t('new.tags.placeholder'),
+      placeholder: () => t('new.tags.placeholder'),
       value: inputVal,
       oninput: onInput,
       onkeydown: onKeyDown,

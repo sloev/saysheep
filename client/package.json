@@ -18,8 +18,6 @@
     "minisearch": "^6.3.0",
     "ngeohash": "^0.6.3",
     "nostr-tools": "^2.7.2",
-    "pmtiles": "^2.11.0",
-    "protomaps-leaflet": "^1.24.2",
     "shape2geohash": "^1.2.6",
     "van-cone": "^0.0.7",
     "vanjs-core": "^1.2.8",

@@ -31,12 +31,12 @@ export const SettingsPage = () => {
 
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
-      div({ class: 'page-title' }, t('settings.heading'))
+      div({ class: 'page-title' }, () => t('settings.heading'))
     ),
 
     // Language
     div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, t('settings.language')),
+      div({ class: 'settings-section-title' }, () => t('settings.language')),
       select({
         class: 'form-select',
         value: currentLang,
@@ -47,7 +47,7 @@ export const SettingsPage = () => {
       },
         ...getSupportedLangs().map(lang =>
           option({ value: lang, selected: () => currentLang.val === lang },
-            t(`lang.${lang}`)
+            () => t(`lang.${lang}`)
           )
         )
       )
@@ -55,17 +55,17 @@ export const SettingsPage = () => {
 
     // Relays
     div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, t('settings.relays')),
+      div({ class: 'settings-section-title' }, () => t('settings.relays')),
       div({ class: 'relay-list' },
         () => div({ style: 'display:flex;flex-direction:column;gap:8px' },
           ...relaysStatus.val.map(({ url, connected, nextReconnectAt }) => {
             let statusBadge
             if (connected) {
-              statusBadge = span({ style: 'font-size:11px;color:var(--mint);font-weight:700;margin-top:2px' }, '🟢 ' + t('relay.status.connected'))
+              statusBadge = span({ style: 'font-size:11px;color:var(--mint);font-weight:700;margin-top:2px' }, () => '🟢 ' + t('relay.status.connected'))
             } else {
               const secs = nextReconnectAt ? Math.ceil((nextReconnectAt - Date.now()) / 1000) : 0
               statusBadge = span({ style: 'font-size:11px;color:var(--pink);font-weight:700;margin-top:2px' }, 
-                secs > 0 ? '🔴 ' + t('relay.status.retry', { secs }) : '🔴 ' + t('relay.status.connecting')
+                () => secs > 0 ? '🔴 ' + t('relay.status.retry', { secs }) : '🔴 ' + t('relay.status.connecting')
               )
             }
 
@@ -85,7 +85,7 @@ export const SettingsPage = () => {
         input({
           class: 'form-input',
           type: 'url',
-          placeholder: t('settings.relay.placeholder'),
+          placeholder: () => t('settings.relay.placeholder'),
           value: relayInput,
           oninput: e => relayInput.val = e.target.value,
           onkeydown: e => {
@@ -110,30 +110,30 @@ export const SettingsPage = () => {
 
     // Notifications
     div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, t('settings.notifications')),
+      div({ class: 'settings-section-title' }, () => t('settings.notifications')),
       () => {
         const perm = notifPerm.val
-        if (perm === 'unsupported') return div({ style: 'font-size:13px;color:var(--muted)' }, t('settings.notifications.unsupported'))
-        if (perm === 'granted') return div({ style: 'font-size:13px;color:var(--mint)' }, '✓ ', t('settings.notifications.enabled'))
-        if (perm === 'denied') return div({ style: 'font-size:13px;color:var(--muted)' }, t('settings.notifications.denied'))
+        if (perm === 'unsupported') return div({ style: 'font-size:13px;color:var(--muted)' }, () => t('settings.notifications.unsupported'))
+        if (perm === 'granted') return div({ style: 'font-size:13px;color:var(--mint)' }, '✓ ', () => t('settings.notifications.enabled'))
+        if (perm === 'denied') return div({ style: 'font-size:13px;color:var(--muted)' }, () => t('settings.notifications.denied'))
         return button({
           class: 'btn btn-sm btn-primary',
           onclick: async () => {
             await requestNotificationPermission()
             notifPerm.val = getNotificationPermission()
           }
-        }, t('settings.notifications.enable'))
+        }, () => t('settings.notifications.enable'))
       }
     ),
 
     // Identity
     div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, t('settings.identity')),
-      div({ class: 'form-label' }, t('settings.identity.pubkey')),
+      div({ class: 'settings-section-title' }, () => t('settings.identity')),
+      div({ class: 'form-label' }, () => t('settings.identity.pubkey')),
       div({ class: 'pubkey-display' }, getPubkey()),
       div({ style: 'margin-top:12px; display:flex; flex-direction:column; gap:12px;' },
         p({ style: 'font-size:12px;color:var(--muted);line-height:1.4' },
-          t('settings.identity.export_warning')
+          () => t('settings.identity.export_warning')
         ),
         
         // Export actions
@@ -176,7 +176,7 @@ export const SettingsPage = () => {
               a.click()
               URL.revokeObjectURL(url)
             }
-          }, t('settings.identity.download_backup'))
+          }, () => t('settings.identity.download_backup'))
         ),
         
         () => showPrivkey.val
@@ -185,12 +185,12 @@ export const SettingsPage = () => {
 
         // Import actions
         div({ style: 'border-top:1.5px dashed rgba(0,0,0,0.1); margin-top:8px; padding-top:12px;' },
-          div({ class: 'form-label', style: 'margin-bottom:6px;' }, t('settings.identity.import_heading')),
+          div({ class: 'form-label', style: 'margin-bottom:6px;' }, () => t('settings.identity.import_heading')),
           div({ style: 'display:flex; gap:8px;' },
             input({
               class: 'form-input',
               style: 'font-family:monospace; font-size:12px;',
-              placeholder: t('settings.identity.import_placeholder'),
+              placeholder: () => t('settings.identity.import_placeholder'),
               value: importInput,
               oninput: e => importInput.val = e.target.value
             }),
@@ -210,10 +210,10 @@ export const SettingsPage = () => {
                   alert(t('settings.identity.import.failed', { error: err.message }))
                 }
               }
-            }, t('settings.identity.import_btn'))
+            }, () => t('settings.identity.import_btn'))
           ),
           label({ class: 'btn btn-sm btn-muted', style: 'margin-top:8px; display:inline-block; cursor:pointer; text-align:center;' },
-            t('settings.identity.upload_backup'),
+            () => t('settings.identity.upload_backup'),
             input({
               type: 'file',
               accept: '.json',
@@ -243,17 +243,17 @@ export const SettingsPage = () => {
 
         // Passkey / WebAuthn protection
         div({ style: 'border-top:1.5px dashed rgba(0,0,0,0.1); margin-top:8px; padding-top:12px;' },
-          div({ class: 'form-label', style: 'margin-bottom:4px;' }, t('settings.identity.passkey_heading')),
+          div({ class: 'form-label', style: 'margin-bottom:4px;' }, () => t('settings.identity.passkey_heading')),
           p({ style: 'font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.4' },
-            t('settings.identity.passkey_desc')
+            () => t('settings.identity.passkey_desc')
           ),
           () => {
             if (!isWebAuthnSupported()) {
-              return div({ style: 'font-size:12px; color:var(--muted)' }, t('settings.identity.passkey_unsupported'))
+              return div({ style: 'font-size:12px; color:var(--muted)' }, () => t('settings.identity.passkey_unsupported'))
             }
             if (passkeyRegistered.val) {
               return div({ style: 'display:flex; flex-direction:column; gap:8px;' },
-                div({ style: 'font-size:12px; color:var(--mint); font-weight:bold;' }, t('settings.identity.passkey_protected')),
+                div({ style: 'font-size:12px; color:var(--mint); font-weight:bold;' }, () => t('settings.identity.passkey_protected')),
                 div({ style: 'display:flex; gap:8px;' },
                   button({
                     class: 'btn btn-sm btn-primary',
@@ -267,7 +267,7 @@ export const SettingsPage = () => {
                         alert(t('settings.identity.passkey.failed_verify', { error: err.message }))
                       }
                     }
-                  }, t('settings.identity.passkey.test')),
+                  }, () => t('settings.identity.passkey.test')),
                   button({
                     class: 'btn btn-sm btn-danger',
                     onclick: () => {
@@ -275,7 +275,7 @@ export const SettingsPage = () => {
                       passkeyRegistered.val = false
                       alert(t('settings.identity.passkey.disabled'))
                     }
-                  }, t('settings.identity.passkey_disable'))
+                  }, () => t('settings.identity.passkey_disable'))
                 )
               )
             } else {
@@ -292,7 +292,7 @@ export const SettingsPage = () => {
                     alert(t('settings.identity.passkey.failed_register', { error: err.message }))
                   }
                 }
-              }, t('settings.identity.passkey_enable'))
+              }, () => t('settings.identity.passkey_enable'))
             }
           }
         )

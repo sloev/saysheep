@@ -1,11 +1,9 @@
 import van from 'vanjs-core'
 import L from 'leaflet'
-import { leafletLayer } from 'protomaps-leaflet'
 import { store, onMapBoundsChange, currentItemId } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
-import { getRelays, getRelaysStatus } from '../lib/relay.js'
 
 import 'leaflet/dist/leaflet.css'
 
@@ -24,29 +22,6 @@ export const setupMap = (lng, lat) => {
   mapDiv.style.textAlign = ''
   mapDiv.style.background = ''
 
-  const isSelfHostedRelay = (url) => {
-    const envUrl = import.meta.env?.VITE_RELAY_URL
-    if (envUrl && url === envUrl) return true
-    if (url.includes('localhost') || url.includes('127.0.0.1') || url.includes('192.168.') || url.includes('10.')) return true
-    try {
-      const relayHost = new URL(url).hostname
-      if (relayHost === window.location.hostname) return true
-    } catch {}
-    return false
-  }
-
-  const status = getRelaysStatus()
-  const selfHostedRelays = status.filter(r => isSelfHostedRelay(r.url))
-  const connectedRelay = selfHostedRelays.find(r => r.connected) || selfHostedRelays[0]
-
-  let mapPmtilesUrl
-  if (connectedRelay) {
-    const relayBaseUrl = connectedRelay.url.replace(/^ws/, 'http')
-    mapPmtilesUrl = `${relayBaseUrl}/map.pmtiles`
-  } else {
-    mapPmtilesUrl = 'https://data.source.coop/protomaps/openstreetmap/v4.pmtiles'
-  }
-
   const savedLat = localStorage.getItem('saysheep_last_lat')
   const savedLng = localStorage.getItem('saysheep_last_lng')
   const savedZoom = localStorage.getItem('saysheep_last_zoom')
@@ -64,11 +39,10 @@ export const setupMap = (lng, lat) => {
 
   L.control.zoom({ position: 'topright' }).addTo(_map)
 
-  const pmtilesLayer = leafletLayer({
-    url: mapPmtilesUrl,
-    theme: 'light'
-  })
-  pmtilesLayer.addTo(_map)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(_map)
 
   const notifyBounds = () => {
     const bounds = _map.getBounds()
@@ -200,7 +174,7 @@ export const MapSearchBox = () => {
     van.tags.input({
       class: 'map-search-input',
       type: 'text',
-      placeholder: t('map.search_placeholder'),
+      placeholder: () => t('map.search_placeholder'),
       value: query,
       oninput: (e) => query.val = e.target.value,
       onkeydown: (e) => {

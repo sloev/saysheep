@@ -107,6 +107,7 @@ export const NewItemPage = () => {
         ctx.drawImage(imgEl, 0, 0, targetW, targetH)
         photoData.val = canvasEl.toDataURL('image/jpeg', 0.7)
         hasPhoto.val = true
+        stopCamera()
       }
       imgEl.onerror = () => {
         alert(t('new.photo.failed'))
@@ -117,8 +118,9 @@ export const NewItemPage = () => {
   }
 
   van.derive(() => {
-    if (cone.isCurrentPage('new') && !cameraOn.val && !hasPhoto.val) startCamera()
-    if (!cone.isCurrentPage('new') && cameraOn.val) stopCamera()
+    const isNewPage = cone.currentPage.val === 'new'
+    if (isNewPage && !cameraOn.val && !hasPhoto.val) startCamera()
+    if (!isNewPage && cameraOn.val) stopCamera()
   })
 
   const getGeo = () => {
@@ -164,7 +166,7 @@ export const NewItemPage = () => {
 
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
-      div({ class: 'page-title' }, t('new.heading'))
+      div({ class: 'page-title' }, () => t('new.heading'))
     ),
     div({ class: 'form-section' },
       // Photo area
@@ -173,7 +175,7 @@ export const NewItemPage = () => {
           ? img({ src: photoData.val, style: 'width:100%;height:100%;object-fit:cover' })
           : cameraOn.val
             ? videoEl
-            : div({ class: 'photo-placeholder' }, span('📷'), span(t('new.photo.take')))
+            : div({ class: 'photo-placeholder' }, span('📷'), span(() => t('new.photo.take')))
         ,
         canvasEl,
       ),
@@ -181,22 +183,22 @@ export const NewItemPage = () => {
       div({ style: 'display:flex;gap:8px' },
         () => {
           if (hasPhoto.val) {
-            return button({ class: 'btn btn-sm', onclick: retake }, t('new.photo.retake'))
+            return button({ class: 'btn btn-sm', onclick: retake }, () => t('new.photo.retake'))
           }
           if (cameraOn.val) {
-            return button({ class: 'btn btn-sm btn-primary', onclick: takePhoto }, t('new.photo.take'))
+            return button({ class: 'btn btn-sm btn-primary', onclick: takePhoto }, () => t('new.photo.take'))
           }
-          return button({ class: 'btn btn-sm', onclick: startCamera }, t('new.photo.take'))
+          return button({ class: 'btn btn-sm', onclick: startCamera }, () => t('new.photo.take'))
         },
         label({ class: 'btn btn-sm', style: 'cursor:pointer' },
-          t('new.photo.upload'),
+          () => t('new.photo.upload'),
           input({ type: 'file', accept: 'image/*', style: 'display:none', onchange: handleFileUpload })
         )
       ),
 
       // Tags (required)
       div(
-        div({ class: 'form-label' }, t('new.tags')),
+        div({ class: 'form-label' }, () => t('new.tags')),
         TagInput({ tags, onTagsChange: (v) => tags.val = v })
       ),
 
@@ -204,18 +206,18 @@ export const NewItemPage = () => {
 
       // Description
       div(
-        div({ class: 'form-label' }, t('new.description')),
-        textarea({ class: 'form-textarea', placeholder: t('new.description'), maxlength: 500,
+        div({ class: 'form-label' }, () => t('new.description')),
+        textarea({ class: 'form-textarea', placeholder: () => t('new.description'), maxlength: 500,
           oninput: e => description.val = e.target.value }, description)
       ),
 
       // Location
       div(
-        div({ class: 'form-label' }, t('nav.map')),
+        div({ class: 'form-label' }, () => t('nav.map')),
         div({ class: 'toggle-row' },
           input({ type: 'checkbox', id: 'manual-loc',
             onchange: e => manualLocation.val = e.target.checked }),
-          label({ for: 'manual-loc' }, t('new.location.manual'))
+          label({ for: 'manual-loc' }, () => t('new.location.manual'))
         ),
         () => !manualLocation.val
           ? div({ style: 'font-size:13px;color:var(--muted);margin-top:6px' },
@@ -231,7 +233,7 @@ export const NewItemPage = () => {
 
       // Available until
       div(
-        div({ class: 'form-label' }, t('new.available_until')),
+        div({ class: 'form-label' }, () => t('new.available_until')),
         select({
           class: 'form-select',
           value: customExpiry,
@@ -239,7 +241,7 @@ export const NewItemPage = () => {
         },
           ...Array.from({ length: 14 }, (_, i) => i + 1).map(day =>
             option({ value: day, selected: () => customExpiry.val === day },
-              `${day} ${day === 1 ? t('new.day') : t('new.days')}`
+              () => `${day} ${day === 1 ? t('new.day') : t('new.days')}`
             )
           )
         )

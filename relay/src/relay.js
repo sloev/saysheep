@@ -1,7 +1,6 @@
 import { WebSocket, WebSocketServer } from 'ws'
 import { createServer } from 'http'
 import { verifyEvent } from 'nostr-tools/pure'
-import { LFUCache } from './lfu.js'
 import { storeEvent, queryEvents, deleteEvent, deleteExpired } from './db.js'
 import { matchesAny } from './filters.js'
 import { startFederation } from './federation.js'
@@ -54,116 +53,7 @@ setInterval(() => {
   for (const [ip, b] of _ipCounters) if (now > b.resetAt) _ipCounters.delete(ip)
 }, RATE_WINDOW_MS)
 
-const tileCache = new LFUCache(1000)
 
-const fetchWithRedirects = async (url, options = {}, depth = 0) => {
-  if (depth > 5) {
-    throw new Error('Too many redirects')
-  }
-  const res = await fetch(url, {
-    ...options,
-    redirect: 'manual'
-  })
-  if (res.status >= 300 && res.status < 400) {
-    const location = res.headers.get('location')
-    if (location) {
-      const nextUrl = new URL(location, url).toString()
-      return fetchWithRedirects(nextUrl, options, depth + 1)
-    }
-  }
-  return res
-}
-
-const handleMapPmtiles = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Range')
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Content-Length, Accept-Ranges')
-  if (req.method === 'OPTIONS') {
-    res.writeHead(200)
-    res.end()
-    return
-  }
-
-  const rangeHeader = req.headers.range
-  const upstreamUrl = process.env.UPSTREAM_PMTILES || 'https://data.source.coop/protomaps/openstreetmap/v4.pmtiles'
-
-  if (!rangeHeader) {
-    try {
-      const upstreamRes = await fetchWithRedirects(upstreamUrl, { method: 'HEAD' })
-      res.writeHead(200, {
-        'Content-Type': 'application/octet-stream',
-        'Content-Length': upstreamRes.headers.get('content-length'),
-        'Accept-Ranges': 'bytes',
-      })
-      res.end()
-    } catch (err) {
-      res.writeHead(500)
-      res.end('Upstream error: ' + err.message)
-    }
-    return
-  }
-
-  const match = rangeHeader.match(/bytes=(\d+)-(\d+)?/)
-  if (!match) {
-    res.writeHead(416)
-    res.end('Requested Range Not Satisfiable')
-    return
-  }
-
-  const start = parseInt(match[1])
-  const end = match[2] ? parseInt(match[2]) : ''
-  const cacheKey = `${start}-${end}`
-
-  const cachedData = tileCache.get(cacheKey)
-  if (cachedData) {
-    res.writeHead(206, {
-      'Content-Type': 'application/octet-stream',
-      'Content-Range': `bytes ${start}-${end}/${cachedData.totalSize}`,
-      'Content-Length': cachedData.buffer.length,
-    })
-    res.end(cachedData.buffer)
-    return
-  }
-
-  try {
-    const upstreamRes = await fetchWithRedirects(upstreamUrl, { headers: { Range: rangeHeader } })
-    if (upstreamRes.status !== 206 && upstreamRes.status !== 200) {
-      res.writeHead(upstreamRes.status)
-      res.end(await upstreamRes.text())
-      return
-    }
-
-    const arrayBuffer = await upstreamRes.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    let finalBuffer = buffer
-    let contentRange = upstreamRes.headers.get('content-range') || ''
-    let totalSize = contentRange ? contentRange.split('/')[1] : buffer.length
-
-    if (upstreamRes.status === 200) {
-      const sliceStart = start
-      const sliceEnd = end !== '' ? Math.min(end, buffer.length - 1) : buffer.length - 1
-      finalBuffer = buffer.subarray(sliceStart, sliceEnd + 1)
-      totalSize = buffer.length
-      contentRange = `bytes ${sliceStart}-${sliceEnd}/${totalSize}`
-    } else if (contentRange) {
-      totalSize = parseInt(contentRange.split('/')[1])
-    }
-
-    tileCache.put(cacheKey, { buffer: finalBuffer, totalSize })
-
-    res.writeHead(206, {
-      'Content-Type': 'application/octet-stream',
-      'Content-Range': contentRange || `bytes ${start}-${end}/${totalSize}`,
-      'Content-Length': finalBuffer.length,
-    })
-    res.end(finalBuffer)
-  } catch (err) {
-    res.writeHead(500)
-    res.end('Upstream fetch failed: ' + err.message)
-  }
-}
 
 export const startRelay = (port) => {
   const p2p = new RelayP2P()
@@ -182,10 +72,6 @@ export const startRelay = (port) => {
   }
 
   const server = createServer((req, res) => {
-    if (req.url === '/map.pmtiles') {
-      handleMapPmtiles(req, res)
-      return
-    }
     res.setHeader('Access-Control-Allow-Origin', '*')
     if (req.url === '/stats') {
       res.setHeader('Content-Type', 'application/json')

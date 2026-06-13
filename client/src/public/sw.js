@@ -1,5 +1,5 @@
 const CACHE = 'saysheep-v1'
-const PRECACHE = ['./', './app.css', './maplibre-gl.css', './manifest.json', './images/icon.png']
+const PRECACHE = ['./', './manifest.json']
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
