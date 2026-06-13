@@ -140,5 +140,11 @@
   "item.back": "← tilbage",
   "item.not_found": "Opslag ikke fundet",
   "item.default_title": "Gratis ting",
-  "item.share_text": "{title} — gratis på saysheep"
+  "item.share_text": "{title} — gratis på saysheep",
+  "settings.preferences": "præferencer",
+  "settings.backup_restore": "sikkerhedskopiering og gendannelse",
+  "settings.security": "sikkerhed",
+  "settings.relay.confirm_remove": "Fjern relæ {url}?",
+  "settings.relay.copied": "Relæ-URL kopieret til udklipsholderen!",
+  "alerts": "alarmer"
 }

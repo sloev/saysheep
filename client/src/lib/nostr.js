@@ -2,8 +2,23 @@ import { generateSecretKey, getPublicKey, finalizeEvent, verifyEvent, nip19 } fr
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex } from '@noble/hashes/utils'
 import Geohash from 'ngeohash'
+import { argon2id } from 'hash-wasm'
 
 export { generateSecretKey, getPublicKey, verifyEvent, nip19 }
+
+export const computeReceiptHash = async (code, dTag, ownerPubkey) => {
+  const salt = dTag + ownerPubkey
+  const saltBuffer = new TextEncoder().encode(salt.padEnd(16, 'x').substring(0, 16))
+  return argon2id({
+    password: code,
+    salt: saltBuffer,
+    iterations: 2,
+    memorySize: 2048,
+    parallelism: 1,
+    hashLength: 16,
+    outputType: 'hex'
+  })
+}
 
 export const getEventPow = (id) => {
   let count = 0
@@ -45,7 +60,7 @@ export const isTestContext = () => {
 }
 
 // Build a free-item listing event (NIP-99 kind 30402) with NIP-13 PoW (difficulty 8)
-export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil }) => {
+export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil, receiptHash }) => {
   const isTest = isTestContext()
   const now = Math.floor(Date.now() / 1000)
   const expiry = isTest
@@ -74,6 +89,7 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
   ]
   if (photo) eventTags.push(['image', photo])
   if (isTest) eventTags.push(['test', 'true'])
+  if (receiptHash) eventTags.push(['h', receiptHash])
 
   // Mine NIP-13 PoW (difficulty target 8)
   const targetDifficulty = 8
@@ -113,11 +129,14 @@ export const buildTakenEvent = ({ secretKey, originalEvent }) => {
   const d = originalEvent.tags.find(t => t[0] === 'd')?.[1] || ''
   const existingTags = originalEvent.tags.filter(t => t[0] !== 'status' && t[0] !== 'expiry' && t[0] !== 'nonce')
   
+  const originalExpiry = originalEvent.tags.find(t => t[0] === 'expiry')?.[1]
+  const expiry = originalExpiry ? originalExpiry : String(now + 14 * 86400)
+
   const targetDifficulty = 8
   const eventTags = [
     ...existingTags,
     ['status', 'taken'],
-    ['expiry', String(now + 60)],
+    ['expiry', expiry],
     ['nonce', '', String(targetDifficulty)]
   ]
   const nonceIdx = eventTags.length - 1
@@ -146,6 +165,26 @@ export const buildTakenEvent = ({ secretKey, originalEvent }) => {
     created_at: now,
     tags: eventTags,
     content: originalEvent.content || '',
+  }, secretKey)
+}
+
+// Build a taker-signed "item taken" event (kind 30403)
+export const buildTakerTakenEvent = async ({ secretKey, originalEvent, code }) => {
+  const now = Math.floor(Date.now() / 1000)
+  const originalExpiry = originalEvent.tags.find(t => t[0] === 'expiry')?.[1]
+  const expiry = originalExpiry ? originalExpiry : String(now + 14 * 86400)
+
+  const eventTags = [
+    ['e', originalEvent.id],
+    ['c', code],
+    ['expiry', expiry]
+  ]
+
+  return finalizeEvent({
+    kind: 30403,
+    created_at: now,
+    tags: eventTags,
+    content: `Item claimed: ${originalEvent.id}`,
   }, secretKey)
 }
 
@@ -213,7 +252,7 @@ export const getItemExpiry = (event) => {
   return tag ? parseInt(tag[1]) * 1000 : null
 }
 export const getItemId = (event) => event.tags.find(t => t[0] === 'd')?.[1] || event.id
-export const isTaken = (event) => getItemStatus(event) === 'taken'
+export const isTaken = (event) => getItemStatus(event) === 'taken' || !!event.takenLocally
 export const isExpired = (event) => {
   const expiry = getItemExpiry(event)
   return expiry ? expiry < Date.now() : false

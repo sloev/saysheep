@@ -4,7 +4,9 @@ import { Loading } from './fragments/loading.js'
 import { NavBar } from './fragments/navBar.js'
 import { TopBar } from './fragments/topBar.js'
 import { routerElement, cone } from './router.js'
-import { MapComponent, MapSearchBox } from './fragments/map.js'
+import { MapComponent, MapSearchBox, MapControls } from './fragments/map.js'
+import { ConnStatus } from './fragments/connStatus.js'
+import { t } from './lib/i18n.js'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () =>
@@ -12,7 +14,7 @@ if ('serviceWorker' in navigator) {
   )
 }
 
-const { div } = van.tags
+const { div, span, button } = van.tags
 
 const App = () => {
   const initDone = van.state(false)
@@ -33,9 +35,18 @@ const App = () => {
     TopBar(),
     div({ id: 'global-map-container' },
       MapComponent(),
-      MapSearchBox()
+      MapSearchBox(),
+      MapControls(),
+      div({ class: 'map-conn-status' }, ConnStatus())
     ),
     div({ id: 'main-layout' },
+      div({ class: 'desktop-sidebar-header' },
+        span({ class: 'desktop-sidebar-title' }, 'saysheep'),
+        button({
+          class: 'btn btn-primary btn-give-away',
+          onclick: () => cone.navigate('new', {})
+        }, '＋ ', () => t('nav.new'))
+      ),
       div({ class: 'page-content', id: 'main-content' }, routerElement),
       NavBar(),
     )

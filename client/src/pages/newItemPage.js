@@ -4,6 +4,7 @@ import { publishItem } from '../lib/sync.js'
 import { TagInput } from '../fragments/tagInput.js'
 import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
+import { randomUUID, computeReceiptHash } from '../lib/nostr.js'
 import cameraImg from '../images/camera.png'
 const { div, button, input, textarea, video, canvas, label, span, img, select, option } = van.tags
 
@@ -24,6 +25,14 @@ export const NewItemPage = () => {
   const customExpiry = van.state(7)
   const submitting = van.state(false)
   const error = van.state('')
+
+  const itemId = randomUUID()
+  const verificationCode = van.state(Math.floor(10000000 + Math.random() * 90000000).toString())
+  const receiptHash = van.state('')
+
+  computeReceiptHash(verificationCode.val, itemId, store.identity.pubkey).then(h => {
+    receiptHash.val = h
+  })
 
   const videoEl = video({ autoplay: true, playsinline: true, style: 'width:100%;height:100%;object-fit:cover' })
   const canvasEl = canvas({ style: 'display:none' })
@@ -151,12 +160,15 @@ export const NewItemPage = () => {
       const days = customExpiry.val
       const availableUntil = Date.now() + days * 24 * 3600 * 1000
       await publishItem({
+        id: itemId,
         description: description.val,
         tags: tags.val,
         photo: photoData.val,
         geo,
         availableUntil,
+        receiptHash: receiptHash.val,
       })
+      alert(`Pickup Verification Code: ${verificationCode.val}\n\nGive this 8-digit code to the taker when they pick up the item. They will enter it to mark the item as taken.`)
       cone.navigate('map', {})
     } catch (e) {
       error.val = e.message

@@ -140,5 +140,11 @@
   "item.back": "← वापस",
   "item.not_found": "आइटम नहीं मिला",
   "item.default_title": "मुफ़्त आइटम",
-  "item.share_text": "{title} — saysheep पर मुफ़्त"
+  "item.share_text": "{title} — saysheep पर मुफ़्त",
+  "settings.preferences": "प्राथमिकताएं",
+  "settings.backup_restore": "बैकअप और पुनर्स्थापना",
+  "settings.security": "सुरक्षा",
+  "settings.relay.confirm_remove": "रिले {url} हटाएं?",
+  "settings.relay.copied": "रिले URL क्लिपबोर्ड पर कॉपी किया गया!",
+  "alerts": "अलर्ट"
 }

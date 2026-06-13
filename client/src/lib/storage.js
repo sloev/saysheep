@@ -71,7 +71,9 @@ export const getEventsByKind = async (kind, limit = 500) => {
 // Get items by geohash prefix — filter client-side
 export const getItemsByGeohash = async (geohashPrefix) => {
   const all = await getEventsByKind(30402)
-  return all.filter(ev => {
+  const claimants = await getEventsByKind(30403)
+  return [...all, ...claimants].filter(ev => {
+    if (ev.kind === 30403) return true
     const gTags = ev.tags.filter(t => t[0] === 'g').map(t => t[1])
     return gTags.some(g => g.startsWith(geohashPrefix) || geohashPrefix.startsWith(g))
   })

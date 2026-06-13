@@ -140,5 +140,11 @@
   "item.back": "← 戻る",
   "item.not_found": "アイテムが見つかりません",
   "item.default_title": "無料のアイテム",
-  "item.share_text": "{title} — saysheepで無料"
+  "item.share_text": "{title} — saysheepで無料",
+  "settings.preferences": "環境設定",
+  "settings.backup_restore": "バックアップと復元",
+  "settings.security": "セキュリティ",
+  "settings.relay.confirm_remove": "リレー {url} を削除しますか？",
+  "settings.relay.copied": "リレーURLをクリップボードにコピーしました！",
+  "alerts": "アラート"
 }

@@ -15,45 +15,60 @@ export const SettingsPage = () => {
   const notifPerm = van.state(getNotificationPermission())
   const passkeyRegistered = van.state(hasPasskey())
   const importInput = van.state('')
-
   const relaysStatus = van.state(getRelaysStatus())
-  const updateStatus = () => {
-    relaysStatus.val = getRelaysStatus()
+
+  const handleCopyRelay = (url) => {
+    navigator.clipboard.writeText(url)
+    alert(t('settings.relay.copied'))
   }
 
-  // Update status every second
-  let statusInterval = null
-  van.derive(() => {
-    updateStatus()
-    statusInterval = setInterval(updateStatus, 1000)
-    return () => clearInterval(statusInterval)
-  })
-
-  return div({ class: 'page-content' },
+  const pageEl = div({ class: 'page-content' },
     div({ class: 'page-header' },
       div({ class: 'page-title' }, () => t('settings.heading'))
     ),
 
-    // Language
+    // 1. Preferences Section
     div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, () => t('settings.language')),
-      select({
-        class: 'form-select',
-        value: currentLang,
-        onchange: async (e) => {
-          await setLang(e.target.value)
-          currentLang.val = e.target.value
-        }
-      },
-        ...getSupportedLangs().map(lang =>
-          option({ value: lang, selected: () => currentLang.val === lang },
-            () => t(`lang.${lang}`)
+      div({ class: 'settings-section-title' }, () => t('settings.preferences')),
+      
+      div({ class: 'settings-row' },
+        span({ class: 'settings-label' }, () => t('settings.language')),
+        select({
+          class: 'form-select',
+          style: 'width: auto; min-width: 120px;',
+          value: currentLang,
+          onchange: async (e) => {
+            await setLang(e.target.value)
+            currentLang.val = e.target.value
+          }
+        },
+          ...getSupportedLangs().map(lang =>
+            option({ value: lang, selected: () => currentLang.val === lang },
+              () => t(`lang.${lang}`)
+            )
           )
         )
+      ),
+
+      div({ class: 'settings-row' },
+        span({ class: 'settings-label' }, () => t('settings.notifications')),
+        () => {
+          const perm = notifPerm.val
+          if (perm === 'unsupported') return span({ class: 'settings-text-muted' }, () => t('settings.notifications.unsupported'))
+          if (perm === 'granted') return span({ class: 'settings-text-mint' }, '✓ ', () => t('settings.notifications.enabled'))
+          if (perm === 'denied') return span({ class: 'settings-text-muted' }, () => t('settings.notifications.denied'))
+          return button({
+            class: 'btn btn-sm btn-primary',
+            onclick: async () => {
+              await requestNotificationPermission()
+              notifPerm.val = getNotificationPermission()
+            }
+          }, () => t('settings.notifications.enable'))
+        }
       )
     ),
 
-    // Relays
+    // 2. Relays Section
     div({ class: 'settings-section' },
       div({ class: 'settings-section-title' }, () => t('settings.relays')),
       div({ class: 'relay-list' },
@@ -61,7 +76,7 @@ export const SettingsPage = () => {
           ...relaysStatus.val.map(({ url, connected, nextReconnectAt }) => {
             let statusBadge
             if (connected) {
-              statusBadge = span({ style: 'font-size:11px;color:var(--mint);font-weight:700;margin-top:2px' }, () => '🟢 ' + t('relay.status.connected'))
+              statusBadge = span({ class: 'settings-text-mint', style: 'margin-top:2px' }, () => '🟢 ' + t('relay.status.connected'))
             } else {
               const secs = nextReconnectAt ? Math.ceil((nextReconnectAt - Date.now()) / 1000) : 0
               statusBadge = span({ style: 'font-size:11px;color:var(--pink);font-weight:700;margin-top:2px' }, 
@@ -69,13 +84,22 @@ export const SettingsPage = () => {
               )
             }
 
-            return div({ class: 'relay-item', style: 'display:flex;align-items:center' },
-              div({ style: 'flex:1;display:flex;flex-direction:column;min-width:0' },
+            return div({ class: 'relay-item' },
+              div({ 
+                style: 'flex:1;display:flex;flex-direction:column;min-width:0;cursor:pointer;', 
+                title: 'Click to copy',
+                onclick: () => handleCopyRelay(url)
+              },
                 span({ style: 'overflow:hidden;text-overflow:ellipsis;font-size:14px;white-space:nowrap' }, url),
                 statusBadge
               ),
               button({ class: 'btn btn-sm btn-danger', style: 'margin-left:8px;flex-shrink:0',
-                onclick: () => { removeRelay(url); updateStatus() }
+                onclick: () => {
+                  if (confirm(t('settings.relay.confirm_remove', { url }))) {
+                    removeRelay(url)
+                    relaysStatus.val = getRelaysStatus()
+                  }
+                }
               }, '×')
             )
           })
@@ -91,7 +115,7 @@ export const SettingsPage = () => {
           onkeydown: e => {
             if (e.key === 'Enter' && relayInput.val.startsWith('wss://')) {
               addRelay(relayInput.val)
-              updateStatus()
+              relaysStatus.val = getRelaysStatus()
               relayInput.val = ''
             }
           }
@@ -100,7 +124,7 @@ export const SettingsPage = () => {
           onclick: () => {
             if (relayInput.val.startsWith('wss://')) {
               addRelay(relayInput.val)
-              updateStatus()
+              relaysStatus.val = getRelaysStatus()
               relayInput.val = ''
             }
           }
@@ -108,36 +132,19 @@ export const SettingsPage = () => {
       )
     ),
 
-    // Notifications
-    div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, () => t('settings.notifications')),
-      () => {
-        const perm = notifPerm.val
-        if (perm === 'unsupported') return div({ style: 'font-size:13px;color:var(--muted)' }, () => t('settings.notifications.unsupported'))
-        if (perm === 'granted') return div({ style: 'font-size:13px;color:var(--mint)' }, '✓ ', () => t('settings.notifications.enabled'))
-        if (perm === 'denied') return div({ style: 'font-size:13px;color:var(--muted)' }, () => t('settings.notifications.denied'))
-        return button({
-          class: 'btn btn-sm btn-primary',
-          onclick: async () => {
-            await requestNotificationPermission()
-            notifPerm.val = getNotificationPermission()
-          }
-        }, () => t('settings.notifications.enable'))
-      }
-    ),
+    // 3. Identity & Security (Danger Zone)
+    div({ class: 'settings-danger-zone' },
+      div({ class: 'settings-section-title' }, () => t('settings.security')),
 
-    // Identity
-    div({ class: 'settings-section' },
-      div({ class: 'settings-section-title' }, () => t('settings.identity')),
-      div({ class: 'form-label' }, () => t('settings.identity.pubkey')),
-      div({ class: 'pubkey-display' }, getPubkey()),
-      div({ style: 'margin-top:12px; display:flex; flex-direction:column; gap:12px;' },
-        p({ style: 'font-size:12px;color:var(--muted);line-height:1.4' },
+      // Identity Sub-section
+      div({ class: 'settings-sub-section' },
+        div({ class: 'settings-section-title-sub' }, () => t('settings.identity')),
+        div({ class: 'form-label' }, () => t('settings.identity.pubkey')),
+        div({ class: 'pubkey-display' }, getPubkey()),
+        p({ class: 'settings-text-muted', style: 'margin: 6px 0;' },
           () => t('settings.identity.export_warning')
         ),
-        
-        // Export actions
-        div({ style: 'display:flex; gap:8px; flex-wrap:wrap;' },
+        div({ class: 'settings-btn-group' },
           button({
             class: 'btn btn-sm btn-primary',
             onclick: async () => {
@@ -178,108 +185,116 @@ export const SettingsPage = () => {
             }
           }, () => t('settings.identity.download_backup'))
         ),
-        
         () => showPrivkey.val
-          ? div({ class: 'pubkey-display', style: 'margin-top:4px;' }, getSecretKeyHex())
+          ? div({ class: 'pubkey-display', style: 'margin-top:8px;' }, getSecretKeyHex())
           : div(),
+      ),
 
-        // Import actions
-        div({ style: 'border-top:1.5px dashed rgba(0,0,0,0.1); margin-top:8px; padding-top:12px;' },
-          div({ class: 'form-label', style: 'margin-bottom:6px;' }, () => t('settings.identity.import_heading')),
-          div({ style: 'display:flex; gap:8px;' },
-            input({
-              class: 'form-input',
-              style: 'font-family:monospace; font-size:12px;',
-              placeholder: () => t('settings.identity.import_placeholder'),
-              value: importInput,
-              oninput: e => importInput.val = e.target.value
-            }),
-            button({
-              class: 'btn btn-sm btn-primary',
-              onclick: () => {
-                const clean = importInput.val.trim()
-                if (clean.length !== 64) {
-                  alert(t('settings.identity.invalid_key'))
-                  return
-                }
-                try {
-                  updateIdentity(clean)
-                  importInput.val = ''
-                  alert(t('settings.identity.import.success'))
-                } catch (err) {
-                  alert(t('settings.identity.import.failed', { error: err.message }))
-                }
-              }
-            }, () => t('settings.identity.import_btn'))
-          ),
-          label({ class: 'btn btn-sm btn-muted', style: 'margin-top:8px; display:inline-block; cursor:pointer; text-align:center;' },
-            () => t('settings.identity.upload_backup'),
-            input({
-              type: 'file',
-              accept: '.json',
-              style: 'display:none;',
-              onchange: (e) => {
-                const file = e.target.files[0]
-                if (!file) return
-                const reader = new FileReader()
-                reader.onload = (event) => {
-                  try {
-                    const parsed = JSON.parse(event.target.result)
-                    if (parsed.secretKeyHex && parsed.secretKeyHex.length === 64) {
-                      updateIdentity(parsed.secretKeyHex)
-                      alert(t('settings.identity.import.success_backup'))
-                    } else {
-                      alert(t('settings.identity.import.invalid_backup'))
-                    }
-                  } catch (err) {
-                    alert(t('settings.identity.import.failed_parse'))
-                  }
-                }
-                reader.readAsText(file)
-              }
-            })
-          )
-        ),
+      div({ class: 'settings-divider' }),
 
-        // Passkey / WebAuthn protection
-        div({ style: 'border-top:1.5px dashed rgba(0,0,0,0.1); margin-top:8px; padding-top:12px;' },
-          div({ class: 'form-label', style: 'margin-bottom:4px;' }, () => t('settings.identity.passkey_heading')),
-          p({ style: 'font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.4' },
-            () => t('settings.identity.passkey_desc')
-          ),
-          () => {
-            if (!isWebAuthnSupported()) {
-              return div({ style: 'font-size:12px; color:var(--muted)' }, () => t('settings.identity.passkey_unsupported'))
+      // Backup & Restore Sub-section
+      div({ class: 'settings-sub-section' },
+        div({ class: 'settings-section-title-sub' }, () => t('settings.backup_restore')),
+        div({ class: 'form-label', style: 'margin-bottom:2px;' }, () => t('settings.identity.import_heading')),
+        div({ style: 'display:flex; gap:8px;' },
+          input({
+            class: 'form-input',
+            style: 'font-family:monospace; font-size:12px;',
+            placeholder: () => t('settings.identity.import_placeholder'),
+            value: importInput,
+            oninput: e => importInput.val = e.target.value
+          }),
+          button({
+            class: 'btn btn-sm btn-primary',
+            onclick: () => {
+              const clean = importInput.val.trim()
+              if (clean.length !== 64) {
+                alert(t('settings.identity.invalid_key'))
+                return
+              }
+              try {
+                updateIdentity(clean)
+                importInput.val = ''
+                alert(t('settings.identity.import.success'))
+              } catch (err) {
+                alert(t('settings.identity.import.failed', { error: err.message }))
+              }
             }
-            if (passkeyRegistered.val) {
-              return div({ style: 'display:flex; flex-direction:column; gap:8px;' },
-                div({ style: 'font-size:12px; color:var(--mint); font-weight:bold;' }, () => t('settings.identity.passkey_protected')),
-                div({ style: 'display:flex; gap:8px;' },
-                  button({
-                    class: 'btn btn-sm btn-primary',
-                    onclick: async () => {
-                      try {
-                        const ok = await verifyPasskey()
-                        if (ok) {
-                          alert(t('settings.identity.passkey.success_verify'))
-                        }
-                      } catch (err) {
-                        alert(t('settings.identity.passkey.failed_verify', { error: err.message }))
+          }, () => t('settings.identity.import_btn'))
+        ),
+        label({ class: 'btn btn-sm btn-muted', style: 'display:inline-block; cursor:pointer; text-align:center; margin-top:4px;' },
+          () => t('settings.identity.upload_backup'),
+          input({
+            type: 'file',
+            accept: '.json',
+            style: 'display:none;',
+            onchange: (e) => {
+              const file = e.target.files[0]
+              if (!file) return
+              const reader = new FileReader()
+              reader.onload = (event) => {
+                try {
+                  const parsed = JSON.parse(event.target.result)
+                  if (parsed.secretKeyHex && parsed.secretKeyHex.length === 64) {
+                    updateIdentity(parsed.secretKeyHex)
+                    alert(t('settings.identity.import.success_backup'))
+                  } else {
+                    alert(t('settings.identity.import.invalid_backup'))
+                  }
+                } catch (err) {
+                  alert(t('settings.identity.import.failed_parse'))
+                }
+              }
+              reader.readAsText(file)
+            }
+          })
+        )
+      ),
+
+      div({ class: 'settings-divider' }),
+
+      // Passkey Sub-section
+      div({ class: 'settings-sub-section' },
+        div({ class: 'settings-section-title-sub' }, () => t('settings.identity.passkey_heading')),
+        p({ class: 'settings-text-muted' },
+          () => t('settings.identity.passkey_desc')
+        ),
+        () => {
+          if (!isWebAuthnSupported()) {
+            return div({ class: 'settings-text-muted' }, () => t('settings.identity.passkey_unsupported'))
+          }
+          if (passkeyRegistered.val) {
+            return div({ class: 'settings-sub-section' },
+              div({ class: 'settings-text-mint' }, () => t('settings.identity.passkey_protected')),
+              div({ class: 'settings-btn-group' },
+                button({
+                  class: 'btn btn-sm btn-primary',
+                  onclick: async () => {
+                    try {
+                      const ok = await verifyPasskey()
+                      if (ok) {
+                        alert(t('settings.identity.passkey.success_verify'))
                       }
+                    } catch (err) {
+                      alert(t('settings.identity.passkey.failed_verify', { error: err.message }))
                     }
-                  }, () => t('settings.identity.passkey.test')),
-                  button({
-                    class: 'btn btn-sm btn-danger',
-                    onclick: () => {
+                  }
+                }, () => t('settings.identity.passkey.test')),
+                button({
+                  class: 'btn btn-sm btn-danger',
+                  onclick: () => {
+                    if (confirm(t('settings.identity.passkey_disable_confirm') || 'Disable passkey protection?')) {
                       clearPasskey()
                       passkeyRegistered.val = false
                       alert(t('settings.identity.passkey.disabled'))
                     }
-                  }, () => t('settings.identity.passkey_disable'))
-                )
+                  }
+                }, () => t('settings.identity.passkey_disable'))
               )
-            } else {
-              return button({
+            )
+          } else {
+            return div({ class: 'settings-btn-group' },
+              button({
                 class: 'btn btn-sm btn-primary',
                 onclick: async () => {
                   try {
@@ -293,11 +308,23 @@ export const SettingsPage = () => {
                   }
                 }
               }, () => t('settings.identity.passkey_enable'))
-            }
+            )
           }
-        )
+        }
       )
     )
   )
-}
 
+  const statusInterval = setInterval(() => {
+    if (!document.body.contains(pageEl)) {
+      clearInterval(statusInterval)
+      return
+    }
+    const newStatus = getRelaysStatus()
+    if (JSON.stringify(newStatus) !== JSON.stringify(relaysStatus.val)) {
+      relaysStatus.val = newStatus
+    }
+  }, 1000)
+
+  return pageEl
+}

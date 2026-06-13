@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 import L from 'leaflet'
-import { store, onMapBoundsChange, currentItemId } from '../store.js'
+import { store, onMapBoundsChange, currentItemId, registerOnPositionUpdate } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
@@ -37,12 +37,17 @@ export const setupMap = (lng, lat) => {
     minZoom: 8
   }).setView(initialCenter, initialZoom)
 
-  L.control.zoom({ position: 'topright' }).addTo(_map)
+
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© OpenStreetMap contributors'
   }).addTo(_map)
+
+  const resizeObserver = new ResizeObserver(() => {
+    if (_map) _map.invalidateSize()
+  })
+  resizeObserver.observe(mapDiv)
 
   const notifyBounds = () => {
     const bounds = _map.getBounds()
@@ -115,7 +120,7 @@ export const setupMap = (lng, lat) => {
 
 export const MapComponent = () => mapDiv
 
-const flyToMap = (lng, lat, zoom = 14) => {
+export const flyToMap = (lng, lat, zoom = 14) => {
   if (!_map) return
   _map.flyTo([lat, lng], zoom)
 }
@@ -123,7 +128,6 @@ const flyToMap = (lng, lat, zoom = 14) => {
 export const MapSearchBox = () => {
   const query = van.state('')
   const searching = van.state(false)
-  const locating = van.state(false)
 
   const handleSearch = async () => {
     const q = query.val.trim()
@@ -150,6 +154,34 @@ export const MapSearchBox = () => {
     }
   }
 
+  return van.tags.div({ class: 'map-searchbox' },
+    van.tags.input({
+      class: 'map-search-input',
+      type: 'text',
+      placeholder: () => t('map.search_placeholder'),
+      value: query,
+      oninput: (e) => query.val = e.target.value,
+      onkeydown: (e) => {
+        if (e.key === 'Enter') handleSearch()
+      }
+    }),
+    van.tags.button({
+      class: 'btn btn-primary map-search-btn',
+      onclick: handleSearch,
+      disabled: searching
+    }, () => searching.val ? '⏳' : 'Go')
+  )
+}
+
+export const MapControls = () => {
+  const locating = van.state(false)
+
+  const handleZoomIn = () => {
+    if (_map) _map.zoomIn()
+  }
+  const handleZoomOut = () => {
+    if (_map) _map.zoomOut()
+  }
   const handleGoToMyLocation = () => {
     if (!navigator.geolocation) {
       alert(t('map.geolocation_unsupported'))
@@ -170,28 +202,15 @@ export const MapSearchBox = () => {
     })
   }
 
-  return van.tags.div({ class: 'map-searchbox' },
-    van.tags.input({
-      class: 'map-search-input',
-      type: 'text',
-      placeholder: () => t('map.search_placeholder'),
-      value: query,
-      oninput: (e) => query.val = e.target.value,
-      onkeydown: (e) => {
-        if (e.key === 'Enter') handleSearch()
-      }
-    }),
-    van.tags.button({
-      class: 'btn btn-primary map-search-btn',
-      onclick: handleSearch,
-      disabled: () => searching.val || locating.val
-    }, () => searching.val ? '⏳' : 'Go'),
-    van.tags.button({
-      class: 'btn btn-muted map-location-btn',
-      style: 'padding: 4px 8px !important; min-height: auto !important; font-size: 14px;',
-      onclick: handleGoToMyLocation,
-      disabled: () => searching.val || locating.val,
-      title: 'Go to my location'
-    }, () => locating.val ? '⏳' : '📍')
+  return van.tags.div({ class: 'map-controls-right' },
+    van.tags.button({ class: 'map-control-btn', onclick: handleZoomIn, title: 'Zoom in' }, '＋'),
+    van.tags.button({ class: 'map-control-btn', onclick: handleZoomOut, title: 'Zoom out' }, '－'),
+    van.tags.button({ class: 'map-control-btn', onclick: handleGoToMyLocation, disabled: locating, title: 'Go to my location' },
+      () => locating.val ? '⏳' : '📍'
+    )
   )
 }
+
+registerOnPositionUpdate((lng, lat) => {
+  flyToMap(lng, lat, 14)
+})

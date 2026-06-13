@@ -140,5 +140,11 @@
   "item.back": "← назад",
   "item.not_found": "Объявление не найдено",
   "item.default_title": "Бесплатный товар",
-  "item.share_text": "{title} — бесплатно на saysheep"
+  "item.share_text": "{title} — бесплатно на saysheep",
+  "settings.preferences": "предпочтения",
+  "settings.backup_restore": "резервное копирование и восстановление",
+  "settings.security": "безопасность",
+  "settings.relay.confirm_remove": "Удалить ретранслятор {url}?",
+  "settings.relay.copied": "URL-адрес ретранслятора скопирован в буфер обмена!",
+  "alerts": "оповещения"
 }

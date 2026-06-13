@@ -132,10 +132,21 @@ const runTest = async () => {
     page.on('console', msg => console.log('BROWSER LOG:', msg.text()))
     page.on('pageerror', err => console.error('BROWSER ERROR:', err.message))
 
-    // Accept dialogs automatically
+    let verificationCode = ''
     page.on('dialog', async dialog => {
       console.log(`Dialog opened: [${dialog.type()}] "${dialog.message()}" - accepting...`)
-      await dialog.accept()
+      if (dialog.message().includes('Pickup Verification Code:')) {
+        const match = dialog.message().match(/Code: (\d{8})/)
+        if (match) {
+          verificationCode = match[1]
+          console.log(`Extracted verification code: ${verificationCode}`)
+        }
+      }
+      if (dialog.type() === 'prompt') {
+        await dialog.accept(verificationCode)
+      } else {
+        await dialog.accept()
+      }
     })
     
     console.log('Navigating to http://localhost:5173...')
@@ -184,14 +195,28 @@ const runTest = async () => {
     const listedTitle = await page.textContent('.item-card-title')
     console.log(`Listed item title: "${listedTitle}"`)
     
+    // Capture owner identity
+    const ownerIdentity = await page.evaluate(() => localStorage.getItem('saysheep_identity_v1'))
+    
+    // Clear identity to act as taker
+    console.log('Switching to Taker identity...')
+    await page.evaluate(() => localStorage.removeItem('saysheep_identity_v1'))
+    await page.goto('http://localhost:5173/list')
+    await page.waitForSelector('.item-card', { timeout: 5000 })
+
     // Click item card
-    console.log('Opening item detail page...')
+    console.log('Opening item detail page as taker...')
     await page.click('.item-card')
     await page.waitForSelector('.item-detail', { timeout: 5000 })
     
     // Click Take It
     console.log('Taking the item...')
-    await page.click('.btn-take')
+    try {
+      await page.click('.btn-take')
+    } catch (err) {
+      console.log('PAGE HTML ON TAKE FAILURE:', await page.content())
+      throw err
+    }
     await page.waitForSelector('.taken-stamp', { timeout: 5000 })
     console.log('Item marked as taken!')
     
@@ -200,6 +225,14 @@ const runTest = async () => {
     await page.fill('.chat-input', 'Is this item still available?')
     await page.click('.chat-input-row .btn-primary')
     await page.waitForTimeout(1000)
+    
+    // Restore owner identity to test delete
+    console.log('Switching back to Owner identity to delete listing...')
+    await page.evaluate((key) => localStorage.setItem('saysheep_identity_v1', key), ownerIdentity)
+    
+    // Reload item detail page as owner
+    await page.reload()
+    await page.waitForSelector('.item-detail', { timeout: 5000 })
     
     // Delete item
     console.log('Deleting listing...')

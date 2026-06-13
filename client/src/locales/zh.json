@@ -140,5 +140,11 @@
   "item.back": "← 返回",
   "item.not_found": "未找到物品",
   "item.default_title": "免费物品",
-  "item.share_text": "{title} — 在 saysheep 上免费"
+  "item.share_text": "{title} — 在 saysheep 上免费",
+  "settings.preferences": "偏好设置",
+  "settings.backup_restore": "备份与恢复",
+  "settings.security": "安全",
+  "settings.relay.confirm_remove": "删除中继 {url}？",
+  "settings.relay.copied": "中继 URL 已复制到剪贴板！",
+  "alerts": "提醒"
 }

@@ -140,5 +140,11 @@
   "item.back": "← back",
   "item.not_found": "Item not found",
   "item.default_title": "Free item",
-  "item.share_text": "{title} — free on saysheep"
+  "item.share_text": "{title} — free on saysheep",
+  "settings.preferences": "preferences",
+  "settings.backup_restore": "backup & restore",
+  "settings.security": "security",
+  "settings.relay.confirm_remove": "Remove relay {url}?",
+  "settings.relay.copied": "Relay URL copied to clipboard!",
+  "alerts": "alerts"
 }

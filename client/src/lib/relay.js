@@ -198,7 +198,10 @@ export const publishEvent = async (event) => {
 export const subscribeArea = (geohashPrefixes, onEvent, onEose) => {
   const subId = 'area-' + Math.random().toString(36).slice(2)
   const since = Math.floor(Date.now() / 1000) - 14 * 86400
-  const filters = [{ kinds: [30402], '#g': geohashPrefixes, since, limit: 200 }]
+  const filters = [
+    { kinds: [30402], '#g': geohashPrefixes, since, limit: 200 },
+    { kinds: [30403], since, limit: 200 }
+  ]
   const unsubs = []
   for (const conn of _connections.values()) {
     unsubs.push(conn.subscribe(subId, filters, onEvent, onEose))

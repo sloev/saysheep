@@ -140,5 +140,11 @@
   "item.back": "← retour",
   "item.not_found": "Objet non trouvé",
   "item.default_title": "Objet gratuit",
-  "item.share_text": "{title} — gratuit sur saysheep"
+  "item.share_text": "{title} — gratuit sur saysheep",
+  "settings.preferences": "préférences",
+  "settings.backup_restore": "sauvegarde & restauration",
+  "settings.security": "sécurité",
+  "settings.relay.confirm_remove": "Supprimer le relais {url} ?",
+  "settings.relay.copied": "URL du relais copiée dans le presse-papiers !",
+  "alerts": "alertes"
 }

@@ -140,5 +140,11 @@
   "item.back": "← ফিরে যান",
   "item.not_found": "আইটেম পাওয়া যায়নি",
   "item.default_title": "বিনামূল্যে আইটেম",
-  "item.share_text": "{title} — saysheep-এ বিনামূল্যে"
+  "item.share_text": "{title} — saysheep-এ বিনামূল্যে",
+  "settings.preferences": "পছন্দসমূহ",
+  "settings.backup_restore": "ব্যাকআপ এবং পুনরুদ্ধার",
+  "settings.security": "নিরাপত্তা",
+  "settings.relay.confirm_remove": "রিলে {url} মুছে ফেলবেন?",
+  "settings.relay.copied": "রিলে URL ক্লিপবোর্ডে কপি করা হয়েছে!",
+  "alerts": "অ্যালার্ট"
 }

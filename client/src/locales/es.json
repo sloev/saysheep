@@ -140,5 +140,11 @@
   "item.back": "← volver",
   "item.not_found": "Artículo no encontrado",
   "item.default_title": "Artículo gratis",
-  "item.share_text": "{title} — gratis en saysheep"
+  "item.share_text": "{title} — gratis en saysheep",
+  "settings.preferences": "preferencias",
+  "settings.backup_restore": "copia de seguridad y restauración",
+  "settings.security": "seguridad",
+  "settings.relay.confirm_remove": "¿Eliminar el servidor relay {url}?",
+  "settings.relay.copied": "¡Dirección de relay copiada al portapapeles!",
+  "alerts": "alertas"
 }

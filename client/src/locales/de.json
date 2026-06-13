@@ -140,5 +140,11 @@
   "item.back": "← Zurück",
   "item.not_found": "Artikel nicht gefunden",
   "item.default_title": "Kostenloser Artikel",
-  "item.share_text": "{title} — kostenlos auf saysheep"
+  "item.share_text": "{title} — kostenlos auf saysheep",
+  "settings.preferences": "einstellungen",
+  "settings.backup_restore": "sichern & wiederherstellen",
+  "settings.security": "sicherheit",
+  "settings.relay.confirm_remove": "Relay {url} entfernen?",
+  "settings.relay.copied": "Relay-URL in die Zwischenablage kopiert!",
+  "alerts": "alarme"
 }

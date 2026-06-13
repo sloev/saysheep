@@ -7,14 +7,30 @@ import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.j
 import { getSearchableTerms } from './lib/categories.js'
 
 import { getRelays } from './lib/relay.js'
-import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext } from './lib/nostr.js'
+import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext, computeReceiptHash } from './lib/nostr.js'
 import { notifyIfMatches } from './lib/notifications.js'
 
-export const currentItemId = van.state(null)
+const savedItemId = typeof window !== 'undefined' ? localStorage.getItem('saysheep_current_item_id') : null
+export const currentItemId = van.state(savedItemId)
+
+van.derive(() => {
+  if (typeof window !== 'undefined') {
+    if (currentItemId.val) {
+      localStorage.setItem('saysheep_current_item_id', currentItemId.val)
+    } else {
+      localStorage.removeItem('saysheep_current_item_id')
+    }
+  }
+})
+
+let _onPositionUpdate = null
+export const registerOnPositionUpdate = (cb) => {
+  _onPositionUpdate = cb
+}
 
 export const store = vanX.reactive({
   items: {},
-  position: { lat: null, lng: null, loading: true, error: null },
+  position: { lat: null, lng: null, loading: true, error: null, isFallback: false },
   map: {
     bounds: null,
     zoom: 14,
@@ -63,14 +79,20 @@ export const initStore = async () => {
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
       ({ coords }) => {
+        const firstReal = store.position.isFallback || (store.position.lat === null);
         store.position.lat = coords.latitude
         store.position.lng = coords.longitude
         store.position.loading = false
+        store.position.isFallback = false
+        if (firstReal && _onPositionUpdate) {
+          _onPositionUpdate(coords.longitude, coords.latitude)
+        }
       },
       (err) => {
         if (!store.position.lat) {
           store.position.lat = 55.6761
           store.position.lng = 12.5683
+          store.position.isFallback = true
         }
         store.position.loading = false
         store.position.error = 'location_denied'
@@ -81,6 +103,7 @@ export const initStore = async () => {
     if (!store.position.lat) {
       store.position.lat = 55.6761
       store.position.lng = 12.5683
+      store.position.isFallback = true
     }
     store.position.loading = false
   }
@@ -146,6 +169,29 @@ export const addEvent = (event) => {
     }
   }
 
+  if (event.kind === 30403) {
+    const eTag = event.tags.find(t => t[0] === 'e')?.[1]
+    const code = event.tags.find(t => t[0] === 'c')?.[1]
+    if (eTag && code) {
+      const target = store.items[eTag]
+      if (target) {
+        const hTag = target.tags.find(t => t[0] === 'h')?.[1]
+        const dTag = target.tags.find(t => t[0] === 'd')?.[1] || ''
+        if (hTag) {
+          computeReceiptHash(code, dTag, target.pubkey).then(hCheck => {
+            if (hCheck === hTag) {
+              target.takenLocally = true
+              store.items = { ...store.items }
+            }
+          })
+        }
+      }
+      store.items[event.id] = event
+      store.items = { ...store.items }
+    }
+    return
+  }
+
   // NIP-09 kind 5: deletion event
   if (event.kind === 5) {
     const eTags = event.tags.filter(t => t[0] === 'e').map(t => t[1])
@@ -192,6 +238,23 @@ export const addEvent = (event) => {
   store.items[event.id] = event
   store.items = { ...store.items }
 
+  if (event.kind === 30402) {
+    const claimants = Object.values(store.items).filter(ev => ev.kind === 30403 && ev.tags.find(t => t[0] === 'e')?.[1] === event.id)
+    for (const claimant of claimants) {
+      const code = claimant.tags.find(t => t[0] === 'c')?.[1]
+      const hTag = event.tags.find(t => t[0] === 'h')?.[1]
+      const dTag = event.tags.find(t => t[0] === 'd')?.[1] || ''
+      if (code && hTag) {
+        computeReceiptHash(code, dTag, event.pubkey).then(hCheck => {
+          if (hCheck === hTag) {
+            event.takenLocally = true
+            store.items = { ...store.items }
+          }
+        })
+      }
+    }
+  }
+
   // Notify if this new item matches any alert subscription
   if (event.kind === 30402 && !isTaken(event)) {
     notifyIfMatches(event, store.subscriptions)
@@ -218,18 +281,6 @@ export const getFilteredItems = () => {
   const q = store.ui.searchQuery.toLowerCase().trim()
   return Object.values(store.items).filter(ev => {
     if (isTaken(ev) || isExpired(ev)) return false
-
-    // Filter by visible map bounds
-    if (store.map.bounds) {
-      const geo = getItemGeo(ev)
-      if (!geo) return false
-      const { sw, ne } = store.map.bounds
-      const latOk = geo.lat >= sw.lat && geo.lat <= ne.lat
-      const lngOk = sw.lng <= ne.lng
-        ? (geo.lng >= sw.lng && geo.lng <= ne.lng)
-        : (geo.lng >= sw.lng || geo.lng <= ne.lng)
-      if (!latOk || !lngOk) return false
-    }
 
     if (!q) return true
     const { title, content, tags } = getSearchableTerms(ev)

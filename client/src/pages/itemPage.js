@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
 import { store, currentItemId } from '../store.js'
 import { subscribeChat, sendChatMessage, markTaken, deleteItem } from '../lib/sync.js'
-import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey } from '../lib/nostr.js'
+import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash } from '../lib/nostr.js'
 import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
@@ -54,7 +54,20 @@ export const ItemPage = () => {
   const handleTake = async () => {
     const ev = event()
     if (!ev) return
-    await markTaken(ev)
+    const hTag = ev.tags.find(t => t[0] === 'h')?.[1]
+    const dTag = ev.tags.find(t => t[0] === 'd')?.[1] || ''
+    let code = ''
+    if (hTag) {
+      const entered = prompt("Enter the 8-digit Pickup Verification Code from the owner:")
+      if (!entered) return
+      const hCheck = await computeReceiptHash(entered, dTag, ev.pubkey)
+      if (hCheck !== hTag) {
+        alert("Invalid verification code! Please check the code and try again.")
+        return
+      }
+      code = entered
+    }
+    await markTaken(ev, code)
   }
 
   const handleDelete = async () => {
@@ -121,29 +134,19 @@ export const ItemPage = () => {
           // Description
           summary ? p({ class: 'item-detail-desc' }, summary) : null,
 
-          // Take / taken button
           taken
-            ? div({ class: 'taken-stamp', style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, t('item.taken'))
+            ? div({},
+                div({ class: 'taken-stamp', style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, () => t('item.taken')),
+                isOwner ? button({ class: 'btn btn-danger', style: 'width:100%;margin-top:8px;', onclick: handleDelete }, () => t('item.delete')) : null
+              )
             : (isOwner
-                ? (dist === null
-                    ? button({ class: 'btn btn-take', disabled: true }, t('item.waiting_location'))
-                    : (dist > 100
-                        ? div({ style: 'display:flex;flex-direction:column;gap:6px;' },
-                            button({ class: 'btn btn-take', disabled: true }, t('item.take')),
-                            span({ style: 'font-size:12px;color:var(--pink);text-align:center;font-weight:700' },
-                              t('item.too_far', { dist: formatDistance(dist) })
-                            )
-                          )
-                        : button({ class: 'btn btn-take', onclick: handleTake }, t('item.take'))
-                      )
-                  )
-                : null
+                ? button({ class: 'btn btn-danger', style: 'width:100%', onclick: handleDelete }, () => t('item.delete'))
+                : button({ class: 'btn btn-take', style: 'width:100%', onclick: handleTake }, () => t('item.take'))
               ),
 
           // Owner actions
-          div({ style: 'display:flex;gap:8px;flex-wrap:wrap' },
-            button({ class: 'btn btn-sm', onclick: handleShare }, t('item.share')),
-            isOwner ? button({ class: 'btn btn-sm btn-danger', onclick: handleDelete }, t('item.delete')) : null,
+          div({ style: 'display:flex;gap:8px;flex-wrap:wrap;margin-top:12px' },
+            button({ class: 'btn btn-sm', onclick: handleShare }, () => t('item.share'))
           ),
 
           div({ style: 'font-size:11px;color:var(--muted);margin-top:8px' },
