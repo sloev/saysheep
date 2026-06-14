@@ -14,18 +14,17 @@ export const initI18n = async () => {
 
 export const setLang = async (lang) => {
   if (!SUPPORTED.includes(lang)) lang = 'en'
+  if (!translations['en']) {
+    try {
+      const mod = await import('../locales/en.json')
+      translations['en'] = mod.default
+    } catch {}
+  }
   if (!translations[lang]) {
     try {
       const mod = await import(`../locales/${lang}.json`)
       translations[lang] = mod.default
-    } catch {
-      if (lang !== 'en') {
-        if (!translations['en']) {
-          const mod = await import('../locales/en.json')
-          translations['en'] = mod.default
-        }
-      }
-    }
+    } catch {}
   }
   currentLanguage.val = lang
   localStorage.setItem('saysheep_lang', lang)
