@@ -56,11 +56,10 @@ let _mapUnsub = null
 let updateTimeout = null
 export const queueStoreItemsUpdate = () => {
   if (updateTimeout) return
-  const runner = typeof requestAnimationFrame !== 'undefined' ? requestAnimationFrame : queueMicrotask
-  updateTimeout = runner(() => {
+  updateTimeout = setTimeout(() => {
     store.items = { ...store.items }
     updateTimeout = null
-  })
+  }, 150)
 }
 
 export const initStore = async () => {

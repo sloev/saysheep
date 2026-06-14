@@ -12,12 +12,22 @@ export const computeReceiptHash = async (code, dTag, ownerPubkey) => {
   return argon2id({
     password: code,
     salt: saltBuffer,
-    iterations: 2,
-    memorySize: 2048,
+    iterations: 3,
+    memorySize: 65536,
     parallelism: 1,
     hashLength: 16,
     outputType: 'hex'
   })
+}
+
+export const normalizeVerificationCode = (code) => {
+  if (!code) return ''
+  return code
+    .toUpperCase()
+    .replace(/[^0-9A-Z]/g, '')
+    .replace(/I|L/g, '1')
+    .replace(/O/g, '0')
+    .replace(/U/g, 'V')
 }
 
 export const getEventPow = (id) => {
@@ -352,13 +362,17 @@ export const randomUUID = () => {
 }
 
 export const generateSecureVerificationCode = () => {
-  const array = new Uint32Array(2)
+  const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
+  const array = new Uint8Array(8)
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     crypto.getRandomValues(array)
   } else {
-    for (let i = 0; i < 2; i++) array[i] = Math.floor(Math.random() * 4294967296)
+    for (let i = 0; i < 8; i++) array[i] = Math.floor(Math.random() * 256)
   }
-  const part1 = (100000 + (array[0] % 900000)).toString()
-  const part2 = (100000 + (array[1] % 900000)).toString()
-  return part1 + part2
+  let code = ''
+  for (let i = 0; i < 8; i++) {
+    code += ALPHABET[array[i] % 32]
+    if (i === 3) code += '-'
+  }
+  return code
 }

@@ -4,7 +4,7 @@ import { publishItem } from '../lib/sync.js'
 import { TagInput } from '../fragments/tagInput.js'
 import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
-import { randomUUID, computeReceiptHash, generateSecureVerificationCode } from '../lib/nostr.js'
+import { randomUUID, computeReceiptHash, generateSecureVerificationCode, normalizeVerificationCode } from '../lib/nostr.js'
 import cameraImg from '../images/camera.png'
 const { div, button, input, textarea, video, canvas, label, span, img, select, option } = van.tags
 
@@ -32,21 +32,40 @@ export const NewItemPage = () => {
 
   van.derive(() => {
     if (verificationCode.val && itemId.val && store.identity.pubkey) {
-      computeReceiptHash(verificationCode.val, itemId.val, store.identity.pubkey).then(h => {
+      const normalized = normalizeVerificationCode(verificationCode.val)
+      computeReceiptHash(normalized, itemId.val, store.identity.pubkey).then(h => {
         receiptHash.val = h
       })
     }
   })
 
+  if (typeof window !== 'undefined' && typeof customElements !== 'undefined' && !customElements.get('camera-cleanup')) {
+    customElements.define('camera-cleanup', class extends HTMLElement {
+      disconnectedCallback() {
+        if (this.onunmount) this.onunmount()
+      }
+    })
+  }
+
+  const cleanupEl = typeof document !== 'undefined' ? document.createElement('camera-cleanup') : {}
+
   const videoEl = video({ autoplay: true, playsinline: true, style: 'width:100%;height:100%;object-fit:cover' })
   const canvasEl = canvas({ style: 'display:none' })
+
+  let activeStream = null
+
+  cleanupEl.onunmount = () => {
+    stopCamera()
+  }
 
   const startCamera = () => {
     if (cameraOn.val) return
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
       .then(stream => {
-        if (cone.currentPage.val !== 'new') {
+        activeStream = stream
+        if (cone.currentPage.val !== 'new' || !cleanupEl.isConnected) {
           stream.getTracks().forEach(t => t.stop())
+          activeStream = null
           return
         }
         videoEl.srcObject = stream
@@ -56,6 +75,10 @@ export const NewItemPage = () => {
   }
 
   const stopCamera = () => {
+    if (activeStream) {
+      activeStream.getTracks().forEach(t => t.stop())
+      activeStream = null
+    }
     videoEl.srcObject?.getTracks().forEach(t => t.stop())
     videoEl.srcObject = null
     cameraOn.val = false
@@ -206,7 +229,7 @@ export const NewItemPage = () => {
     submitting.val = false
   }
 
-  return div({ class: 'page-content' },
+  const el = div({ class: 'page-content' },
     div({ class: 'page-header' },
       div({ class: 'page-title' }, () => t('new.heading'))
     ),
@@ -306,4 +329,9 @@ export const NewItemPage = () => {
       }, () => submitting.val ? '...' : t('new.submit'))
     )
   )
+
+  if (typeof document !== 'undefined') {
+    el.appendChild(cleanupEl)
+  }
+  return el
 }

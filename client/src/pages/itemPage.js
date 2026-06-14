@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
 import { store, currentItemId, mutePubkey } from '../store.js'
 import { subscribeChat, sendChatMessage, markTaken, deleteItem, reportItem } from '../lib/sync.js'
-import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash } from '../lib/nostr.js'
+import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash, normalizeVerificationCode } from '../lib/nostr.js'
 import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
@@ -66,12 +66,13 @@ export const ItemPage = () => {
     if (hTag) {
       const entered = prompt(t('item.take.prompt'))
       if (!entered) return
-      const hCheck = await computeReceiptHash(entered, dTag, ev.pubkey)
+      const normalized = normalizeVerificationCode(entered)
+      const hCheck = await computeReceiptHash(normalized, dTag, ev.pubkey)
       if (hCheck !== hTag) {
         alert(t('item.take.invalid'))
         return
       }
-      code = entered
+      code = normalized
     }
     await markTaken(ev, code)
   }

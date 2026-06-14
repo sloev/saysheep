@@ -7,6 +7,42 @@ import { t } from '../lib/i18n.js'
 const { div, input, span } = van.tags
 
 export const ListPage = () => {
+  const sortedItems = vanX.reactive({})
+  const settled = van.state(false)
+
+  van.derive(() => {
+    if (Object.keys(store.items).length > 0) {
+      settled.val = true
+    }
+  })
+
+  van.derive(() => {
+    if (!store.position.loading) {
+      setTimeout(() => {
+        settled.val = true
+      }, 500)
+    }
+  })
+
+  van.derive(() => {
+    const _items = store.items
+    const _query = store.ui.searchQuery
+
+    const list = getFilteredItems().sort((a, b) => b.created_at - a.created_at)
+
+    Promise.resolve().then(() => {
+      vanX.replace(sortedItems, () => list.map(item => [item.id, item]))
+    })
+  })
+
+  const metaInfo = div({
+    class: 'list-meta-info',
+    style: 'padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; background: var(--bg); border: 1.5px solid var(--ink); border-radius: 8px; margin-bottom: 12px; box-shadow: var(--shadow-sm);'
+  },
+    span(() => t('list.showing_count', { count: getFilteredItems().length })),
+    span(() => t('list.total_count', { count: Object.keys(store.items).length }))
+  )
+
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
       div({ class: 'page-title' }, () => t('list')),
@@ -21,38 +57,24 @@ export const ListPage = () => {
         oninput: e => { store.ui.searchQuery = e.target.value },
       })
     ),
+    metaInfo,
     () => {
-      if (store.position.loading) {
+      if (store.position.loading || !settled.val) {
         return div({ class: 'list-empty' },
           span({ class: 'empty-emoji' }, '⏳'),
           t('list.loading')
         )
       }
-      const items = getFilteredItems()
-      const totalCount = Object.keys(store.items).length
-      
-      const metaInfo = div({ class: 'list-meta-info', style: 'padding: 6px 12px; font-size: 12px; font-weight: 700; color: var(--muted); display: flex; justify-content: space-between; background: var(--bg); border: 1.5px solid var(--ink); border-radius: 8px; margin-bottom: 12px; box-shadow: var(--shadow-sm);' },
-        span(t('list.showing_count', { count: items.length })),
-        span(t('list.total_count', { count: totalCount }))
-      )
-
-      if (!items.length) {
-        return div({ style: 'display: flex; flex-direction: column;' },
-          metaInfo,
-          div({ class: 'list-empty' },
-            span({ class: 'empty-emoji' }, '📭'),
-            t('list.empty')
-          )
+      const itemsCount = getFilteredItems().length
+      if (!itemsCount) {
+        return div({ class: 'list-empty' },
+          span({ class: 'empty-emoji' }, '📭'),
+          t('list.empty')
         )
       }
-      return div({ style: 'display: flex; flex-direction: column;' },
-        metaInfo,
-        div({ class: 'list-container' },
-          ...items
-            .sort((a, b) => b.created_at - a.created_at)
-            .map(ev => ListItem(ev))
-        )
-      )
+      return vanX.list(() => div({ class: 'list-container' }), sortedItems, (itemState) => {
+        return ListItem(itemState.val)
+      })
     }
   )
 }
