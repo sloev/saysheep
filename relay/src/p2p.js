@@ -9,6 +9,7 @@ import { randomBytes } from 'crypto'
 import { KBucket } from './kbucket.js'
 import { getMeta, setMeta } from './db.js'
 import { createLogger } from './logger.js'
+import config from './config.js'
 
 const log = createLogger('p2p')
 

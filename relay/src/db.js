@@ -136,28 +136,46 @@ export const queryEvents = (filter) => {
   const params = [now]
 
   if (filter.ids?.length) {
-    sql += ` AND e.id IN (${filter.ids.map(() => '?').join(',')})`;  params.push(...filter.ids)
+    const ids = filter.ids.slice(0, 100)
+    sql += ` AND e.id IN (${ids.map(() => '?').join(',')})`;  params.push(...ids)
   }
   if (filter.kinds?.length) {
-    sql += ` AND e.kind IN (${filter.kinds.map(() => '?').join(',')})`;  params.push(...filter.kinds)
+    const kinds = filter.kinds.slice(0, 50)
+    sql += ` AND e.kind IN (${kinds.map(() => '?').join(',')})`;  params.push(...kinds)
   }
   if (filter.authors?.length) {
-    sql += ` AND e.pubkey IN (${filter.authors.map(() => '?').join(',')})`;  params.push(...filter.authors)
+    const authors = filter.authors.slice(0, 100)
+    sql += ` AND e.pubkey IN (${authors.map(() => '?').join(',')})`;  params.push(...authors)
   }
   if (filter.since != null) { sql += ` AND e.created_at >= ?`;  params.push(filter.since) }
   if (filter.until != null) { sql += ` AND e.created_at <= ?`;  params.push(filter.until) }
 
+  let tagClausesCount = 0
   for (const [key, values] of Object.entries(filter)) {
     if (key.startsWith('#') && key.length === 2 && Array.isArray(values) && values.length) {
+      if (++tagClausesCount > 10) break
       const tagName = key[1]
-      sql += ` AND EXISTS (SELECT 1 FROM event_tags et WHERE et.event_id = e.id AND et.name = ? AND et.value IN (${values.map(() => '?').join(',')}))`
-      params.push(tagName, ...values)
+      const slicedValues = values.slice(0, 100)
+      sql += ` AND EXISTS (SELECT 1 FROM event_tags et WHERE et.event_id = e.id AND et.name = ? AND et.value IN (${slicedValues.map(() => '?').join(',')}))`
+      params.push(tagName, ...slicedValues)
     }
   }
 
-  sql += ` ORDER BY e.created_at DESC LIMIT ${Math.min(filter.limit || 500, 500)}`
+  let limitVal = 500
+  if (filter.limit !== undefined) {
+    const parsed = parseInt(filter.limit, 10)
+    if (!isNaN(parsed) && parsed > 0) {
+      limitVal = Math.min(parsed, 500)
+    }
+  }
+  sql += ` ORDER BY e.created_at DESC LIMIT ${limitVal}`
 
-  return db.prepare(sql).all(...params).map(row => ({ ...row, tags: JSON.parse(row.tags) }))
+  try {
+    return db.prepare(sql).all(...params).map(row => ({ ...row, tags: JSON.parse(row.tags) }))
+  } catch (err) {
+    console.error('SQL query execution failed:', err)
+    return []
+  }
 }
 
 export const deleteExpired = () => {

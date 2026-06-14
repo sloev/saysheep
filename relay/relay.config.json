@@ -7,6 +7,8 @@
   "max_event_size_bytes": 524288,
   "max_subscriptions_per_client": 20,
   "min_pow_difficulty": 0,
+  "min_pow_difficulty_item": 8,
+  "min_pow_difficulty_chat": 4,
   "federation": {
     "peers": [],
     "seeds": ["wss://relay.damus.io", "wss://nos.lol"],

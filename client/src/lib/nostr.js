@@ -67,8 +67,8 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
     ? now + 300 // 5 minutes for test items
     : (availableUntil ? Math.floor(availableUntil / 1000) : now + 14 * 86400)
 
-  // Multiple geohash precisions for area queries
-  const geohash = Geohash.encode(geo.lat, geo.lng, 9)
+  // Multiple geohash precisions for area queries - capped at 6 for privacy (approx 1.2km)
+  const geohash = Geohash.encode(geo.lat, geo.lng, 6)
   const geoTags = []
   for (let i = 2; i <= geohash.length; i++) {
     geoTags.push(['g', geohash.slice(0, i)])
@@ -336,9 +336,29 @@ export const randomUUID = () => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID()
   }
+  const array = new Uint32Array(4)
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(array)
+  } else {
+    for (let i = 0; i < 4; i++) array[i] = Math.floor(Math.random() * 4294967296)
+  }
+  let i = 0
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = Math.random() * 16 | 0
+    const r = (array[i >> 2] >> ((i % 4) * 8)) & 0xf
+    i++
     const v = c === 'x' ? r : (r & 0x3 | 0x8)
     return v.toString(16)
   })
+}
+
+export const generateSecureVerificationCode = () => {
+  const array = new Uint32Array(2)
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(array)
+  } else {
+    for (let i = 0; i < 2; i++) array[i] = Math.floor(Math.random() * 4294967296)
+  }
+  const part1 = (100000 + (array[0] % 900000)).toString()
+  const part2 = (100000 + (array[1] % 900000)).toString()
+  return part1 + part2
 }

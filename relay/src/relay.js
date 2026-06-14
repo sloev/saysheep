@@ -127,7 +127,12 @@ export const startRelay = (port) => {
 
       // P2P control messages — dispatch to DHT layer
       if (msg[0] === 'P2P') {
-        p2p.handle(clientId, ws, msg)
+        try {
+          p2p.handle(clientId, ws, msg)
+        } catch (err) {
+          log.error('P2P error handling message:', err)
+          ws.send(JSON.stringify(['NOTICE', 'P2P processing error']))
+        }
         return
       }
 
@@ -204,11 +209,18 @@ const handleEvent = async (ws, event, clients, ip) => {
   }
 
   // Spam prevention: PoW (Proof of Work) verification
-  const minPow = config.min_pow_difficulty || 0
-  if (minPow > 0 && (event.kind === 30402 || event.kind === 1)) {
+  const minPowItem = config.min_pow_difficulty_item !== undefined ? config.min_pow_difficulty_item : 8
+  const minPowChat = config.min_pow_difficulty_chat !== undefined ? config.min_pow_difficulty_chat : 4
+  const minPowGeneral = config.min_pow_difficulty || 0
+
+  let requiredPow = minPowGeneral
+  if (event.kind === 30402) requiredPow = Math.max(requiredPow, minPowItem)
+  if (event.kind === 1) requiredPow = Math.max(requiredPow, minPowChat)
+
+  if (requiredPow > 0) {
     const pow = getEventPow(event.id)
-    if (pow < minPow) {
-      ws.send(JSON.stringify(['OK', event.id, false, `pow: difficulty ${pow} < target ${minPow}`]))
+    if (pow < requiredPow) {
+      ws.send(JSON.stringify(['OK', event.id, false, `pow: difficulty ${pow} < target ${requiredPow}`]))
       return
     }
   }

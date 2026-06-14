@@ -178,6 +178,26 @@ export const addEvent = (event) => {
   if (!event?.id) return
   if (isMuted(event.pubkey)) return
 
+  // Sanitization / Size validation to prevent XSS and DoS
+  if (event.kind === 30402) {
+    const titleTag = event.tags.find(t => t[0] === 'title')?.[1]
+    if (titleTag && titleTag.length > 200) return
+    const summaryTag = event.tags.find(t => t[0] === 'summary')?.[1]
+    if (summaryTag && summaryTag.length > 5000) return
+    const imageTag = event.tags.find(t => t[0] === 'image')?.[1]
+    if (imageTag) {
+      if (!/^data:image\/(png|jpeg|jpg|webp);base64,/.test(imageTag)) return
+      if (imageTag.length > 600000) return
+    }
+    const gTags = event.tags.filter(t => t[0] === 'g').map(t => t[1])
+    for (const gh of gTags) {
+      if (!/^[a-z0-9]+$/.test(gh) || gh.length > 9) return
+    }
+  }
+  if (event.kind === 1) {
+    if (!event.content || event.content.length > 1000) return
+  }
+
   // Discard test events for general users
   const isTestItem = event.tags.some(t => t[0] === 'test' && t[1] === 'true')
   if (isTestItem && !isTestContext()) {

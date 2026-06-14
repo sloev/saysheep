@@ -64,11 +64,11 @@ export const ItemPage = () => {
     const dTag = ev.tags.find(t => t[0] === 'd')?.[1] || ''
     let code = ''
     if (hTag) {
-      const entered = prompt("Enter the 8-digit Pickup Verification Code from the owner:")
+      const entered = prompt(t('item.take.prompt'))
       if (!entered) return
       const hCheck = await computeReceiptHash(entered, dTag, ev.pubkey)
       if (hCheck !== hTag) {
-        alert("Invalid verification code! Please check the code and try again.")
+        alert(t('item.take.invalid'))
         return
       }
       code = entered

@@ -136,7 +136,7 @@ const runTest = async () => {
     page.on('dialog', async dialog => {
       console.log(`Dialog opened: [${dialog.type()}] "${dialog.message()}" - accepting...`)
       if (dialog.message().includes('Pickup Verification Code:')) {
-        const match = dialog.message().match(/Code: (\d{8})/)
+        const match = dialog.message().match(/Code: (\d+)/)
         if (match) {
           verificationCode = match[1]
           console.log(`Extracted verification code: ${verificationCode}`)

@@ -96,7 +96,7 @@
   "settings.identity.import_btn": "import",
   "settings.identity.upload_backup": "upload backup json file",
   "settings.identity.passkey_heading": "passkey protection (webauthn)",
-  "settings.identity.passkey_desc": "add an extra layer of biometric security to protect your private key from being unauthorizedly viewed or exported.",
+  "settings.identity.passkey_desc": "add an extra layer of biometric security to gate access to viewing or exporting your private key in settings (does not encrypt local storage).",
   "settings.identity.passkey_unsupported": "webauthn is not supported by this browser.",
   "settings.identity.passkey_protected": "✓ protected by device passkey",
   "settings.identity.passkey_test": "test passkey",
@@ -160,5 +160,9 @@
   "report.illegal_notice": "If you believe this content is illegal, please report it directly to the national tipline or appropriate authority. In Denmark, you can submit reports at politi.dk.",
   "settings.muted": "muted users",
   "settings.muted.empty": "no muted users",
-  "settings.muted.unmute": "unmute"
+  "settings.muted.unmute": "unmute",
+  "item.take.prompt": "Enter the 12-digit Pickup Verification Code from the owner:",
+  "item.take.invalid": "Invalid verification code! Please check the code and try again.",
+  "new.pickup_code_alert": "Pickup Verification Code: {code}\n\nGive this 12-digit code to the taker when they pick up the item. They will enter it to mark the item as taken.",
+  "new.location.unavailable": "GPS unavailable. Please check permissions or enable manual location."
 }

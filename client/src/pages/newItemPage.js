@@ -4,7 +4,7 @@ import { publishItem } from '../lib/sync.js'
 import { TagInput } from '../fragments/tagInput.js'
 import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
-import { randomUUID, computeReceiptHash } from '../lib/nostr.js'
+import { randomUUID, computeReceiptHash, generateSecureVerificationCode } from '../lib/nostr.js'
 import cameraImg from '../images/camera.png'
 const { div, button, input, textarea, video, canvas, label, span, img, select, option } = van.tags
 
@@ -27,7 +27,7 @@ export const NewItemPage = () => {
   const error = van.state('')
 
   const itemId = van.state(randomUUID())
-  const verificationCode = van.state(Math.floor(10000000 + Math.random() * 90000000).toString())
+  const verificationCode = van.state(generateSecureVerificationCode())
   const receiptHash = van.state('')
 
   van.derive(() => {
@@ -146,7 +146,7 @@ export const NewItemPage = () => {
     submitting.val = false
     error.val = ''
     itemId.val = randomUUID()
-    verificationCode.val = Math.floor(10000000 + Math.random() * 90000000).toString()
+    verificationCode.val = generateSecureVerificationCode()
     stopCamera()
   }
 
@@ -168,7 +168,7 @@ export const NewItemPage = () => {
       if (isNaN(lat) || isNaN(lng)) return null
       return { lat, lng }
     }
-    if (store.position.loading || !store.position.lat) return null
+    if (store.position.loading || !store.position.lat || store.position.isFallback) return null
     return { lat: store.position.lat, lng: store.position.lng }
   }
 
@@ -197,7 +197,7 @@ export const NewItemPage = () => {
         availableUntil,
         receiptHash: receiptHash.val,
       })
-      alert(`Pickup Verification Code: ${verificationCode.val}\n\nGive this 8-digit code to the taker when they pick up the item. They will enter it to mark the item as taken.`)
+      alert(t('new.pickup_code_alert', { code: verificationCode.val }))
       resetForm()
       cone.navigate('map', {})
     } catch (e) {
@@ -263,7 +263,12 @@ export const NewItemPage = () => {
         ),
         () => !manualLocation.val
           ? div({ style: 'font-size:13px;color:var(--muted);margin-top:6px' },
-              store.position.loading ? t('new.waiting_gps') : t('new.location.auto')
+              store.position.loading
+                ? t('new.waiting_gps')
+                : (store.position.isFallback
+                    ? div({ style: 'color:var(--pink);font-weight:700' }, () => t('new.location.unavailable'))
+                    : () => t('new.location.auto')
+                  )
             )
           : div({ style: 'display:flex;gap:8px;margin-top:6px' },
               input({ class: 'form-input', type: 'number', placeholder: 'lat', step: 'any',
