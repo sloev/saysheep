@@ -229,7 +229,7 @@ export const ItemPage = () => {
       )
     },
     () => {
-      if (!showReportModal.val) return null
+      if (!showReportModal.val) return div({ style: 'display: none' })
 
       if (reportSubmitted.val) {
         return div({ class: 'modal-overlay' },
