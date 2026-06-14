@@ -11,7 +11,7 @@ export const ListPage = () => {
   const settled = van.state(false)
 
   van.derive(() => {
-    if (Object.keys(store.items).length > 0) {
+    if (store.ui.cacheLoaded || Object.keys(store.items).length > 0) {
       settled.val = true
     }
   })
@@ -20,7 +20,7 @@ export const ListPage = () => {
     if (!store.position.loading) {
       setTimeout(() => {
         settled.val = true
-      }, 500)
+      }, 800)
     }
   })
 

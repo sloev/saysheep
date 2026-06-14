@@ -45,6 +45,7 @@ export const store = vanX.reactive({
   ui: {
     loading: true,
     searchQuery: '',
+    cacheLoaded: false,
   },
   subscriptions: [],
   muted: [],
@@ -135,6 +136,7 @@ van.derive(async () => {
     if (!store.areaUnsubs[gh]) {
       const unsub = await subscribeArea(gh, (event) => addEvent(event))
       store.areaUnsubs[gh] = unsub
+      store.ui.cacheLoaded = true
     }
   }
 })
