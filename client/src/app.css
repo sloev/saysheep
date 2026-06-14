@@ -87,6 +87,13 @@ html, body {
   position: relative;
 }
 
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 /* On mobile, map page background needs to be transparent so map underneath is visible */
 #app.route-home .map-page-container,
 #app.route-map .map-page-container {
@@ -954,6 +961,9 @@ select.form-select {
   .nav-link-map {
     display: none !important;
   }
+  .topbar-logo {
+    display: none !important;
+  }
 }
 
 /* ── MAP SEARCHBOX ── */
@@ -1046,5 +1056,71 @@ select.form-select {
     bottom: calc(var(--nav-h) + var(--safe-bottom) + 12px);
   }
 }
+
+/* ── MODALS ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  padding: 16px;
+}
+.modal-content {
+  background: var(--surface);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 900;
+  text-transform: lowercase;
+}
+.modal-body {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Spinner and Chat Claim custom styles */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--ink);
+  border-top-color: var(--pink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.chat-msg.claim-msg {
+  align-self: center !important;
+  background: var(--yellow-light);
+  border-style: dashed;
+  text-align: center;
+  max-width: 100%;
+}
+
 
 

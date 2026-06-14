@@ -9,6 +9,7 @@ import { saysheepIroh } from './iroh.js'
 import { RelayBootstrap } from './bootstrap.js'
 import { createLogger } from './logger.js'
 import config from './config.js'
+import { screenEvent, getReportStats } from './moderation.js'
 
 const log = createLogger('relay')
 let iroh
@@ -63,7 +64,9 @@ export const startRelay = (port) => {
     bootstrap.start()
   })
 
-  iroh.onEvent = (event) => {
+  iroh.onEvent = async (event) => {
+    const screenResult = await screenEvent(event)
+    if (!screenResult.ok) return
     const stored = storeEvent(event)
     if (stored) {
       log.info(`[iroh-gossip] Received new event ${event.id.slice(0, 8)}`)
@@ -75,7 +78,8 @@ export const startRelay = (port) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
     if (req.url === '/stats') {
       res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify({ relay: p2p.stats(), uptime: process.uptime() }))
+      const reports = getReportStats()
+      res.end(JSON.stringify({ relay: p2p.stats(), uptime: process.uptime(), reports }))
       return
     }
     if (req.headers.accept?.includes('application/nostr+json') || req.url === '/') {
@@ -180,7 +184,7 @@ const handleNostr = (ws, msg, clients, ip) => {
   else if (type === 'CLOSE') handleClose(ws, rest[0])
 }
 
-const handleEvent = (ws, event, clients, ip) => {
+const handleEvent = async (ws, event, clients, ip) => {
   if (!_checkRate(ip)) {
     ws.send(JSON.stringify(['NOTICE', 'rate-limited: slow down']))
     return
@@ -213,6 +217,14 @@ const handleEvent = (ws, event, clients, ip) => {
     ws.send(JSON.stringify(['OK', event.id, true, '']))
     return
   }
+
+  // Screen event
+  const screenResult = await screenEvent(event)
+  if (!screenResult.ok) {
+    ws.send(JSON.stringify(['OK', event.id, false, screenResult.reason || 'blocked']))
+    return
+  }
+
   const stored = storeEvent(event)
   ws.send(JSON.stringify(['OK', event.id, true, stored ? '' : 'duplicate']))
   if (stored) {

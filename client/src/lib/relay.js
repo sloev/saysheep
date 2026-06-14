@@ -211,7 +211,7 @@ export const subscribeArea = (geohashPrefixes, onEvent, onEose) => {
 
 export const subscribeChat = (itemEventId, onEvent) => {
   const subId = 'chat-' + Math.random().toString(36).slice(2)
-  const filters = [{ kinds: [1], '#e': [itemEventId], limit: 100 }]
+  const filters = [{ kinds: [1, 30403], '#e': [itemEventId], limit: 100 }]
   const unsubs = []
   for (const conn of _connections.values()) {
     unsubs.push(conn.subscribe(subId, filters, onEvent, null))

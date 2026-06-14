@@ -2,6 +2,7 @@ import { WebSocket } from 'ws'
 import { storeEvent, getMeta, setMeta } from './db.js'
 import { createLogger } from './logger.js'
 import config from './config.js'
+import { screenEvent } from './moderation.js'
 
 const log = createLogger('federation')
 
@@ -43,12 +44,15 @@ const syncWithPeer = (peerUrl, onNewEvent, p2p) => {
     ws.send(JSON.stringify(['REQ', subId, filter]))
   })
 
-  ws.on('message', (data) => {
+  ws.on('message', async (data) => {
     try {
       const msg = JSON.parse(data.toString())
       if (msg[0] === 'EVENT' && msg[1] === subId) {
-        const stored = storeEvent(msg[2])
-        if (stored) { received++; onNewEvent?.(msg[2]) }
+        const event = msg[2]
+        const screenResult = await screenEvent(event)
+        if (!screenResult.ok) return
+        const stored = storeEvent(event)
+        if (stored) { received++; onNewEvent?.(event) }
       } else if (msg[0] === 'EOSE') {
         setMeta(metaKey, String(Math.floor(Date.now() / 1000)))
         log.info(`Synced ${received} new events from ${peerUrl}`)

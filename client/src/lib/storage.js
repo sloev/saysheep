@@ -80,8 +80,9 @@ export const getItemsByGeohash = async (geohashPrefix) => {
 }
 
 export const getChatForItem = async (itemEventId) => {
-  const all = await getEventsByKind(1)
-  return all
+  const kind1 = await getEventsByKind(1)
+  const kind30403 = await getEventsByKind(30403)
+  return [...kind1, ...kind30403]
     .filter(ev => ev.tags.some(t => t[0] === 'e' && t[1] === itemEventId))
     .sort((a, b) => a.created_at - b.created_at)
 }

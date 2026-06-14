@@ -146,5 +146,19 @@
   "settings.security": "seguridad",
   "settings.relay.confirm_remove": "¿Eliminar el servidor relay {url}?",
   "settings.relay.copied": "¡Dirección de relay copiada al portapapeles!",
-  "alerts": "alertas"
+  "alerts": "alertas",
+  "item.report": "reportar",
+  "report.heading": "reportar contenido",
+  "report.reason.nudity": "desnudez / nsfw",
+  "report.reason.spam": "spam / comercial",
+  "report.reason.illegal": "ilegal / csam",
+  "report.reason.harassment": "acoso / abuso",
+  "report.reason.other": "otra violación de política",
+  "report.submit": "enviar reporte",
+  "report.cancel": "cancelar",
+  "report.done": "gracias por tu reporte",
+  "report.illegal_notice": "Si cree que este contenido es ilegal, infórmelo directamente a la línea de denuncia nacional o a la autoridad correspondiente. En Dinamarca, puede enviar informes en politi.dk.",
+  "settings.muted": "usuarios silenciados",
+  "settings.muted.empty": "no hay usuarios silenciados",
+  "settings.muted.unmute": "desmutear"
 }

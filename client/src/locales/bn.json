@@ -146,5 +146,19 @@
   "settings.security": "নিরাপত্তা",
   "settings.relay.confirm_remove": "রিলে {url} মুছে ফেলবেন?",
   "settings.relay.copied": "রিলে URL ক্লিপবোর্ডে কপি করা হয়েছে!",
-  "alerts": "অ্যালার্ট"
+  "alerts": "অ্যালার্ট",
+  "item.report": "রিপোর্ট করুন",
+  "report.heading": "রিপোর্ট কন্টেন্ট",
+  "report.reason.nudity": "নগ্নতা / nsfw",
+  "report.reason.spam": "স্প্যাম / বিজ্ঞাপন",
+  "report.reason.illegal": "অবৈধ / csam",
+  "report.reason.harassment": "হয়রানি / অপব্যবহার",
+  "report.reason.other": "অন্যান্য নীতি লঙ্ঘন",
+  "report.submit": "রিপোর্ট জমা দিন",
+  "report.cancel": "বাতিল",
+  "report.done": "রিপোর্টের জন্য আপনাকে ধন্যবাদ",
+  "report.illegal_notice": "আপনি যদি মনে করেন এই কন্টেন্টটি অবৈধ, তবে অনুগ্রহ করে সরাসরি জাতীয় হটলাইন বা উপযুক্ত কর্তৃপক্ষকে জানান। ডেনমার্কে, আপনি politi.dk-এ রিপোর্ট জমা দিতে পারেন।",
+  "settings.muted": "নিঃশব্দ ব্যবহারকারী",
+  "settings.muted.empty": "কোন নিঃশব্দ ব্যবহারকারী নেই",
+  "settings.muted.unmute": "সশব্দ করুন"
 }

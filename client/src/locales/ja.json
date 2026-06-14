@@ -146,5 +146,19 @@
   "settings.security": "セキュリティ",
   "settings.relay.confirm_remove": "リレー {url} を削除しますか？",
   "settings.relay.copied": "リレーURLをクリップボードにコピーしました！",
-  "alerts": "アラート"
+  "alerts": "アラート",
+  "item.report": "通報する",
+  "report.heading": "通報内容",
+  "report.reason.nudity": "裸体 / NSFW",
+  "report.reason.spam": "スパム / 広告",
+  "report.reason.illegal": "違法 / CSAM",
+  "report.reason.harassment": "嫌がらせ / 虐待",
+  "report.reason.other": "その他のポリシー違反",
+  "report.submit": "通報を送信する",
+  "report.cancel": "キャンセル",
+  "report.done": "通報ありがとうございました",
+  "report.illegal_notice": "このコンテンツが違法であると思われる場合は、国の通報窓口または適切な機関に直接報告してください。デンマークでは、politi.dkで報告を送信できます。",
+  "settings.muted": "ミュート済みのユーザー",
+  "settings.muted.empty": "ミュート済みのユーザーはいません",
+  "settings.muted.unmute": "ミュート解除"
 }

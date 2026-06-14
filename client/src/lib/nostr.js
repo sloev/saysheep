@@ -60,7 +60,7 @@ export const isTestContext = () => {
 }
 
 // Build a free-item listing event (NIP-99 kind 30402) with NIP-13 PoW (difficulty 8)
-export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil, receiptHash }) => {
+export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, availableUntil, receiptHash, phash }) => {
   const isTest = isTestContext()
   const now = Math.floor(Date.now() / 1000)
   const expiry = isTest
@@ -88,6 +88,7 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
     ...tags.map(t => ['t', t]),
   ]
   if (photo) eventTags.push(['image', photo])
+  if (phash) eventTags.push(['phash', phash])
   if (isTest) eventTags.push(['test', 'true'])
   if (receiptHash) eventTags.push(['h', receiptHash])
 
@@ -120,6 +121,42 @@ export const buildItemEvent = ({ secretKey, id, description, tags, photo, geo, a
     created_at: now,
     tags: eventTags,
     content: description || '',
+  }, secretKey)
+}
+
+// Build a report event (NIP-56 kind 1984) with NIP-13 PoW (difficulty 4)
+export const buildReportEvent = ({ secretKey, targetEvent, reason, content = '' }) => {
+  const now = Math.floor(Date.now() / 1000)
+  const pubkey = getPublicKey(secretKey)
+  const eventTags = [
+    ['e', targetEvent.id],
+    ['p', targetEvent.pubkey],
+    ['report', reason],
+    ['nonce', '', '4']
+  ]
+  const nonceIdx = 3
+  const baseEvent = {
+    pubkey,
+    created_at: now,
+    kind: 1984,
+    content,
+    tags: eventTags
+  }
+  let counter = 0
+  while (true) {
+    eventTags[nonceIdx][1] = String(counter)
+    const eventId = getEventHash(baseEvent)
+    if (getEventPow(eventId) >= 4) {
+      break
+    }
+    counter++
+  }
+
+  return finalizeEvent({
+    kind: 1984,
+    created_at: now,
+    tags: eventTags,
+    content,
   }, secretKey)
 }
 

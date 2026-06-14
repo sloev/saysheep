@@ -186,6 +186,20 @@ const runTest = async () => {
     await page.waitForSelector('#map', { timeout: 10000 })
     console.log('Item created! Back on map.')
     
+    // Verify form reset regression test: navigate back to 'new' and assert form is empty
+    console.log('Navigating back to new item form to verify it has reset...')
+    await page.click('.nav-new')
+    await page.waitForSelector('.photo-area', { timeout: 5000 })
+    const textVal = await page.inputValue('.form-textarea')
+    if (textVal !== '') {
+      throw new Error('New item form textarea was not reset after item creation!')
+    }
+    const tagsCount = await page.locator('.tag-input-container .tag').count()
+    if (tagsCount !== 0) {
+      throw new Error('New item form tags were not reset after item creation!')
+    }
+    console.log('New item form reset verified successfully!')
+
     // Go to List view
     console.log('Navigating to list view...')
     await page.goto('http://localhost:5173/list')
@@ -219,6 +233,20 @@ const runTest = async () => {
     }
     await page.waitForSelector('.taken-stamp', { timeout: 5000 })
     console.log('Item marked as taken!')
+
+    // Verify Take it button is hidden when taken (Bug #1 regression check)
+    const isTakeButtonVisible = await page.isVisible('.btn-take')
+    if (isTakeButtonVisible) {
+      throw new Error('Take it button is still visible after item has been taken!')
+    }
+    console.log('Take it button is hidden when item is taken - verified!')
+
+    // Verify claim message exists in chat and does not show raw "Item claimed: " string (Bug #1 regression check)
+    const chatContent = await page.textContent('.chat-messages')
+    if (chatContent.includes('Item claimed:')) {
+      throw new Error('Claim message is not formatted, showing raw "Item claimed:" text!')
+    }
+    console.log('Claim message in chat is formatted successfully!')
     
     // Chat message
     console.log('Sending chat message...')

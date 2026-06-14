@@ -146,5 +146,19 @@
   "settings.security": "security",
   "settings.relay.confirm_remove": "Remove relay {url}?",
   "settings.relay.copied": "Relay URL copied to clipboard!",
-  "alerts": "alerts"
+  "alerts": "alerts",
+  "item.report": "report",
+  "report.heading": "report content",
+  "report.reason.nudity": "nudity / nsfw",
+  "report.reason.spam": "spam / commercial",
+  "report.reason.illegal": "illegal / csam",
+  "report.reason.harassment": "harassment / abuse",
+  "report.reason.other": "other policy violation",
+  "report.submit": "submit report",
+  "report.cancel": "cancel",
+  "report.done": "thank you for your report",
+  "report.illegal_notice": "If you believe this content is illegal, please report it directly to the national tipline or appropriate authority. In Denmark, you can submit reports at politi.dk.",
+  "settings.muted": "muted users",
+  "settings.muted.empty": "no muted users",
+  "settings.muted.unmute": "unmute"
 }

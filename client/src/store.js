@@ -47,10 +47,21 @@ export const store = vanX.reactive({
     searchQuery: '',
   },
   subscriptions: [],
+  muted: [],
   areaUnsubs: {},
 })
 
 let _mapUnsub = null
+
+let updateTimeout = null
+export const queueStoreItemsUpdate = () => {
+  if (updateTimeout) return
+  const runner = typeof requestAnimationFrame !== 'undefined' ? requestAnimationFrame : queueMicrotask
+  updateTimeout = runner(() => {
+    store.items = { ...store.items }
+    updateTimeout = null
+  })
+}
 
 export const initStore = async () => {
   // i18n first
@@ -73,6 +84,12 @@ export const initStore = async () => {
   try {
     const s = localStorage.getItem('saysheep_subscriptions')
     if (s) store.subscriptions = JSON.parse(s) || []
+  } catch {}
+
+  // Load muted keys from localStorage
+  try {
+    const m = localStorage.getItem('saysheep_muted')
+    if (m) store.muted = JSON.parse(m) || []
   } catch {}
 
   // Watch GPS
@@ -152,8 +169,14 @@ export const onMapBoundsChange = async ({ sw, ne, zoom }) => {
   }
 }
 
+export const isMuted = (pubkey) => {
+  if (!pubkey) return false
+  return (store.muted || []).includes(pubkey)
+}
+
 export const addEvent = (event) => {
   if (!event?.id) return
+  if (isMuted(event.pubkey)) return
 
   // Discard test events for general users
   const isTestItem = event.tags.some(t => t[0] === 'test' && t[1] === 'true')
@@ -171,23 +194,28 @@ export const addEvent = (event) => {
 
   if (event.kind === 30403) {
     const eTag = event.tags.find(t => t[0] === 'e')?.[1]
-    const code = event.tags.find(t => t[0] === 'c')?.[1]
-    if (eTag && code) {
+    const code = event.tags.find(t => t[0] === 'c')?.[1] || ''
+    if (eTag) {
       const target = store.items[eTag]
       if (target) {
         const hTag = target.tags.find(t => t[0] === 'h')?.[1]
         const dTag = target.tags.find(t => t[0] === 'd')?.[1] || ''
         if (hTag) {
-          computeReceiptHash(code, dTag, target.pubkey).then(hCheck => {
-            if (hCheck === hTag) {
-              target.takenLocally = true
-              store.items = { ...store.items }
-            }
-          })
+          if (code) {
+            computeReceiptHash(code, dTag, target.pubkey).then(hCheck => {
+              if (hCheck === hTag) {
+                target.takenLocally = true
+                queueStoreItemsUpdate()
+              }
+            })
+          }
+        } else {
+          target.takenLocally = true
+          queueStoreItemsUpdate()
         }
       }
       store.items[event.id] = event
-      store.items = { ...store.items }
+      queueStoreItemsUpdate()
     }
     return
   }
@@ -207,7 +235,7 @@ export const addEvent = (event) => {
       }
     }
     if (deleted) {
-      store.items = { ...store.items }
+      queueStoreItemsUpdate()
     }
     return
   }
@@ -236,21 +264,26 @@ export const addEvent = (event) => {
   const existing = store.items[event.id]
   if (existing && existing.created_at >= event.created_at) return
   store.items[event.id] = event
-  store.items = { ...store.items }
+  queueStoreItemsUpdate()
 
   if (event.kind === 30402) {
     const claimants = Object.values(store.items).filter(ev => ev.kind === 30403 && ev.tags.find(t => t[0] === 'e')?.[1] === event.id)
     for (const claimant of claimants) {
-      const code = claimant.tags.find(t => t[0] === 'c')?.[1]
+      const code = claimant.tags.find(t => t[0] === 'c')?.[1] || ''
       const hTag = event.tags.find(t => t[0] === 'h')?.[1]
       const dTag = event.tags.find(t => t[0] === 'd')?.[1] || ''
-      if (code && hTag) {
-        computeReceiptHash(code, dTag, event.pubkey).then(hCheck => {
-          if (hCheck === hTag) {
-            event.takenLocally = true
-            store.items = { ...store.items }
-          }
-        })
+      if (hTag) {
+        if (code) {
+          computeReceiptHash(code, dTag, event.pubkey).then(hCheck => {
+            if (hCheck === hTag) {
+              event.takenLocally = true
+              queueStoreItemsUpdate()
+            }
+          })
+        }
+      } else {
+        event.takenLocally = true
+        queueStoreItemsUpdate()
       }
     }
   }
@@ -280,6 +313,7 @@ export const removeSubscription = (id) => {
 export const getFilteredItems = () => {
   const q = store.ui.searchQuery.toLowerCase().trim()
   return Object.values(store.items).filter(ev => {
+    if (isMuted(ev.pubkey)) return false
     if (isTaken(ev) || isExpired(ev)) return false
 
     if (!q) return true
@@ -293,5 +327,39 @@ export const getFilteredItems = () => {
 export const updateIdentity = (secretKeyHex) => {
   const ident = importIdentity(secretKeyHex)
   store.identity.pubkey = ident.pubkey
+}
+
+export const saveMuted = () => {
+  localStorage.setItem('saysheep_muted', JSON.stringify(store.muted || []))
+}
+
+export const mutePubkey = (pubkey) => {
+  if (!pubkey) return
+  if (!store.muted) store.muted = []
+  if (!store.muted.includes(pubkey)) {
+    store.muted.push(pubkey)
+    saveMuted()
+    // Remove all existing items from store by this pubkey
+    let removedAny = false
+    for (const [id, ev] of Object.entries(store.items)) {
+      if (ev.pubkey === pubkey) {
+        delete store.items[id]
+        removedAny = true
+        if (currentItemId.val === id) {
+          currentItemId.val = null
+        }
+      }
+    }
+    if (removedAny) {
+      queueStoreItemsUpdate()
+    }
+  }
+}
+
+export const unmutePubkey = (pubkey) => {
+  if (!pubkey) return
+  if (!store.muted) return
+  store.muted = store.muted.filter(pk => pk !== pubkey)
+  saveMuted()
 }
 

@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
-import { store, currentItemId } from '../store.js'
-import { subscribeChat, sendChatMessage, markTaken, deleteItem } from '../lib/sync.js'
+import { store, currentItemId, mutePubkey } from '../store.js'
+import { subscribeChat, sendChatMessage, markTaken, deleteItem, reportItem } from '../lib/sync.js'
 import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash } from '../lib/nostr.js'
 import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
@@ -9,13 +9,19 @@ import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
 import timeImg from '../images/time.png'
 import locationImg from '../images/location.png'
-const { div, img, button, input, span, h1, p } = van.tags
+const { div, img, button, input, span, h1, p, select, option } = van.tags
 
 export const ItemPage = () => {
   const messages = van.state([])
   const chatInput = van.state('')
   const sending = van.state(false)
   let unsub = null
+
+   const showReportModal = van.state(false)
+  const reportReason = van.state('spam')
+  const reportSubmitted = van.state(false)
+  const isIllegal = van.state(false)
+  const deleting = van.state(false)
 
   const event = () => {
     const id = currentItemId.val
@@ -74,8 +80,15 @@ export const ItemPage = () => {
     const ev = event()
     if (!ev) return
     if (!confirm(t('settings.identity.confirm_delete'))) return
-    await deleteItem(ev)
-    cone.navigate('list', {})
+    deleting.val = true
+    try {
+      await deleteItem(ev)
+      cone.navigate('list', {})
+    } catch (err) {
+      alert("Failed to delete: " + err.message)
+    } finally {
+      deleting.val = false
+    }
   }
 
   const handleShare = () => {
@@ -137,16 +150,35 @@ export const ItemPage = () => {
           taken
             ? div({},
                 div({ class: 'taken-stamp', style: 'padding:12px;text-align:center;font-weight:800;font-size:18px;color:var(--muted)' }, () => t('item.taken')),
-                isOwner ? button({ class: 'btn btn-danger', style: 'width:100%;margin-top:8px;', onclick: handleDelete }, () => t('item.delete')) : null
+                isOwner
+                  ? button({
+                      class: 'btn btn-danger',
+                      style: 'width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;',
+                      onclick: handleDelete,
+                      disabled: deleting
+                    },
+                      () => deleting.val ? div({ class: 'spinner' }) : null,
+                      () => t('item.delete')
+                    )
+                  : null
               )
             : (isOwner
-                ? button({ class: 'btn btn-danger', style: 'width:100%', onclick: handleDelete }, () => t('item.delete'))
+                ? button({
+                    class: 'btn btn-danger',
+                    style: 'width:100%;display:flex;align-items:center;justify-content:center;gap:8px;',
+                    onclick: handleDelete,
+                    disabled: deleting
+                  },
+                    () => deleting.val ? div({ class: 'spinner' }) : null,
+                    () => t('item.delete')
+                  )
                 : button({ class: 'btn btn-take', style: 'width:100%', onclick: handleTake }, () => t('item.take'))
               ),
 
           // Owner actions
           div({ style: 'display:flex;gap:8px;flex-wrap:wrap;margin-top:12px' },
-            button({ class: 'btn btn-sm', onclick: handleShare }, () => t('item.share'))
+            button({ class: 'btn btn-sm', onclick: handleShare }, () => t('item.share')),
+            !isOwner ? button({ class: 'btn btn-sm btn-danger', onclick: () => showReportModal.val = true }, () => t('item.report')) : null
           ),
 
           div({ style: 'font-size:11px;color:var(--muted);margin-top:8px' },
@@ -164,8 +196,11 @@ export const ItemPage = () => {
               return div({},
                 ...msgs.map(msg => {
                   const mine = msg.pubkey === store.identity.pubkey
-                  return div({ class: `chat-msg ${mine ? 'mine' : ''}` },
-                    span(msg.content),
+                  const isClaim = msg.kind === 30403
+                  return div({ class: `chat-msg ${mine ? 'mine' : ''} ${isClaim ? 'claim-msg' : ''}` },
+                    isClaim
+                      ? span({ style: 'font-weight: 800; display: flex; align-items: center; gap: 4px;' }, '🐑 ', t('item.taken'))
+                      : span(msg.content),
                     div({ class: 'chat-msg-meta' },
                       shortPubkey(msg.pubkey), ' · ', formatRelative(msg.created_at)
                     )
@@ -188,6 +223,75 @@ export const ItemPage = () => {
               onclick: sendMsg,
               disabled: sending,
             }, t('item.chat.send'))
+          )
+        )
+      )
+    },
+    () => {
+      if (!showReportModal.val) return null
+
+      if (reportSubmitted.val) {
+        return div({ class: 'modal-overlay' },
+          div({ class: 'modal-content' },
+            div({ class: 'modal-title' }, () => t('report.done')),
+            div({ class: 'modal-body' },
+              () => isIllegal.val
+                ? div(
+                    p(() => t('report.illegal_notice')),
+                    p({ style: 'font-weight: bold; margin-top: 8px;' }, 'politi.dk')
+                  )
+                : p(() => t('report.done'))
+            ),
+            div({ class: 'modal-actions' },
+              button({
+                class: 'btn btn-primary btn-sm',
+                onclick: () => {
+                  showReportModal.val = false
+                  reportSubmitted.val = false
+                  isIllegal.val = false
+                  cone.navigate('list', {})
+                }
+              }, 'OK')
+            )
+          )
+        )
+      }
+
+      return div({ class: 'modal-overlay' },
+        div({ class: 'modal-content' },
+          div({ class: 'modal-title' }, () => t('report.heading')),
+          div({ class: 'modal-body' },
+            select({
+              class: 'form-select',
+              value: reportReason,
+              onchange: e => reportReason.val = e.target.value
+            },
+              option({ value: 'spam' }, () => t('report.reason.spam')),
+              option({ value: 'nudity' }, () => t('report.reason.nudity')),
+              option({ value: 'illegal' }, () => t('report.reason.illegal')),
+              option({ value: 'harassment' }, () => t('report.reason.harassment')),
+              option({ value: 'other' }, () => t('report.reason.other'))
+            )
+          ),
+          div({ class: 'modal-actions' },
+            button({
+              class: 'btn btn-sm',
+              onclick: () => showReportModal.val = false
+            }, () => t('report.cancel')),
+            button({
+              class: 'btn btn-sm btn-primary',
+              onclick: async () => {
+                const ev = event()
+                if (!ev) return
+                const reason = reportReason.val
+                await reportItem(ev, reason)
+                mutePubkey(ev.pubkey)
+                if (reason === 'illegal') {
+                  isIllegal.val = true
+                }
+                reportSubmitted.val = true
+              }
+            }, () => t('report.submit'))
           )
         )
       )

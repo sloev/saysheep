@@ -146,5 +146,19 @@
   "settings.security": "安全",
   "settings.relay.confirm_remove": "删除中继 {url}？",
   "settings.relay.copied": "中继 URL 已复制到剪贴板！",
-  "alerts": "提醒"
+  "alerts": "提醒",
+  "item.report": "举报",
+  "report.heading": "举报内容",
+  "report.reason.nudity": "裸露 / NSFW",
+  "report.reason.spam": "垃圾信息 / 广告",
+  "report.reason.illegal": "违法 / CSAM",
+  "report.reason.harassment": "骚扰 / 虐待",
+  "report.reason.other": "其他违规行为",
+  "report.submit": "提交举报",
+  "report.cancel": "取消",
+  "report.done": "感谢您的举报",
+  "report.illegal_notice": "如果您认为此内容违法，请直接向国家举报热线或相关部门报告。在丹麦，您可以在 politi.dk 提交报告。",
+  "settings.muted": "已屏蔽的用户",
+  "settings.muted.empty": "没有已屏蔽的用户",
+  "settings.muted.unmute": "取消屏蔽"
 }

@@ -3,7 +3,8 @@ import { initRelay, publishEvent as relayPublish, subscribeArea as relaySubscrib
 import { initPeer, handleP2PMessage, announceGeohash, leaveGeohash, broadcastEvent as peerBroadcast } from './peer.js'
 import { storeEvent, getItemsByGeohash, getChatForItem, purgeExpired } from './storage.js'
 import { isWebXDC, webxdcSend, webxdcListen } from './webxdc.js'
-import { buildItemEvent, buildTakenEvent, buildTakerTakenEvent, buildChatEvent, buildDeleteEvent, getItemGeohash, randomUUID } from './nostr.js'
+import { buildItemEvent, buildTakenEvent, buildTakerTakenEvent, buildChatEvent, buildDeleteEvent, buildReportEvent, getItemGeohash, randomUUID } from './nostr.js'
+import { phashFromDataUrl } from './phash.js'
 
 export const CONNECTIVITY = {
   BOTH: 'both',
@@ -104,7 +105,15 @@ export const subscribeChat = async (itemEventId, onMessage) => {
 
 export const publishItem = async ({ id, description, tags, photo, geo, availableUntil, receiptHash }) => {
   const { secretKey } = getIdentity()
-  const event = buildItemEvent({ secretKey, id: id || randomUUID(), description, tags, photo, geo, availableUntil, receiptHash })
+  let phash = null
+  if (photo) {
+    try {
+      phash = await phashFromDataUrl(photo)
+    } catch (e) {
+      console.error('Failed to compute pHash:', e)
+    }
+  }
+  const event = buildItemEvent({ secretKey, id: id || randomUUID(), description, tags, photo, geo, availableUntil, receiptHash, phash })
   await storeEvent(event)
   await _broadcast(event, geo)
   if (_onEventCallback) _onEventCallback(event)
@@ -159,4 +168,21 @@ const _broadcast = async (event, geo, originalEvent) => {
     const gh = getItemGeohash(src)
     if (gh) peerBroadcast(event, gh.slice(0, 4))
   }
+}
+
+export const reportItem = async (targetEvent, reason, content = '') => {
+  const { secretKey } = getIdentity()
+  const reportEvent = buildReportEvent({ secretKey, targetEvent, reason, content })
+  await storeEvent(reportEvent)
+  if (isWebXDC()) {
+    webxdcSend(reportEvent)
+  } else {
+    if (_mode !== CONNECTIVITY.PEERS) await relayPublish(reportEvent)
+    if (_mode !== CONNECTIVITY.RELAYS) {
+      const gh = getItemGeohash(targetEvent)
+      if (gh) peerBroadcast(reportEvent, gh.slice(0, 4))
+    }
+  }
+  if (_onEventCallback) _onEventCallback(reportEvent)
+  return reportEvent
 }

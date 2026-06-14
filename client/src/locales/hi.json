@@ -146,5 +146,19 @@
   "settings.security": "सुरक्षा",
   "settings.relay.confirm_remove": "रिले {url} हटाएं?",
   "settings.relay.copied": "रिले URL क्लिपबोर्ड पर कॉपी किया गया!",
-  "alerts": "अलर्ट"
+  "alerts": "अलर्ट",
+  "item.report": "रिपोर्ट करें",
+  "report.heading": "सामग्री की रिपोर्ट",
+  "report.reason.nudity": "नग्नता / nsfw",
+  "report.reason.spam": "स्पैम / विज्ञापन",
+  "report.reason.illegal": "अवैध / csam",
+  "report.reason.harassment": "उत्पीड़न / दुर्व्यवहार",
+  "report.reason.other": "अन्य नीति उल्लंघन",
+  "report.submit": "रिपोर्ट सबमिट करें",
+  "report.cancel": "रद्द करें",
+  "report.done": "आपकी रिपोर्ट के लिए धन्यवाद",
+  "report.illegal_notice": "यदि आपको लगता है कि यह सामग्री अवैध है, तो कृपया सीधे राष्ट्रीय हेल्पलाइन या उचित प्राधिकारी को इसकी रिपोर्ट करें। डेनमार्क में, आप politi.dk पर रिपोर्ट सबमिट कर सकते हैं।",
+  "settings.muted": "म्यूट किए गए उपयोगकर्ता",
+  "settings.muted.empty": "कोई म्यूट किया गया उपयोगकर्ता नहीं",
+  "settings.muted.unmute": "अनम्यूट करें"
 }

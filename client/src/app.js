@@ -47,7 +47,7 @@ const App = () => {
           onclick: () => cone.navigate('new', {})
         }, '＋ ', () => t('nav.new'))
       ),
-      div({ class: 'page-content', id: 'main-content' }, routerElement),
+      div({ id: 'main-content' }, routerElement),
       NavBar(),
     )
   )

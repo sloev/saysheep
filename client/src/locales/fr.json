@@ -146,5 +146,19 @@
   "settings.security": "sécurité",
   "settings.relay.confirm_remove": "Supprimer le relais {url} ?",
   "settings.relay.copied": "URL du relais copiée dans le presse-papiers !",
-  "alerts": "alertes"
+  "alerts": "alertes",
+  "item.report": "signaler",
+  "report.heading": "signaler le contenu",
+  "report.reason.nudity": "nudité / nsfw",
+  "report.reason.spam": "indésirable / commercial",
+  "report.reason.illegal": "illégal / csam",
+  "report.reason.harassment": "harcèlement / abus",
+  "report.reason.other": "autre violation de politique",
+  "report.submit": "envoyer le rapport",
+  "report.cancel": "annuler",
+  "report.done": "merci pour votre signalement",
+  "report.illegal_notice": "Si vous pensez que ce contenu est illégal, veuillez le signaler directement à la ligne de signalement nationale ou à l'autorité appropriée. Au Danemark, vous pouvez soumettre des rapports sur politi.dk.",
+  "settings.muted": "utilisateurs masqués",
+  "settings.muted.empty": "aucun utilisateur masqué",
+  "settings.muted.unmute": "réactiver"
 }

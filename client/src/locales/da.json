@@ -146,5 +146,19 @@
   "settings.security": "sikkerhed",
   "settings.relay.confirm_remove": "Fjern relæ {url}?",
   "settings.relay.copied": "Relæ-URL kopieret til udklipsholderen!",
-  "alerts": "alarmer"
+  "alerts": "alarmer",
+  "item.report": "anmeld",
+  "report.heading": "anmeld indhold",
+  "report.reason.nudity": "nøgenhed / nsfw",
+  "report.reason.spam": "spam / reklame",
+  "report.reason.illegal": "ulovligt / csam",
+  "report.reason.harassment": "chikane / misbrug",
+  "report.reason.other": "anden overtrædelse",
+  "report.submit": "indsend anmeldelse",
+  "report.cancel": "annuller",
+  "report.done": "tak for din anmeldelse",
+  "report.illegal_notice": "Hvis du mener, at dette indhold er ulovligt, bedes du anmelde det direkte til den nationale tipline eller den relevante myndighed. I Danmark kan du indsende anmeldelser på politi.dk.",
+  "settings.muted": "blokerede brugere",
+  "settings.muted.empty": "ingen blokerede brugere",
+  "settings.muted.unmute": "fjern blokering"
 }

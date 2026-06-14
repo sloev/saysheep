@@ -146,5 +146,19 @@
   "settings.security": "безопасность",
   "settings.relay.confirm_remove": "Удалить ретранслятор {url}?",
   "settings.relay.copied": "URL-адрес ретранслятора скопирован в буфер обмена!",
-  "alerts": "оповещения"
+  "alerts": "оповещения",
+  "item.report": "пожаловаться",
+  "report.heading": "пожаловаться на контент",
+  "report.reason.nudity": "обнажение / nsfw",
+  "report.reason.spam": "спам / реклама",
+  "report.reason.illegal": "незаконно / csam",
+  "report.reason.harassment": "домогательство / оскорбление",
+  "report.reason.other": "другое нарушение правил",
+  "report.submit": "отправить жалобу",
+  "report.cancel": "отмена",
+  "report.done": "спасибо за вашу жалобу",
+  "report.illegal_notice": "Если вы считаете этот контент незаконным, пожалуйста, сообщите об этом непосредственно на национальную горячую линию или в соответствующий орган. В Дании вы можете отправить жалобу на сайте politi.dk.",
+  "settings.muted": "скрытые пользователи",
+  "settings.muted.empty": "нет скрытых пользователей",
+  "settings.muted.unmute": "показать"
 }

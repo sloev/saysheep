@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3'
 import { mkdirSync } from 'fs'
 import { dirname } from 'path'
+import { isDeniedSync, handleReportAdded } from './moderation.js'
 
 const DB_PATH = process.env.DB_PATH || './data/relay.db'
 mkdirSync(dirname(DB_PATH), { recursive: true })
@@ -40,10 +41,18 @@ const migrate = (db) => {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS reports (
+      target_id TEXT NOT NULL,
+      reporter_pubkey TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (target_id, reporter_pubkey)
+    );
   `)
 }
 
 export const storeEvent = (event) => {
+  if (isDeniedSync(event)) return false
   const db = getDb()
   const expiryTag = event.tags.find(t => t[0] === 'expiry')
   const expiry = expiryTag ? parseInt(expiryTag[1]) : null
@@ -83,10 +92,34 @@ export const storeEvent = (event) => {
         insertTag.run(ev.id, tag[0], tag[1])
       }
     }
+
+    if (ev.kind === 1984) {
+      const targetId = ev.tags.find(t => t[0] === 'e')?.[1]
+      const reasonTag = ev.tags.find(t => t[0] === 'report')
+      const reason = reasonTag ? reasonTag[1] : 'other'
+      if (targetId) {
+        db.prepare(`
+          INSERT OR IGNORE INTO reports (target_id, reporter_pubkey, reason, created_at)
+          VALUES (?, ?, ?, ?)
+        `).run(targetId, ev.pubkey, reason, ev.created_at)
+      }
+    }
+
     return true
   })
 
-  return run(event)
+  const stored = run(event)
+  if (stored && event.kind === 1984) {
+    const targetId = event.tags.find(t => t[0] === 'e')?.[1]
+    const reasonTag = event.tags.find(t => t[0] === 'report')
+    const reason = reasonTag ? reasonTag[1] : 'other'
+    if (targetId) {
+      handleReportAdded(targetId, reason).catch(err => {
+        console.error('Failed to handle report addition:', err)
+      })
+    }
+  }
+  return stored
 }
 
 export const deleteEvent = (id, pubkey) => {

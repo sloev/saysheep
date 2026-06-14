@@ -146,5 +146,19 @@
   "settings.security": "sicherheit",
   "settings.relay.confirm_remove": "Relay {url} entfernen?",
   "settings.relay.copied": "Relay-URL in die Zwischenablage kopiert!",
-  "alerts": "alarme"
+  "alerts": "alarme",
+  "item.report": "melden",
+  "report.heading": "Inhalt melden",
+  "report.reason.nudity": "Nacktheit / NSFW",
+  "report.reason.spam": "Spam / Werbung",
+  "report.reason.illegal": "Illegal / CSAM",
+  "report.reason.harassment": "Belästigung / Missbrauch",
+  "report.reason.other": "Anderer Richtlinienverstoß",
+  "report.submit": "Meldung senden",
+  "report.cancel": "Abbrechen",
+  "report.done": "Vielen Dank für Ihre Meldung",
+  "report.illegal_notice": "Wenn Sie glauben, dass dieser Inhalt illegal ist, melden Sie ihn bitte direkt der nationalen Meldestelle oder der zuständigen Behörde. In Dänemark können Sie Berichte unter politi.dk einreichen.",
+  "settings.muted": "Stummgeschaltete Benutzer",
+  "settings.muted.empty": "Keine stummgeschalteten Benutzer",
+  "settings.muted.unmute": "Stummschaltung aufheben"
 }

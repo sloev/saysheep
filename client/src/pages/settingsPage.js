@@ -1,10 +1,11 @@
 import van from 'vanjs-core'
-import { store, updateIdentity } from '../store.js'
+import { store, updateIdentity, unmutePubkey } from '../store.js'
 import { setMode, CONNECTIVITY } from '../lib/sync.js'
 import { addRelay, removeRelay, getRelays, getRelaysStatus } from '../lib/relay.js'
 import { getLang, setLang, getSupportedLangs, t } from '../lib/i18n.js'
 import { getPubkey, getSecretKeyHex, isWebAuthnSupported, hasPasskey, registerPasskey, verifyPasskey, clearPasskey } from '../lib/identity.js'
 import { requestNotificationPermission, getNotificationPermission } from '../lib/notifications.js'
+import { shortPubkey } from '../lib/nostr.js'
 const { div, button, input, span, select, option, label, p } = van.tags
 
 
@@ -66,6 +67,29 @@ export const SettingsPage = () => {
           }, () => t('settings.notifications.enable'))
         }
       )
+    ),
+
+    // 1.5 Muted Section
+    div({ class: 'settings-section' },
+      div({ class: 'settings-section-title' }, () => t('settings.muted')),
+      () => {
+        const mutedList = store.muted || []
+        if (mutedList.length === 0) {
+          return div({ class: 'settings-text-muted' }, () => t('settings.muted.empty'))
+        }
+        return div({ style: 'display:flex;flex-direction:column;gap:8px' },
+          ...mutedList.map(pk =>
+            div({ class: 'relay-item' },
+              span({ style: 'font-family:monospace;font-size:14px' }, shortPubkey(pk)),
+              button({
+                class: 'btn btn-sm btn-muted',
+                style: 'flex-shrink:0;margin-left:8px',
+                onclick: () => unmutePubkey(pk)
+              }, () => t('settings.muted.unmute'))
+            )
+          )
+        )
+      }
     ),
 
     // 2. Relays Section

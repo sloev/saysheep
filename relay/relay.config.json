@@ -11,5 +11,12 @@
     "peers": [],
     "seeds": ["wss://relay.damus.io", "wss://nos.lol"],
     "sync_interval_minutes": 30
+  },
+  "moderation": {
+    "enabled": true,
+    "phash_threshold": 10,
+    "report_threshold": 3,
+    "auto_block": false,
+    "denylist_path": "denylist.csv"
   }
 }

@@ -26,12 +26,16 @@ export const NewItemPage = () => {
   const submitting = van.state(false)
   const error = van.state('')
 
-  const itemId = randomUUID()
+  const itemId = van.state(randomUUID())
   const verificationCode = van.state(Math.floor(10000000 + Math.random() * 90000000).toString())
   const receiptHash = van.state('')
 
-  computeReceiptHash(verificationCode.val, itemId, store.identity.pubkey).then(h => {
-    receiptHash.val = h
+  van.derive(() => {
+    if (verificationCode.val && itemId.val && store.identity.pubkey) {
+      computeReceiptHash(verificationCode.val, itemId.val, store.identity.pubkey).then(h => {
+        receiptHash.val = h
+      })
+    }
   })
 
   const videoEl = video({ autoplay: true, playsinline: true, style: 'width:100%;height:100%;object-fit:cover' })
@@ -41,6 +45,10 @@ export const NewItemPage = () => {
     if (cameraOn.val) return
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
       .then(stream => {
+        if (cone.currentPage.val !== 'new') {
+          stream.getTracks().forEach(t => t.stop())
+          return
+        }
         videoEl.srcObject = stream
         cameraOn.val = true
       })
@@ -126,10 +134,31 @@ export const NewItemPage = () => {
     reader.readAsDataURL(file)
   }
 
+  const resetForm = () => {
+    hasPhoto.val = false
+    photoData.val = null
+    description.val = ''
+    tags.val = []
+    manualLocation.val = false
+    customLat.val = ''
+    customLng.val = ''
+    customExpiry.val = 7
+    submitting.val = false
+    error.val = ''
+    itemId.val = randomUUID()
+    verificationCode.val = Math.floor(10000000 + Math.random() * 90000000).toString()
+    stopCamera()
+  }
+
   van.derive(() => {
     const isNewPage = cone.currentPage.val === 'new'
-    if (isNewPage && !cameraOn.val && !hasPhoto.val) startCamera()
-    if (!isNewPage && cameraOn.val) stopCamera()
+    if (isNewPage) {
+      if (!cameraOn.val && !hasPhoto.val) startCamera()
+    } else {
+      if (cameraOn.val) stopCamera()
+      videoEl.srcObject?.getTracks().forEach(t => t.stop())
+      videoEl.srcObject = null
+    }
   })
 
   const getGeo = () => {
@@ -160,7 +189,7 @@ export const NewItemPage = () => {
       const days = customExpiry.val
       const availableUntil = Date.now() + days * 24 * 3600 * 1000
       await publishItem({
-        id: itemId,
+        id: itemId.val,
         description: description.val,
         tags: tags.val,
         photo: photoData.val,
@@ -169,6 +198,7 @@ export const NewItemPage = () => {
         receiptHash: receiptHash.val,
       })
       alert(`Pickup Verification Code: ${verificationCode.val}\n\nGive this 8-digit code to the taker when they pick up the item. They will enter it to mark the item as taken.`)
+      resetForm()
       cone.navigate('map', {})
     } catch (e) {
       error.val = e.message
