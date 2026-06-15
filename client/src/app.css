@@ -851,6 +851,8 @@ select.form-select {
 .map-marker.taken { background: var(--muted); opacity: 0.6; }
 .map-marker.mine { background: var(--yellow); }
 .leaflet-custom-marker { background: none !important; border: none !important; }
+.picker-pin-wrap { background: none !important; border: none !important; }
+.picker-pin { font-size: 26px; line-height: 28px; text-align: center; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
 
 /* ── UTILS ── */
 .divider { height: 1.5px; background: rgba(0,0,0,0.08); margin: 4px 0; }

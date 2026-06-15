@@ -28,6 +28,7 @@
   "new.tags.placeholder": "添加标签...（食物、书籍等）",
   "new.location.auto": "📍 使用我的位置",
   "new.location.manual": "手动设置位置",
+  "new.location.heading": "位置",
   "new.location.tap_map": "点击地图设置位置",
   "new.available_until": "有效期至（可选）",
   "new.submit": "发布！🐑",

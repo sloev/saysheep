@@ -28,6 +28,7 @@
   "new.tags.placeholder": "добавить тег... (еда, книги...)",
   "new.location.auto": "📍 использовать мою геолокацию",
   "new.location.manual": "указать место вручную",
+  "new.location.heading": "местоположение",
   "new.location.tap_map": "Нажмите на карту, чтобы указать место",
   "new.available_until": "доступно до (необязательно)",
   "new.submit": "опубликовать! 🐑",

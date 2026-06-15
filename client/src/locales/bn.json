@@ -28,6 +28,7 @@
   "new.tags.placeholder": "ট্যাগ যোগ করুন... (খাবার, বই...)",
   "new.location.auto": "📍 আমার অবস্থান ব্যবহার করুন",
   "new.location.manual": "ম্যানুয়ালি অবস্থান সেট করুন",
+  "new.location.heading": "অবস্থান",
   "new.location.tap_map": "অবস্থান নির্ধারণ করতে মানচিত্রে ট্যাপ করুন",
   "new.available_until": "পর্যন্ত পাওয়া যাবে (ঐচ্ছিক)",
   "new.submit": "পোস্ট করুন! 🐑",

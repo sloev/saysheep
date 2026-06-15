@@ -28,6 +28,7 @@
   "new.tags.placeholder": "tilføj tag... (mad, bøger, osv)",
   "new.location.auto": "📍 bruger min position",
   "new.location.manual": "sæt position manuelt",
+  "new.location.heading": "placering",
   "new.location.tap_map": "Tryk på kortet for at vælge placering",
   "new.available_until": "tilgængeligt til (valgfri)",
   "new.submit": "post det! 🐑",

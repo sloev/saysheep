@@ -28,6 +28,7 @@
   "new.tags.placeholder": "añadir etiqueta... (comida, libros...)",
   "new.location.auto": "📍 usando mi ubicación",
   "new.location.manual": "fijar ubicación manualmente",
+  "new.location.heading": "ubicación",
   "new.location.tap_map": "Toca el mapa para fijar la ubicación",
   "new.available_until": "disponible hasta (opcional)",
   "new.submit": "¡publicar! 🐑",

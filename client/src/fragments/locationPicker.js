@@ -35,9 +35,19 @@ export const LocationPicker = ({ initialLat, initialLng, onPick }) => {
       ? { lat: store.position.lat, lng: store.position.lng }
       : DEFAULT
 
+  // A divIcon avoids Leaflet's default marker PNGs (marker-icon.png /
+  // marker-shadow.png), which don't resolve under the Vite/Pages base path and
+  // 404 on the live site.
+  const pinIcon = L.divIcon({
+    html: '<div class="picker-pin">📍</div>',
+    className: 'picker-pin-wrap',
+    iconSize: [28, 28],
+    iconAnchor: [14, 28],
+  })
+
   const place = (latlng) => {
     if (marker) marker.setLatLng(latlng)
-    else marker = L.marker(latlng).addTo(map)
+    else marker = L.marker(latlng, { icon: pinIcon }).addTo(map)
     onPick(latlng.lat, latlng.lng)
   }
 

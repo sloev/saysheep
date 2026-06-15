@@ -28,6 +28,7 @@
   "new.tags.placeholder": "タグを追加...（食べ物、本など）",
   "new.location.auto": "📍 現在地を使用",
   "new.location.manual": "手動で場所を設定",
+  "new.location.heading": "場所",
   "new.location.tap_map": "地図をタップして場所を設定",
   "new.available_until": "有効期限（任意）",
   "new.submit": "投稿! 🐑",

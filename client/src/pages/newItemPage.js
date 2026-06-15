@@ -279,7 +279,7 @@ export const NewItemPage = () => {
 
       // Location
       div(
-        div({ class: 'form-label' }, () => t('nav.map')),
+        div({ class: 'form-label' }, () => t('new.location.heading')),
         div({ class: 'toggle-row' },
           input({ type: 'checkbox', id: 'manual-loc',
             onchange: e => manualLocation.val = e.target.checked }),

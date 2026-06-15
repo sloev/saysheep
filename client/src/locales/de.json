@@ -28,6 +28,7 @@
   "new.tags.placeholder": "Tag hinzufügen... (Essen, Bücher...)",
   "new.location.auto": "📍 Meinen Standort verwenden",
   "new.location.manual": "Standort manuell festlegen",
+  "new.location.heading": "Standort",
   "new.location.tap_map": "Tippe auf die Karte, um den Ort festzulegen",
   "new.available_until": "Verfügbar bis (optional)",
   "new.submit": "Posten! 🐑",

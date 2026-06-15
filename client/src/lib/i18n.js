@@ -2,6 +2,11 @@ import van from 'vanjs-core'
 
 const translations = {}
 export const currentLanguage = van.state('en')
+// Bumped whenever a translation bundle finishes loading. t() reads it so that
+// reactive bindings rendered before load (e.g. the topbar) refresh once the
+// strings arrive — switching to the same language ('en'->'en') wouldn't trigger
+// currentLanguage on its own.
+export const i18nVersion = van.state(0)
 
 const SUPPORTED = ['en', 'da', 'de', 'es', 'fr', 'hi', 'ja', 'pt', 'ru', 'zh', 'bn']
 
@@ -27,6 +32,7 @@ export const setLang = async (lang) => {
     } catch {}
   }
   currentLanguage.val = lang
+  i18nVersion.val++
   localStorage.setItem('saysheep_lang', lang)
   document.documentElement.lang = lang
 }
@@ -35,6 +41,7 @@ export const getLang = () => currentLanguage.val
 export const getSupportedLangs = () => SUPPORTED
 
 export const t = (key, vars = {}) => {
+  i18nVersion.val // reactive dep: refresh bindings when bundles load
   const lang = currentLanguage.val
   const str = translations[lang]?.[key] || translations['en']?.[key] || key
   return str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? `{${k}}`)

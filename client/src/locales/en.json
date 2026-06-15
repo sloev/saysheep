@@ -28,6 +28,7 @@
   "new.tags.placeholder": "add tag... (food, books, etc)",
   "new.location.auto": "📍 using my location",
   "new.location.manual": "set location manually",
+  "new.location.heading": "location",
   "new.location.tap_map": "Tap the map to set the location",
   "new.available_until": "available until (optional)",
   "new.submit": "post it! 🐑",
