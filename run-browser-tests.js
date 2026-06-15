@@ -115,7 +115,9 @@ const runTest = async () => {
     browser = await chromium.launch({ headless: true })
     const context = await browser.newContext({
       permissions: ['geolocation'],
-      geolocation: { latitude: 55.6761, longitude: 12.5683 },
+      // Use Bouvet Island coordinates (uninhabited remote island) for E2E tests
+      // so that test postings published to public relays do not clutter user feeds.
+      geolocation: { latitude: -54.4208, longitude: 3.3614 },
       viewport: { width: 390, height: 844 }, // Mobile device aspect ratio
       recordVideo: {
         dir: VIDEO_DIR,
