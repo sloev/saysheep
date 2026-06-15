@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "Passkey-Schutz erfolgreich aktiviert!",
   "settings.identity.passkey.failed_register": "Fehler beim Registrieren des Passkeys: {error}",
   "map.location_not_found": "Ort nicht gefunden",
-  "map.search_error": "Fehler bei der Ortssuche: {error}",
+  "map.search_unavailable": "Die Ortssuche ist derzeit nicht verfügbar. Bitte versuche es erneut.",
   "map.geolocation_unsupported": "Geolokalisierung wird von Ihrem Browser nicht unterstützt",
   "map.location_error": "Fehler beim Abrufen des Standorts: {error}",
   "map.webgl_unsupported": "WebGL ist in Ihrem Browser deaktiviert oder wird nicht unterstützt. Die Karte kann nicht angezeigt werden.",

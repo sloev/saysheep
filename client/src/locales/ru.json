@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "Защита ключом доступа успешно включена!",
   "settings.identity.passkey.failed_register": "Не удалось зарегистрировать ключ доступа: {error}",
   "map.location_not_found": "Местоположение не найдено",
-  "map.search_error": "Ошибка поиска местоположения: {error}",
+  "map.search_unavailable": "Поиск местоположения сейчас недоступен. Попробуйте ещё раз.",
   "map.geolocation_unsupported": "Геолокация не поддерживается вашим браузером",
   "map.location_error": "Ошибка получения местоположения: {error}",
   "map.webgl_unsupported": "WebGL отключен или не поддерживается вашим браузером. Карта не может быть отображена.",

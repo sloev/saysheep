@@ -167,38 +167,33 @@ const fetchOrigin = async (prefix, entry) => {
 }
 
 const fetchP2P = (prefix, entry) => {
-  if (_pendingP2P.has(prefix)) {
-    return _pendingP2P.get(prefix)
-  }
+  const existing = _pendingP2P.get(prefix)
+  if (existing) return existing.promise
 
-  const promise = new Promise((resolve) => {
+  // One record per in-flight request holds BOTH the promise (for dedup) and the
+  // resolve fn + entry (for the tile callback to settle). Storing only the bare
+  // promise here previously left the callback unable to resolve it.
+  const record = { entry }
+  record.promise = new Promise((resolve) => {
     let resolved = false
+    const finish = (places) => {
+      if (resolved) return
+      resolved = true
+      clearTimeout(record.timeout)
+      _pendingP2P.delete(prefix)
+      resolve(places)
+    }
+    record.resolve = finish
+    record.timeout = setTimeout(() => finish(null), 2500)
 
-    const timeout = setTimeout(() => {
-      if (!resolved) {
-        resolved = true
-        _pendingP2P.delete(prefix)
-        resolve(null)
-      }
-    }, 5000)
-
-    _pendingP2P.set(prefix, {
-      resolve: (places) => {
-        if (!resolved) {
-          resolved = true
-          clearTimeout(timeout)
-          _pendingP2P.delete(prefix)
-          resolve(places)
-        }
-      },
-      entry
-    })
-
-    requestTileP2P(prefix)
+    // If no peer received the request, fail fast to origin instead of waiting
+    // out the whole timeout.
+    const recipients = requestTileP2P(prefix)
+    if (!recipients) finish(null)
   })
 
-  _pendingP2P.set(prefix, promise)
-  return promise
+  _pendingP2P.set(prefix, record)
+  return record.promise
 }
 
 export const resolvePrefixesForBounds = async (sw, ne) => {
@@ -255,20 +250,19 @@ export const searchPlaces = async (query, viewportBounds) => {
 // Register callbacks with P2P layers
 registerTileCallback((prefix, places) => {
   const pending = _pendingP2P.get(prefix)
-  if (pending && pending.resolve) {
-    try {
-      const text = JSON.stringify(places)
-      const hash = bytesToHex(sha256(new TextEncoder().encode(text)))
-      if (hash === pending.entry.hash) {
-        pending.resolve(places)
-      } else {
-        console.warn(`P2P tile hash mismatch for ${prefix}`)
-        pending.resolve(null)
-      }
-    } catch (e) {
-      console.error('Failed to verify P2P tile hash:', e)
-      pending.resolve(null)
+  if (!pending || !pending.resolve) return
+  try {
+    const text = JSON.stringify(places)
+    const hash = bytesToHex(sha256(new TextEncoder().encode(text)))
+    if (hash === pending.entry.hash) {
+      pending.resolve(places)
+    } else {
+      // A bad/malicious peer must not short-circuit us to a null result; let
+      // honest peers or the timeout settle the request instead.
+      console.warn(`P2P tile hash mismatch for ${prefix}`)
     }
+  } catch (e) {
+    console.error('Failed to verify P2P tile hash:', e)
   }
 })
 

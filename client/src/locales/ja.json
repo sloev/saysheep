@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "パスキー保護が正常に有効になりました！",
   "settings.identity.passkey.failed_register": "パスキーの登録に失敗しました: {error}",
   "map.location_not_found": "場所が見つかりません",
-  "map.search_error": "場所の検索エラー: {error}",
+  "map.search_unavailable": "現在、場所の検索を利用できません。もう一度お試しください。",
   "map.geolocation_unsupported": "ジオロケーションはお使いのブラウザでサポートされていません",
   "map.location_error": "場所の取得エラー: {error}",
   "map.webgl_unsupported": "WebGLが無効になっているか、ブラウザでサポートされていません。地図を表示できません。",

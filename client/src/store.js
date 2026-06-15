@@ -333,15 +333,26 @@ export const removeSubscription = (id) => {
 
 export const getFilteredItems = () => {
   const q = store.ui.searchQuery.toLowerCase().trim()
+  const bounds = store.map.bounds
   return Object.values(store.items).filter(ev => {
+    // The list is a feed of give-away listings only — never claim receipts
+    // (30403), chat (1) or deletions (5), which also live in store.items.
+    if (ev.kind !== 30402) return false
     if (isMuted(ev.pubkey)) return false
     if (isTaken(ev) || isExpired(ev)) return false
 
+    // viewport filter: only items whose location falls within current map bounds
+    if (bounds) {
+      const geo = getItemGeo(ev)            // { lat, lng } from the item's geohash
+      if (!geo) return false
+      const { sw, ne } = bounds
+      if (geo.lat < sw.lat || geo.lat > ne.lat) return false
+      if (geo.lng < sw.lng || geo.lng > ne.lng) return false
+    }
+
     if (!q) return true
     const { title, content, tags } = getSearchableTerms(ev)
-    return title.includes(q) ||
-           content.includes(q) ||
-           tags.some(t => t.includes(q))
+    return title.includes(q) || content.includes(q) || tags.some(t => t.includes(q))
   })
 }
 

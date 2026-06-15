@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "已成功启用密钥保护！",
   "settings.identity.passkey.failed_register": "注册密钥失败：{error}",
   "map.location_not_found": "未找到位置",
-  "map.search_error": "搜索位置出错：{error}",
+  "map.search_unavailable": "位置搜索暂时不可用，请重试。",
   "map.geolocation_unsupported": "您的浏览器不支持地理定位",
   "map.location_error": "获取位置出错：{error}",
   "map.webgl_unsupported": "WebGL已被禁用或您的浏览器不支持。无法显示地图。",

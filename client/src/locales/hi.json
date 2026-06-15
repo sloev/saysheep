@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "पासकी सुरक्षा सफलतापूर्वक सक्षम की गई!",
   "settings.identity.passkey.failed_register": "पासकी पंजीकृत करने में विफल: {error}",
   "map.location_not_found": "स्थान नहीं मिला",
-  "map.search_error": "स्थान खोजने में त्रुटि: {error}",
+  "map.search_unavailable": "स्थान खोज अभी उपलब्ध नहीं है। कृपया फिर से प्रयास करें।",
   "map.geolocation_unsupported": "जियोलोकेशन आपके ब्राउज़र द्वारा समर्थित नहीं है",
   "map.location_error": "स्थान प्राप्त करने में त्रुटि: {error}",
   "map.webgl_unsupported": "वेबजीएल आपके ब्राउज़र में अक्षम है या समर्थित नहीं है। मानचित्र प्रदर्शित नहीं किया जा सकता है।",

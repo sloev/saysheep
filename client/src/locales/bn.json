@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "পাসকি সুরক্ষা সফলভাবে সক্রিয় করা হয়েছে!",
   "settings.identity.passkey.failed_register": "পাসকি নিবন্ধন করতে ব্যর্থ হয়েছে: {error}",
   "map.location_not_found": "স্থান পাওয়া যায়নি",
-  "map.search_error": "স্থান অনুসন্ধানে ত্রুটি: {error}",
+  "map.search_unavailable": "অবস্থান অনুসন্ধান এই মুহূর্তে উপলব্ধ নয়। আবার চেষ্টা করুন।",
   "map.geolocation_unsupported": "ভূ-অবস্থান আপনার ব্রাউজার দ্বারা সমর্থিত নয়",
   "map.location_error": "স্থান প্রাপ্তিতে ত্রুটি: {error}",
   "map.webgl_unsupported": "ওয়েবজিএল আপনার ব্রাউজারে নিষ্ক্রিয় বা সমর্থিত নয়। মানচিত্রটি প্রদর্শন করা যাবে না।",

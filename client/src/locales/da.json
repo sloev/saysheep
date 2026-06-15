@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "Beskyttelse med adgangskode aktiveret med succes!",
   "settings.identity.passkey.failed_register": "Kunne ikke registrere adgangskode: {error}",
   "map.location_not_found": "Placering ikke fundet",
-  "map.search_error": "Fejl ved søgning efter placering: {error}",
+  "map.search_unavailable": "Stedsøgning er ikke tilgængelig lige nu. Prøv igen.",
   "map.geolocation_unsupported": "Geolokalisering understøttes ikke af din browser",
   "map.location_error": "Fejl ved hentning af placering: {error}",
   "map.webgl_unsupported": "WebGL er deaktiveret eller understøttes ikke i din browser. Kortet kan ikke vises.",

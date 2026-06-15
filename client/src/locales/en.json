@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "Passkey protection enabled successfully!",
   "settings.identity.passkey.failed_register": "Failed to register Passkey: {error}",
   "map.location_not_found": "Location not found",
-  "map.search_error": "Error searching location: {error}",
+  "map.search_unavailable": "Location search is unavailable right now. Please try again.",
   "map.geolocation_unsupported": "Geolocation is not supported by your browser",
   "map.location_error": "Error getting location: {error}",
   "map.webgl_unsupported": "WebGL is disabled or not supported in your browser. The map cannot be displayed.",

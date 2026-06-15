@@ -10,30 +10,44 @@ export const ListPage = () => {
   const sortedItems = vanX.reactive({})
   const settled = van.state(false)
 
+  // Single source of "ready to show results": the local cache finished loading
+  // or items have arrived. A one-shot grace timer is the only fallback, so an
+  // empty area shows the empty state instead of spinning forever — this replaces
+  // the two competing derives that caused the ⏳→📭→list flip.
   van.derive(() => {
-    if (store.ui.cacheLoaded || Object.keys(store.items).length > 0) {
-      settled.val = true
-    }
+    if (store.ui.cacheLoaded || Object.keys(store.items).length > 0) settled.val = true
   })
+  setTimeout(() => { settled.val = true }, 1500)
 
+  // Reconcile the keyed reactive collection incrementally so vanX.list only
+  // touches changed rows — never a full vanX.replace() rebuild (which flickers).
   van.derive(() => {
-    if (!store.position.loading) {
-      setTimeout(() => {
-        settled.val = true
-      }, 800)
-    }
-  })
-
-  van.derive(() => {
-    const _items = store.items
-    const _query = store.ui.searchQuery
+    const _items = store.items          // dependency
+    const _query = store.ui.searchQuery // dependency
+    const _bounds = store.map.bounds    // dependency (viewport filter)
 
     const list = getFilteredItems().sort((a, b) => b.created_at - a.created_at)
+    const nextIds = new Set(list.map(i => i.id))
 
     Promise.resolve().then(() => {
-      vanX.replace(sortedItems, () => list.map(item => [item.id, item]))
+      // remove rows no longer present
+      for (const id of Object.keys(sortedItems)) {
+        if (!nextIds.has(id)) delete sortedItems[id]
+      }
+      // add/update present rows (identical refs skip the write, so no re-render)
+      for (const item of list) {
+        if (sortedItems[item.id] !== item) sortedItems[item.id] = item
+      }
     })
   })
+
+  // Built ONCE and kept mounted; vanX.list does per-key DOM diffing internally.
+  // Keeping it outside the reactive children below is what stops the flicker.
+  const listEl = vanX.list(
+    () => div({ class: 'list-container' }),
+    sortedItems,
+    (itemState) => ListItem(itemState.val)
+  )
 
   const metaInfo = div({
     class: 'list-meta-info',
@@ -58,23 +72,14 @@ export const ListPage = () => {
       })
     ),
     metaInfo,
-    () => {
-      if (store.position.loading || !settled.val) {
-        return div({ class: 'list-empty' },
-          span({ class: 'empty-emoji' }, '⏳'),
-          t('list.loading')
-        )
-      }
-      const itemsCount = getFilteredItems().length
-      if (!itemsCount) {
-        return div({ class: 'list-empty' },
-          span({ class: 'empty-emoji' }, '📭'),
-          t('list.empty')
-        )
-      }
-      return vanX.list(() => div({ class: 'list-container' }), sortedItems, (itemState) => {
-        return ListItem(itemState.val)
-      })
-    }
+    // Loading + empty are lightweight overlays toggled reactively; they never
+    // recreate listEl, so existing rows stay in the DOM.
+    () => (store.position.loading || !settled.val)
+      ? div({ class: 'list-empty' }, span({ class: 'empty-emoji' }, '⏳'), t('list.loading'))
+      : null,
+    () => (!store.position.loading && settled.val && getFilteredItems().length === 0)
+      ? div({ class: 'list-empty' }, span({ class: 'empty-emoji' }, '📭'), t('list.empty'))
+      : null,
+    listEl,
   )
 }

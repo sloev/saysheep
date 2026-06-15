@@ -88,6 +88,7 @@ export const setupMap = (lng, lat) => {
     }
 
     for (const [id, event] of Object.entries(items)) {
+      if (event.kind !== 30402) continue // only listings get a pin
       const taken = isTaken(event)
       const mine = event.pubkey === store.identity.pubkey
       const cls = `map-marker ${taken ? 'taken' : ''} ${mine ? 'mine' : ''}`.trim()
@@ -165,7 +166,8 @@ export const MapSearchBox = () => {
         alert(t('map.location_not_found'))
       }
     } catch (err) {
-      alert(t('map.search_error', { error: err.message }))
+      console.error(err)
+      alert(t('map.search_unavailable'))
     } finally {
       searching.val = false
     }

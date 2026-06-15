@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "Protection par clé de passage activée avec succès !",
   "settings.identity.passkey.failed_register": "Échec de l'enregistrement de la clé de passage : {error}",
   "map.location_not_found": "Emplacement non trouvé",
-  "map.search_error": "Erreur lors de la recherche de l'emplacement : {error}",
+  "map.search_unavailable": "La recherche de lieu est indisponible pour le moment. Veuillez réessayer.",
   "map.geolocation_unsupported": "La géolocalisation n'est pas supportée par votre navigateur",
   "map.location_error": "Erreur lors de l'obtention de l'emplacement : {error}",
   "map.webgl_unsupported": "WebGL est désactivé ou non supporté par votre navigateur. La carte ne peut pas être affichée.",

@@ -121,7 +121,7 @@
   "settings.identity.passkey.success_enable": "¡Protección con clave de paso activada con éxito!",
   "settings.identity.passkey.failed_register": "Error al registrar la clave de paso: {error}",
   "map.location_not_found": "Ubicación no encontrada",
-  "map.search_error": "Error al buscar ubicación: {error}",
+  "map.search_unavailable": "La búsqueda de ubicación no está disponible en este momento. Inténtalo de nuevo.",
   "map.geolocation_unsupported": "La geolocalización no es compatible con su navegador",
   "map.location_error": "Error al obtener la ubicación: {error}",
   "map.webgl_unsupported": "WebGL está deshabilitado o no es compatible con su navegador. No se puede mostrar el mapa.",

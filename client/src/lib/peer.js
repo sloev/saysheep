@@ -405,12 +405,16 @@ export const registerTileCallback = (callback) => {
 }
 
 export const requestTileP2P = (prefix) => {
+  let recipients = 0
   for (const peer of _peers.values()) {
     if (peer.state === 'open') {
       _dcSend(peer, ['GET_TILE', prefix])
+      recipients++
     }
   }
   if (isWifiDirectActive()) {
     sendWifiMessage(['GET_TILE', prefix])
+    recipients++
   }
+  return recipients
 }
