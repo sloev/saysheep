@@ -34,6 +34,8 @@ let _pendingIce = new Map()     // nodeId -> [ICE candidates queued before remot
 let _onEvent = null
 let _onPeerCountChange = null
 let _activeGeohashes = new Set()
+let _tileProvider = null
+let _tileCallback = null
 
 class PeerConn {
   constructor(nodeId, initiator) {
@@ -54,14 +56,27 @@ export const initPeer = ({ nodeId, onEvent, onPeerCountChange }) => {
   _onEvent = onEvent
   _onPeerCountChange = onPeerCountChange
 
-  // Start WiFi Direct on Android for offline LAN mesh
   initWifiDirect({
     onMessage: (msg, fromAddress) => {
-      if (!Array.isArray(msg) || msg[0] !== 'EVENT') return
-      const event = msg[1]
-      if (isValidEvent(event)) {
-        storeEvent(event)
-        _onEvent?.(event)
+      if (!Array.isArray(msg)) return
+      if (msg[0] === 'EVENT') {
+        const event = msg[1]
+        if (isValidEvent(event)) {
+          storeEvent(event)
+          _onEvent?.(event)
+        }
+      } else if (msg[0] === 'GET_TILE') {
+        const prefix = msg[1]
+        if (_tileProvider) {
+          _tileProvider(prefix).then(places => {
+            if (places) {
+              sendWifiMessage(['TILE', prefix, places])
+            }
+          })
+        }
+      } else if (msg[0] === 'TILE') {
+        const [prefix, places] = msg.slice(1)
+        _tileCallback?.(prefix, places)
       }
     },
     onPeerChange: (peers) => {
@@ -298,6 +313,24 @@ const _handlePeerMessage = (peer, msg) => {
   if (!Array.isArray(msg) || !msg.length) return
   const [type, ...args] = msg
 
+  if (type === 'GET_TILE') {
+    const prefix = args[0]
+    if (_tileProvider) {
+      _tileProvider(prefix).then(places => {
+        if (places) {
+          _dcSend(peer, ['TILE', prefix, places])
+        }
+      })
+    }
+    return
+  }
+
+  if (type === 'TILE') {
+    const [prefix, places] = args
+    _tileCallback?.(prefix, places)
+    return
+  }
+
   if (type === 'EVENT') {
     const event = args[0]
     if (isValidEvent(event)) {
@@ -361,4 +394,23 @@ const _cleanupPeer = (nodeId) => {
   _peers.delete(nodeId)
   _kbucket.remove(nodeId)
   _onPeerCountChange?.(getPeerCount())
+}
+
+export const registerTileProvider = (provider) => {
+  _tileProvider = provider
+}
+
+export const registerTileCallback = (callback) => {
+  _tileCallback = callback
+}
+
+export const requestTileP2P = (prefix) => {
+  for (const peer of _peers.values()) {
+    if (peer.state === 'open') {
+      _dcSend(peer, ['GET_TILE', prefix])
+    }
+  }
+  if (isWifiDirectActive()) {
+    sendWifiMessage(['GET_TILE', prefix])
+  }
 }

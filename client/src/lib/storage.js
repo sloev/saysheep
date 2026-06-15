@@ -1,22 +1,61 @@
 import { openDB } from 'idb'
 
 const DB_NAME = 'saysheep'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 let _db = null
 
 const db = async () => {
   if (_db) return _db
   _db = await openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      const events = db.createObjectStore('events', { keyPath: 'id' })
-      events.createIndex('kind', 'kind')
-      events.createIndex('created_at', 'created_at')
-      events.createIndex('pubkey', 'pubkey')
-      db.createObjectStore('meta', { keyPath: 'key' })
+    upgrade(db, oldVersion) {
+      if (oldVersion < 1) {
+        const events = db.createObjectStore('events', { keyPath: 'id' })
+        events.createIndex('kind', 'kind')
+        events.createIndex('created_at', 'created_at')
+        events.createIndex('pubkey', 'pubkey')
+        db.createObjectStore('meta', { keyPath: 'key' })
+      }
+      if (oldVersion < 2) {
+        db.createObjectStore('gazetteer', { keyPath: 'prefix' })
+      }
     },
   })
   return _db
+}
+
+export const getGazetteerTileLocal = async (prefix) => {
+  const d = await db()
+  const tx = d.transaction('gazetteer', 'readwrite')
+  const tile = await tx.store.get(prefix)
+  if (tile) {
+    tile.timestamp = Date.now()
+    await tx.store.put(tile)
+    await tx.done
+    return tile
+  }
+  await tx.done
+  return null
+}
+
+export const saveGazetteerTileLocal = async (prefix, places, version) => {
+  const d = await db()
+  const tx = d.transaction('gazetteer', 'readwrite')
+  await tx.store.put({
+    prefix,
+    places,
+    version,
+    timestamp: Date.now()
+  })
+  const all = await tx.store.getAll()
+  if (all.length > 50) {
+    all.sort((a, b) => a.timestamp - b.timestamp)
+    const toDelete = all.length - 50
+    for (let i = 0; i < toDelete; i++) {
+      await tx.store.delete(all[i].prefix)
+    }
+  }
+  await tx.done
 }
 
 export const storeEvent = async (event) => {

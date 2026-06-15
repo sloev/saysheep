@@ -138,3 +138,7 @@ client/ios/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# GeoNames raw files
+client/cities15000.*
+

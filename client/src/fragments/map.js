@@ -1,9 +1,11 @@
 import van from 'vanjs-core'
 import L from 'leaflet'
-import { store, onMapBoundsChange, currentItemId, registerOnPositionUpdate } from '../store.js'
+import { store, onMapBoundsChange, currentItemId, registerOnPositionUpdate, addEvent } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
+import { searchPlaces } from '../lib/gazetteer.js'
+import { subscribeArea } from '../lib/sync.js'
 
 import 'leaflet/dist/leaflet.css'
 
@@ -44,8 +46,13 @@ export const setupMap = (lng, lat) => {
     attribution: '© OpenStreetMap contributors'
   }).addTo(_map)
 
+  let invalidateTimeout = null
   const resizeObserver = new ResizeObserver(() => {
-    if (_map) _map.invalidateSize()
+    if (!_map) return
+    if (invalidateTimeout) clearTimeout(invalidateTimeout)
+    invalidateTimeout = setTimeout(() => {
+      if (_map) _map.invalidateSize()
+    }, 100)
   })
   resizeObserver.observe(mapDiv)
 
@@ -122,6 +129,10 @@ export const MapComponent = () => mapDiv
 
 export const flyToMap = (lng, lat, zoom = 14) => {
   if (!_map) return
+  const currentCenter = _map.getCenter()
+  const currentZoom = _map.getZoom()
+  const dist = currentCenter.distanceTo([lat, lng])
+  if (dist < 10 && currentZoom === zoom) return
   _map.flyTo([lat, lng], zoom)
 }
 
@@ -134,15 +145,21 @@ export const MapSearchBox = () => {
     if (!q || !_map) return
     searching.val = true
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
-      const data = await res.json()
-      if (data && data.length > 0) {
-        const { lat, lon } = data[0]
-        const targetLat = parseFloat(lat)
-        const targetLng = parseFloat(lon)
+      const bounds = _map.getBounds()
+      const sw = { lat: bounds.getSouthWest().lat, lng: bounds.getSouthWest().lng }
+      const ne = { lat: bounds.getNorthEast().lat, lng: bounds.getNorthEast().lng }
+      const results = await searchPlaces(q, { sw, ne })
+      if (results && results.length > 0) {
+        const place = results[0]
+        const targetLat = place.lat
+        const targetLng = place.lng
         store.position.lat = targetLat
         store.position.lng = targetLng
         store.position.loading = false
+        if (place.geohash6) {
+          const unsub = await subscribeArea(place.geohash6, (event) => addEvent(event))
+          store.areaUnsubs[place.geohash6] = unsub
+        }
         flyToMap(targetLng, targetLat, 14)
       } else {
         alert(t('map.location_not_found'))

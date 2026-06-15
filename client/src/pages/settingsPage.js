@@ -335,6 +335,24 @@ export const SettingsPage = () => {
             )
           }
         }
+      ),
+
+      div({ class: 'settings-divider' }),
+
+      // About & Licenses Section
+      div({ class: 'settings-section' },
+        div({ class: 'settings-section-title' }, 'About & Licenses'),
+        p({ class: 'settings-text-muted', style: 'font-size:13px;line-height:1.4;margin:0;' },
+          'saysheep is a decentralized, offline-first P2P sharing application.',
+          van.tags.br(),
+          'Map data © ',
+          van.tags.a({ href: 'https://www.openstreetmap.org/copyright', target: '_blank' }, 'OpenStreetMap contributors'),
+          '.',
+          van.tags.br(),
+          'Geocoding and place data provided by ',
+          van.tags.a({ href: 'https://www.geonames.org/', target: '_blank' }, 'GeoNames'),
+          ' (CC-BY 4.0).'
+        )
       )
     )
   )
