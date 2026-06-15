@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
+    sourcemap: 'inline',
   },
   server: {
     port: 5173,
