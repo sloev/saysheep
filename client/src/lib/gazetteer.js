@@ -7,6 +7,39 @@ import { registerTileProvider, registerTileCallback, requestTileP2P } from './pe
 
 export const ORIGIN_PUBKEY = '97471863b51fa180e5815ab35f299a2b708f7abfdbed8d062a8c3e371e4f5c10'
 
+const getAssetUrl = (relativePath) => {
+  let baseHref = ''
+  if (typeof document !== 'undefined') {
+    const baseEl = document.querySelector('base')
+    if (baseEl) {
+      baseHref = baseEl.href
+    } else {
+      baseHref = document.baseURI || window.location.href
+    }
+  } else if (typeof window !== 'undefined') {
+    let base = ''
+    if (window.location.pathname.startsWith('/saysheep')) {
+      base = '/saysheep'
+    }
+    baseHref = window.location.origin + base + '/'
+  } else {
+    const envBase = (import.meta.env.BASE_URL || '/')
+    baseHref = envBase.endsWith('/') ? envBase : envBase + '/'
+  }
+
+  // Clean relative path of leading slash
+  const cleanPath = relativePath.startsWith('/') ? relativePath.slice(1) : relativePath
+
+  // URL constructor resolves path against base dynamically.
+  // In Node.js or SSR without a valid absolute protocol, fallback to string concat.
+  if (baseHref.startsWith('http://') || baseHref.startsWith('https://') || baseHref.startsWith('file://')) {
+    return new URL(cleanPath, baseHref).href
+  } else {
+    const cleanBase = baseHref.endsWith('/') ? baseHref : baseHref + '/'
+    return `${cleanBase}${cleanPath}`
+  }
+}
+
 const _tileCache = new Map()
 const _pendingP2P = new Map()
 let _manifest = null
@@ -36,26 +69,31 @@ export const ensureManifest = () => {
       if (cachedEvent) {
         if (verifyEvent(cachedEvent)) {
           _manifest = JSON.parse(cachedEvent.content)
-        }
-      }
-
-      const res = await fetch('gaz/manifest.json')
-      if (res.ok) {
-        const event = await res.json()
-        if (event.pubkey === ORIGIN_PUBKEY && verifyEvent(event)) {
-          _manifest = JSON.parse(event.content)
-          await setMeta('signed_manifest', event)
+          _manifestPromise = null
+          return _manifest
         }
       }
     } catch (e) {
-      console.error('Failed to load manifest:', e)
+      console.error('Failed to load cached manifest:', e)
     }
 
-    if (!_manifest) {
-      _manifest = {}
+    try {
+      const url = getAssetUrl('gaz/manifest.json')
+      const res = await fetch(url)
+      if (!res.ok) throw new Error(`HTTP ${res.status} when fetching manifest`)
+      const event = await res.json()
+      if (event.pubkey === ORIGIN_PUBKEY && verifyEvent(event)) {
+        _manifest = JSON.parse(event.content)
+        await setMeta('signed_manifest', event)
+        _manifestPromise = null
+        return _manifest
+      }
+      throw new Error('Invalid manifest signature or publisher')
+    } catch (e) {
+      _manifestPromise = null
+      console.error('Failed to load manifest from origin:', e)
+      throw e
     }
-    _manifestPromise = null
-    return _manifest
   })()
 
   return _manifestPromise
@@ -107,7 +145,7 @@ export const getGazetteerTile = async (prefix) => {
 
 const fetchOrigin = async (prefix, entry) => {
   try {
-    const url = `gaz/${prefix}/v${entry.version}.json.gz`
+    const url = getAssetUrl(`gaz/${prefix}/v${entry.version}.json.gz`)
     const res = await fetch(url)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
@@ -168,11 +206,11 @@ export const resolvePrefixesForBounds = async (sw, ne) => {
   const p3List = await geohashesForBounds(sw, ne, 3)
   const prefixes = []
   for (const p3 of p3List) {
-    if (_manifest[p3]) {
-      prefixes.push(p3)
-    } else {
-      const children = Object.keys(_manifest).filter(k => k.startsWith(p3))
-      prefixes.push(...children)
+    // Check both exact match (p3) and child splits (startsWith p3) to seamlessly
+    // support cases where dense cells are split into finer 4-character tiles.
+    const matches = Object.keys(_manifest).filter(k => k === p3 || k.startsWith(p3))
+    if (matches.length > 0) {
+      prefixes.push(...matches)
     }
   }
   return prefixes
