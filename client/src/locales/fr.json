@@ -28,6 +28,7 @@
   "new.tags.placeholder": "ajouter un tag... (nourriture, livres...)",
   "new.location.auto": "📍 utiliser ma position",
   "new.location.manual": "définir la position manuellement",
+  "new.location.tap_map": "Touchez la carte pour définir l'emplacement",
   "new.available_until": "disponible jusqu'au (facultatif)",
   "new.submit": "publier! 🐑",
   "new.waiting_gps": "⏳ en attente du GPS...",

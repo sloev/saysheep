@@ -28,6 +28,7 @@
   "new.tags.placeholder": "टैग जोड़ें... (खाना, किताबें...)",
   "new.location.auto": "📍 मेरी लोकेशन उपयोग करें",
   "new.location.manual": "मैन्युअली लोकेशन सेट करें",
+  "new.location.tap_map": "स्थान चुनने के लिए मानचित्र पर टैप करें",
   "new.available_until": "उपलब्ध तक (वैकल्पिक)",
   "new.submit": "पोस्ट करें! 🐑",
   "new.waiting_gps": "⏳ GPS का इंतज़ार...",

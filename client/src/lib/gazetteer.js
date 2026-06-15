@@ -1,7 +1,7 @@
 import { verifyEvent } from 'nostr-tools'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex } from '@noble/hashes/utils'
-import { geohashesForBounds } from './geo.js'
+import { Geohash } from './geo.js'
 import { getGazetteerTileLocal, saveGazetteerTileLocal, getMeta, setMeta } from './storage.js'
 import { registerTileProvider, registerTileCallback, requestTileP2P } from './peer.js'
 
@@ -198,7 +198,11 @@ const fetchP2P = (prefix, entry) => {
 
 export const resolvePrefixesForBounds = async (sw, ne) => {
   await ensureManifest()
-  const p3List = await geohashesForBounds(sw, ne, 3)
+  // ngeohash.bboxes reliably returns every geohash-3 cell overlapping the
+  // viewport, INCLUDING when the viewport is smaller than a cell (~156km).
+  // shape2geohash's rasterizer drops the containing cell in that case, which
+  // made search silently return nothing at any normal zoom level.
+  const p3List = Geohash.bboxes(sw.lat, sw.lng, ne.lat, ne.lng, 3)
   const prefixes = []
   for (const p3 of p3List) {
     // Check both exact match (p3) and child splits (startsWith p3) to seamlessly

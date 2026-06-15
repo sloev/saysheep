@@ -5,6 +5,7 @@ import { TagInput } from '../fragments/tagInput.js'
 import { t } from '../lib/i18n.js'
 import { cone } from '../router.js'
 import { randomUUID, computeReceiptHash, generateSecureVerificationCode, normalizeVerificationCode } from '../lib/nostr.js'
+import { LocationPicker } from '../fragments/locationPicker.js'
 import cameraImg from '../images/camera.png'
 const { div, button, input, textarea, video, canvas, label, span, img, select, option } = van.tags
 
@@ -293,11 +294,17 @@ export const NewItemPage = () => {
                     : () => t('new.location.auto')
                   )
             )
-          : div({ style: 'display:flex;gap:8px;margin-top:6px' },
-              input({ class: 'form-input', type: 'number', placeholder: 'lat', step: 'any',
-                oninput: e => customLat.val = e.target.value }),
-              input({ class: 'form-input', type: 'number', placeholder: 'lng', step: 'any',
-                oninput: e => customLng.val = e.target.value }),
+          : div({ style: 'margin-top:6px' },
+              div({ style: 'font-size:13px;color:var(--muted);margin-bottom:6px' }, () => t('new.location.tap_map')),
+              LocationPicker({
+                initialLat: customLat.val ? parseFloat(customLat.val) : null,
+                initialLng: customLng.val ? parseFloat(customLng.val) : null,
+                onPick: (lat, lng) => { customLat.val = String(lat); customLng.val = String(lng) },
+              }),
+              () => customLat.val && customLng.val
+                ? div({ style: 'font-size:13px;font-weight:700;margin-top:6px' },
+                    `📍 ${parseFloat(customLat.val).toFixed(5)}, ${parseFloat(customLng.val).toFixed(5)}`)
+                : div(),
             )
       ),
 
