@@ -1,149 +1,179 @@
+// Offline gazetteer build: GeoNames cities1000 + alternateNamesV2 -> a single
+// immutable, content-addressed gzipped blob the client binary-searches in pure
+// JS. Names are filtered to English + each country's primary language and folded
+// to ASCII. Output: src/public/gaz/world.<hash>.bin.gz + gaz/index.json.
+//
+// Inputs (downloaded on demand to client/ ):
+//   cities1000.txt, alternateNamesV2.txt, countryInfo.txt, admin1CodesASCII.txt
+// Run: node scripts/build-gazetteer.js   (from client/)
 import fs from 'fs'
-import path from 'path'
+import readline from 'readline'
 import zlib from 'zlib'
+import path from 'path'
+import crypto from 'crypto'
 import { execSync } from 'child_process'
 import Geohash from 'ngeohash'
-import { finalizeEvent } from 'nostr-tools'
-import { sha256 } from '@noble/hashes/sha256'
-import { bytesToHex } from '@noble/hashes/utils'
 
-const skHex = process.env.ORIGIN_SK || '6a751f950e4860c6af2722b2c5914526ac1fbbf57d5eb3f00c17ebc5c4902f4c'
-const sk = Uint8Array.from(Buffer.from(skHex, 'hex'))
-
-const GEONAMES_ZIP_URL = 'https://download.geonames.org/export/dump/cities15000.zip'
-const ZIP_FILE = 'cities15000.zip'
-const TXT_FILE = 'cities15000.txt'
-
-async function downloadGeoNames() {
-  if (fs.existsSync(TXT_FILE)) {
-    console.log(`${TXT_FILE} already exists, skipping download.`)
-    return
-  }
-
-  console.log(`Downloading ${GEONAMES_ZIP_URL}...`)
-  const res = await fetch(GEONAMES_ZIP_URL)
-  if (!res.ok) throw new Error(`Failed to download GeoNames: ${res.statusText}`)
-  
-  const buffer = await res.arrayBuffer()
-  fs.writeFileSync(ZIP_FILE, Buffer.from(buffer))
-  console.log(`Downloaded zip, extracting...`)
-  
-  execSync(`unzip -o ${ZIP_FILE}`)
-  console.log(`Extraction complete.`)
+const DUMP = 'https://download.geonames.org/export/dump'
+const NEED = {
+  'cities1000.txt': 'cities1000.zip',
+  'alternateNamesV2.txt': 'alternateNamesV2.zip',
+  'countryInfo.txt': null,            // plain file
+  'admin1CodesASCII.txt': null,
 }
 
-function parseGeoNames() {
-  console.log(`Parsing ${TXT_FILE}...`)
-  const content = fs.readFileSync(TXT_FILE, 'utf8')
-  const lines = content.split('\n')
-  const places = []
+const ensure = (txt, zip) => {
+  if (fs.existsSync(txt)) return
+  if (zip) {
+    if (!fs.existsSync(zip)) execSync(`curl -sS -o ${zip} ${DUMP}/${zip}`, { stdio: 'inherit' })
+    execSync(`unzip -o ${zip} ${txt}`, { stdio: 'inherit' })
+  } else {
+    execSync(`curl -sS -o ${txt} ${DUMP}/${txt}`, { stdio: 'inherit' })
+  }
+}
 
-  for (const line of lines) {
-    if (!line.trim()) continue
-    const cols = line.split('\t')
-    if (cols.length < 15) continue
+// ---- ASCII folding (so "København" === "Kobenhavn" === "kobenhavn") ----
+const FOLD = { 'ø':'o','æ':'ae','å':'a','ß':'ss','ł':'l','đ':'d','ð':'d','þ':'th','œ':'oe','ı':'i','ħ':'h','ŋ':'n','ĸ':'k','ª':'a','º':'o','ø':'o' }
+export const fold = (s) => s.toLowerCase().normalize('NFD')
+  .replace(/[̀-ͯ]/g, '')
+  .replace(/[øæåßłđðþœıħŋĸªº]/g, c => FOLD[c] || c)
+  .replace(/[^a-z0-9]+/g, ' ').trim()
+const isLatin = (s) => { const f = fold(s); return f.length > 0 && /^[a-z0-9 ]+$/.test(f) }
 
-    const name = cols[2] || cols[1] // asciiname or name
-    const altNamesStr = cols[3] || ''
-    const lat = parseFloat(cols[4])
-    const lng = parseFloat(cols[5])
-    const population = parseInt(cols[14]) || 0
+// ---- varint writer ----
+class Writer {
+  constructor() { this.b = [] }
+  u8(n) { this.b.push(n & 0xff) }
+  u16(n) { this.b.push(n & 0xff, (n >> 8) & 0xff) }
+  u32(n) { this.b.push(n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >>> 24) & 0xff) }
+  varint(n) { while (n >= 0x80) { this.b.push((n & 0x7f) | 0x80); n >>>= 7 } this.b.push(n) }
+  bytes(buf) { for (let i = 0; i < buf.length; i++) this.b.push(buf[i]) }
+  str(s) { const u = Buffer.from(s, 'utf8'); this.varint(u.length); this.bytes(u) }
+  get length() { return this.b.length }
+}
 
+const build = async () => {
+  for (const [txt, zip] of Object.entries(NEED)) ensure(txt, zip)
+
+  console.log('Reading countryInfo + admin1...')
+  const primaryLang = {}
+  for (const line of fs.readFileSync('countryInfo.txt', 'utf8').split('\n')) {
+    if (!line || line.startsWith('#')) continue
+    const c = line.split('\t')
+    if (c[0]) primaryLang[c[0]] = (c[15] || '').split(',')[0].split('-')[0].toLowerCase()
+  }
+  const admin1Name = {}
+  for (const line of fs.readFileSync('admin1CodesASCII.txt', 'utf8').split('\n')) {
+    if (!line) continue
+    const c = line.split('\t') // code, name, asciiname, geonameid
+    admin1Name[c[0]] = c[2] || c[1] || ''
+  }
+
+  console.log('Reading cities1000...')
+  const cities = []           // { name, cc, admin1code, gh5 }
+  const idToIdx = new Map()
+  for (const line of fs.readFileSync('cities1000.txt', 'utf8').split('\n')) {
+    if (!line) continue
+    const c = line.split('\t')
+    const lat = parseFloat(c[4]), lng = parseFloat(c[5])
     if (isNaN(lat) || isNaN(lng)) continue
+    idToIdx.set(c[0], cities.length)
+    cities.push({ name: c[1], ascii: c[2], cc: c[8] || '', admin1: `${c[8]}.${c[10]}`, gh5: Geohash.encode(lat, lng, 5) })
+  }
+  console.log(`  ${cities.length} cities`)
 
-    const altNames = altNamesStr
-      .split(',')
-      .map(n => n.trim())
-      .filter(n => n && n !== name)
-      .slice(0, 5) // limit alt names to keep files small
+  // ---- name -> set(cityIdx) ----
+  const nameMap = new Map()
+  const add = (folded, idx) => {
+    if (!folded) return
+    let s = nameMap.get(folded); if (!s) { s = new Set(); nameMap.set(folded, s) }
+    s.add(idx)
+  }
+  cities.forEach((c, idx) => {
+    if (isLatin(c.name)) add(fold(c.name), idx)
+    if (isLatin(c.ascii)) add(fold(c.ascii), idx)
+  })
 
-    const geohash6 = Geohash.encode(lat, lng, 6)
+  console.log('Streaming alternateNamesV2 (18M rows)...')
+  let seen = 0, kept = 0
+  const rl = readline.createInterface({ input: fs.createReadStream('alternateNamesV2.txt'), crlfDelay: Infinity })
+  for await (const line of rl) {
+    if ((++seen % 4000000) === 0) console.log(`  ${seen} rows...`)
+    const c = line.split('\t')
+    const idx = idToIdx.get(c[1]); if (idx === undefined) continue
+    const iso = c[2], alt = c[3]
+    if (!alt) continue
+    if (c[7] === '1') continue // isHistoric
+    if (iso !== 'en' && iso !== primaryLang[cities[idx].cc]) continue
+    if (!isLatin(alt)) continue
+    add(fold(alt), idx); kept++
+  }
+  console.log(`  kept ${kept} alt names; ${nameMap.size} unique searchable names`)
 
-    places.push({
-      name,
-      altNames,
-      lat,
-      lng,
-      geohash6,
-      population
-    })
+  // ---- collapse genuine dupes (same name AND identical gh5) ----
+  for (const [name, set] of nameMap) {
+    const byGh = new Map()
+    for (const idx of set) { const g = cities[idx].gh5; if (!byGh.has(g)) byGh.set(g, idx) }
+    if (byGh.size !== set.size) nameMap.set(name, new Set(byGh.values()))
   }
 
-  console.log(`Parsed ${places.length} places.`)
-  return places
+  // ---- country + admin1 tables ----
+  const countryList = [...new Set(cities.map(c => c.cc))]
+  const countryIdx = new Map(countryList.map((c, i) => [c, i]))
+  const admin1List = [...new Set(cities.map(c => c.admin1))]
+  const admin1Idx = new Map(admin1List.map((c, i) => [c, i]))
+
+  // ---- front-coded name blocks ----
+  const names = [...nameMap.keys()].sort()
+  const K = 16
+  const numBlocks = Math.ceil(names.length / K)
+  const namesW = new Writer()
+  const blockOffsets = []
+  let prev = ''
+  for (let i = 0; i < names.length; i++) {
+    if (i % K === 0) { blockOffsets.push(namesW.length); prev = '' }
+    const name = names[i]
+    let shared = 0
+    while (shared < prev.length && shared < name.length && prev[shared] === name[shared]) shared++
+    const suffix = Buffer.from(name.slice(shared), 'utf8')
+    namesW.varint(shared); namesW.varint(suffix.length); namesW.bytes(suffix)
+    // inline postings (delta-encoded sorted cityIdx)
+    const ids = [...nameMap.get(name)].sort((a, b) => a - b)
+    namesW.varint(ids.length)
+    let p = 0
+    for (const id of ids) { namesW.varint(id - p); p = id }
+    prev = name
+  }
+
+  // ---- assemble blob ----
+  const w = new Writer()
+  w.bytes(Buffer.from('SGZ1'))
+  w.u32(cities.length); w.u32(names.length); w.u32(numBlocks); w.u16(K)
+  w.u16(countryList.length); w.u16(admin1List.length)
+  // side arrays
+  for (const c of cities) w.bytes(Buffer.from(c.gh5, 'ascii'))             // N*5
+  for (const c of cities) w.u16(countryIdx.get(c.cc))                       // N*u16
+  for (const c of cities) w.u16(admin1Idx.get(c.admin1))                    // N*u16
+  for (const c of cities) w.str(c.name)                                     // display names
+  for (const cc of countryList) w.bytes(Buffer.from((cc + '  ').slice(0, 2), 'ascii'))
+  for (const a of admin1List) w.str(admin1Name[a] || '')
+  // names section
+  for (const off of blockOffsets) w.u32(off)
+  w.bytes(Uint8Array.from(namesW.b))
+
+  const raw = Buffer.from(w.b)
+  const gz = zlib.gzipSync(raw, { level: 9 })
+  const hash = crypto.createHash('sha256').update(gz).digest('hex').slice(0, 12)
+
+  const outDir = path.resolve('src/public/gaz')
+  if (fs.existsSync(outDir)) fs.rmSync(outDir, { recursive: true, force: true })
+  fs.mkdirSync(outDir, { recursive: true })
+  const blobName = `world.${hash}.bin.gz`
+  fs.writeFileSync(path.join(outDir, blobName), gz)
+  fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({ blob: blobName, cities: cities.length, names: names.length }))
+
+  console.log(`\nDone. raw ${(raw.length / 1048576).toFixed(2)}MB -> gz ${(gz.length / 1048576).toFixed(2)}MB`)
+  console.log(`  ${blobName}`)
 }
 
-async function build() {
-  await downloadGeoNames()
-  const allPlaces = parseGeoNames()
-
-  const bin3 = {}
-  for (const p of allPlaces) {
-    const p3 = p.geohash6.slice(0, 3)
-    if (!bin3[p3]) bin3[p3] = []
-    bin3[p3].push(p)
-  }
-
-  const finalTiles = {} // prefix -> places[]
-
-  for (const [p3, places] of Object.entries(bin3)) {
-    if (places.length <= 1000) {
-      finalTiles[p3] = places
-    } else {
-      console.log(`Tile ${p3} has ${places.length} places, splitting into 4-char prefixes...`)
-      const bin4 = {}
-      for (const p of places) {
-        const p4 = p.geohash6.slice(0, 4)
-        if (!bin4[p4]) bin4[p4] = []
-        bin4[p4].push(p)
-      }
-      for (const [p4, p4Places] of Object.entries(bin4)) {
-        finalTiles[p4] = p4Places
-      }
-    }
-  }
-
-  const manifest = {}
-  const publicGazDir = path.resolve('src/public/gaz')
-  if (fs.existsSync(publicGazDir)) {
-    fs.rmSync(publicGazDir, { recursive: true, force: true })
-  }
-  fs.mkdirSync(publicGazDir, { recursive: true })
-
-  console.log(`Writing tiles and creating manifest...`)
-  for (const [prefix, places] of Object.entries(finalTiles)) {
-    const json = JSON.stringify(places)
-    const hash = bytesToHex(sha256(new TextEncoder().encode(json)))
-    const gzip = zlib.gzipSync(Buffer.from(json))
-
-    const tileDir = path.join(publicGazDir, prefix)
-    fs.mkdirSync(tileDir, { recursive: true })
-    fs.writeFileSync(path.join(tileDir, 'v1.json.gz'), gzip)
-
-    manifest[prefix] = {
-      version: 1,
-      hash,
-      size: gzip.length,
-      prefixLen: prefix.length
-    }
-  }
-
-  const manifestEvent = finalizeEvent({
-    kind: 30405,
-    created_at: Math.floor(Date.now() / 1000),
-    tags: [],
-    content: JSON.stringify(manifest)
-  }, sk)
-
-  fs.writeFileSync(
-    path.join(publicGazDir, 'manifest.json'),
-    JSON.stringify(manifestEvent, null, 2)
-  )
-
-  console.log(`Build complete! Wrote ${Object.keys(finalTiles).length} tiles to ${publicGazDir}`)
-}
-
-build().catch(err => {
-  console.error('Build failed:', err)
-  process.exit(1)
-})
+build().catch(e => { console.error(e); process.exit(1) })

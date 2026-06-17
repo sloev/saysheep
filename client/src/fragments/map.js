@@ -1,11 +1,11 @@
 import van from 'vanjs-core'
 import L from 'leaflet'
-import { store, onMapBoundsChange, currentItemId, registerOnPositionUpdate, addEvent } from '../store.js'
+import { store, onMapBoundsChange, currentItemId, registerOnPositionUpdate } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
 import { searchPlaces } from '../lib/gazetteer.js'
-import { subscribeArea } from '../lib/sync.js'
+import { encodeGeohash } from '../lib/geo.js'
 
 import 'leaflet/dist/leaflet.css'
 
@@ -140,55 +140,66 @@ export const flyToMap = (lng, lat, zoom = 14) => {
 export const MapSearchBox = () => {
   const query = van.state('')
   const searching = van.state(false)
+  const results = van.state([])
+
+  // Geohash5 of the user's location (or map center) for proximity ranking.
+  const userGh5 = () => {
+    if (!store.position.loading && store.position.lat != null && !store.position.isFallback) {
+      return encodeGeohash(store.position.lat, store.position.lng, 5)
+    }
+    if (_map) { const c = _map.getCenter(); return encodeGeohash(c.lat, c.lng, 5) }
+    return ''
+  }
 
   const handleSearch = async () => {
     const q = query.val.trim()
-    if (!q || !_map) return
+    if (!q) { results.val = []; return }
     searching.val = true
     try {
-      const bounds = _map.getBounds()
-      const sw = { lat: bounds.getSouthWest().lat, lng: bounds.getSouthWest().lng }
-      const ne = { lat: bounds.getNorthEast().lat, lng: bounds.getNorthEast().lng }
-      const results = await searchPlaces(q, { sw, ne })
-      if (results && results.length > 0) {
-        const place = results[0]
-        const targetLat = place.lat
-        const targetLng = place.lng
-        store.position.lat = targetLat
-        store.position.lng = targetLng
-        store.position.loading = false
-        if (place.geohash6) {
-          const unsub = await subscribeArea(place.geohash6, (event) => addEvent(event))
-          store.areaUnsubs[place.geohash6] = unsub
-        }
-        flyToMap(targetLng, targetLat, 14)
-      } else {
-        alert(t('map.location_not_found'))
-      }
+      results.val = await searchPlaces(q, userGh5())
     } catch (err) {
       console.error(err)
+      results.val = []
       alert(t('map.search_unavailable'))
     } finally {
       searching.val = false
     }
   }
 
-  return van.tags.div({ class: 'map-searchbox' },
-    van.tags.input({
-      class: 'map-search-input',
-      type: 'text',
-      placeholder: () => t('map.search_placeholder'),
-      value: query,
-      oninput: (e) => query.val = e.target.value,
-      onkeydown: (e) => {
-        if (e.key === 'Enter') handleSearch()
-      }
-    }),
-    van.tags.button({
-      class: 'btn btn-primary map-search-btn',
-      onclick: handleSearch,
-      disabled: searching
-    }, () => searching.val ? '⏳' : 'Go')
+  const pick = (place) => {
+    results.val = []
+    query.val = place.name
+    flyToMap(place.lng, place.lat, 13)
+  }
+
+  return van.tags.div({ class: 'map-searchbox-wrap' },
+    van.tags.div({ class: 'map-searchbox' },
+      van.tags.input({
+        class: 'map-search-input',
+        type: 'text',
+        placeholder: () => t('map.search_placeholder'),
+        value: query,
+        oninput: (e) => { query.val = e.target.value },
+        onkeydown: (e) => { if (e.key === 'Enter') handleSearch() }
+      }),
+      van.tags.button({
+        class: 'btn btn-primary map-search-btn',
+        onclick: handleSearch,
+        disabled: searching
+      }, () => searching.val ? '⏳' : 'Go')
+    ),
+    () => {
+      const list = results.val
+      if (!list.length) return van.tags.div()
+      return van.tags.div({ class: 'map-search-results' },
+        ...list.map(place =>
+          van.tags.div({ class: 'map-search-result', onclick: () => pick(place) },
+            van.tags.span({ class: 'msr-name' }, place.name),
+            place.label ? van.tags.span({ class: 'msr-label' }, place.label) : null
+          )
+        )
+      )
+    }
   )
 }
 

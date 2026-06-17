@@ -1,0 +1,12 @@
+
+# GeoNames build inputs (downloaded by build-gazetteer, not committed)
+cities1000.zip
+cities1000.txt
+cities15000.zip
+cities15000.txt
+alternateNamesV2.zip
+alternateNamesV2.txt
+iso-languagecodes.txt
+countryInfo.txt
+readme.txt
+admin1CodesASCII.txt
