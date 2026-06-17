@@ -5,7 +5,7 @@ import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
 import { searchPlaces } from '../lib/gazetteer.js'
-import { encodeGeohash, haversineDistance } from '../lib/geo.js'
+import { encodeGeohash, haversineDistance, Geohash } from '../lib/geo.js'
 import { formatDistance } from '../helpers/format.js'
 
 import 'leaflet/dist/leaflet.css'
@@ -168,8 +168,20 @@ export const MapSearchBox = () => {
     searching.val = true
     try {
       const o = origin()
-      const gh5 = o ? encodeGeohash(o.lat, o.lng, 5) : ''
-      const places = await searchPlaces(q, gh5)
+      const center = _map ? _map.getCenter() : null
+      const ref = o || (center ? { lat: center.lat, lng: center.lng } : null)
+      const gh5 = ref ? encodeGeohash(ref.lat, ref.lng, 5) : ''
+      // Load village buckets around the user and the current map view (plus
+      // their neighbours) so nearby small places are searchable.
+      const areas = new Set()
+      const addArea = (lat, lng) => {
+        const g = encodeGeohash(lat, lng, 3)
+        areas.add(g)
+        for (const n of Geohash.neighbors(g)) areas.add(n)
+      }
+      if (o) addArea(o.lat, o.lng)
+      if (center) addArea(center.lat, center.lng)
+      const places = await searchPlaces(q, gh5, [...areas])
       results.val = o
         ? places.map(pl => ({
             ...pl,

@@ -117,8 +117,12 @@ export const searchGazetteer = (st, query, userGh5 = '', limit = 40) => {
 }
 
 // ---- browser loader (singleton) ----
-let _state = null
+let _state = null          // global cities blob
 let _loading = null
+let _ver = 'v1'            // village bucket directory
+let _bucketSet = null      // Set of geohash3 codes that actually have a bucket
+const _buckets = new Map() // gh3 -> parsed state | null
+const _bucketLoading = new Map()
 
 const getAssetUrl = (rel) => {
   let base = ''
@@ -149,6 +153,12 @@ export const ensureGazetteer = async () => {
   _loading = (async () => {
     try {
       const idx = await (await fetch(getAssetUrl('gaz/index.json'), { cache: 'no-cache' })).json()
+      _ver = idx.villageVersion || 'v1'
+      // idx.buckets is a flat concatenation of 3-char geohash codes that have a
+      // village bucket; knowing this up front lets us skip 404s for empty areas.
+      _bucketSet = new Set()
+      const bs = idx.buckets || ''
+      for (let i = 0; i + 3 <= bs.length; i += 3) _bucketSet.add(bs.slice(i, i + 3))
       const res = await fetch(getAssetUrl('gaz/' + idx.blob)) // immutable: long-cacheable
       if (!res.ok) throw new Error(`gazetteer blob ${res.status}`)
       _state = parseBlob(await loadBytes(res))
@@ -159,6 +169,29 @@ export const ensureGazetteer = async () => {
     }
   })()
   return _loading
+}
+
+// Lazy-load a village bucket (pop<1000 places) for a geohash3 area. Returns null
+// for areas with no bucket (no fetch attempted) or on error.
+export const ensureBucket = async (gh3) => {
+  if (!gh3 || !_bucketSet || !_bucketSet.has(gh3)) return null
+  if (_buckets.has(gh3)) return _buckets.get(gh3)
+  if (_bucketLoading.has(gh3)) return _bucketLoading.get(gh3)
+  const pr = (async () => {
+    try {
+      const res = await fetch(getAssetUrl(`gaz/${_ver}/${gh3}.bin.gz`))
+      const st = res.ok ? parseBlob(await loadBytes(res)) : null
+      _buckets.set(gh3, st)
+      return st
+    } catch {
+      _buckets.set(gh3, null)
+      return null
+    } finally {
+      _bucketLoading.delete(gh3)
+    }
+  })()
+  _bucketLoading.set(gh3, pr)
+  return pr
 }
 
 // Decode a geohash5 to an approximate lat/lng centroid (ngeohash-free, tiny).
@@ -178,7 +211,22 @@ export const geohashToLatLng = (gh) => {
 
 // High-level helper used by the search box: returns proximity-ordered places
 // with lat/lng resolved from geohash5.
-export const searchPlaces = async (query, userGh5 = '') => {
+// Search the global cities blob merged with any village buckets for the given
+// geohash3 areas (loaded on demand). Results are deduped by name+location and
+// ordered by proximity to userGh5.
+export const searchPlaces = async (query, userGh5 = '', gh3List = []) => {
   const st = await ensureGazetteer()
-  return searchGazetteer(st, query, userGh5).map(r => ({ ...r, ...geohashToLatLng(r.gh5) }))
+  const buckets = (await Promise.all([...new Set(gh3List)].map(ensureBucket))).filter(Boolean)
+  const all = []
+  for (const s of [st, ...buckets]) for (const r of searchGazetteer(s, query, userGh5, 60)) all.push(r)
+  const best = new Map()
+  for (const r of all) {
+    const k = r.name + '|' + r.gh5
+    const e = best.get(k)
+    if (!e || r.score > e.score) best.set(k, r)
+  }
+  return [...best.values()]
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .slice(0, 40)
+    .map(r => ({ ...r, ...geohashToLatLng(r.gh5) }))
 }
