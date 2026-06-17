@@ -62,19 +62,21 @@ export const ItemPage = () => {
     if (!ev) return
     const hTag = ev.tags.find(t => t[0] === 'h')?.[1]
     const dTag = ev.tags.find(t => t[0] === 'd')?.[1] || ''
-    let code = ''
-    if (hTag) {
-      const entered = prompt(t('item.take.prompt'))
-      if (!entered) return
-      const normalized = normalizeVerificationCode(entered)
-      const hCheck = await computeReceiptHash(normalized, dTag, ev.pubkey)
-      if (hCheck !== hTag) {
-        alert(t('item.take.invalid'))
-        return
-      }
-      code = normalized
+    // A valid pickup code is mandatory. An item without an h commitment cannot
+    // be verified, so it must not be markable as taken (legacy/unverifiable).
+    if (!hTag) {
+      alert(t('item.take.unverifiable'))
+      return
     }
-    await markTaken(ev, code)
+    const entered = prompt(t('item.take.prompt'))
+    if (!entered) return
+    const normalized = normalizeVerificationCode(entered)
+    const hCheck = await computeReceiptHash(normalized, dTag, ev.pubkey)
+    if (hCheck !== hTag) {
+      alert(t('item.take.invalid'))
+      return
+    }
+    await markTaken(ev, normalized)
   }
 
   const handleDelete = async () => {

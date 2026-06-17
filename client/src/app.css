@@ -1009,8 +1009,10 @@ select.form-select {
 }
 .map-search-result:last-child { border-bottom: none; }
 .map-search-result:hover { background: var(--bg); }
+.msr-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .msr-name { font-weight: 700; }
-.msr-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.msr-label { font-size: 12px; color: var(--muted); }
+.msr-dist { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; margin-left: 8px; }
 .map-search-input {
   flex: 1;
   border: none;

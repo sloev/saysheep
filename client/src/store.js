@@ -221,18 +221,16 @@ export const addEvent = (event) => {
       if (target) {
         const hTag = target.tags.find(t => t[0] === 'h')?.[1]
         const dTag = target.tags.find(t => t[0] === 'd')?.[1] || ''
-        if (hTag) {
-          if (code) {
-            computeReceiptHash(code, dTag, target.pubkey).then(hCheck => {
-              if (hCheck === hTag) {
-                target.takenLocally = true
-                queueStoreItemsUpdate()
-              }
-            })
-          }
-        } else {
-          target.takenLocally = true
-          queueStoreItemsUpdate()
+        // Only a taker receipt that verifies against the item's pickup-hash (h)
+        // may flip it to taken. An item without an h tag cannot be claimed by a
+        // third party — this prevents unverified/griefing takes.
+        if (hTag && code) {
+          computeReceiptHash(code, dTag, target.pubkey).then(hCheck => {
+            if (hCheck === hTag) {
+              target.takenLocally = true
+              queueStoreItemsUpdate()
+            }
+          })
         }
       }
       store.items[event.id] = event
@@ -293,18 +291,15 @@ export const addEvent = (event) => {
       const code = claimant.tags.find(t => t[0] === 'c')?.[1] || ''
       const hTag = event.tags.find(t => t[0] === 'h')?.[1]
       const dTag = event.tags.find(t => t[0] === 'd')?.[1] || ''
-      if (hTag) {
-        if (code) {
-          computeReceiptHash(code, dTag, event.pubkey).then(hCheck => {
-            if (hCheck === hTag) {
-              event.takenLocally = true
-              queueStoreItemsUpdate()
-            }
-          })
-        }
-      } else {
-        event.takenLocally = true
-        queueStoreItemsUpdate()
+      // Same rule as above: a taker receipt only counts if it verifies against
+      // the item's h commitment; no h means it can't be third-party-claimed.
+      if (hTag && code) {
+        computeReceiptHash(code, dTag, event.pubkey).then(hCheck => {
+          if (hCheck === hTag) {
+            event.takenLocally = true
+            queueStoreItemsUpdate()
+          }
+        })
       }
     }
   }

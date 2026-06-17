@@ -162,5 +162,7 @@
   "report.illegal_notice": "このコンテンツが違法であると思われる場合は、国の通報窓口または適切な機関に直接報告してください。デンマークでは、politi.dkで報告を送信できます。",
   "settings.muted": "ミュート済みのユーザー",
   "settings.muted.empty": "ミュート済みのユーザーはいません",
-  "settings.muted.unmute": "ミュート解除"
+  "settings.muted.unmute": "ミュート解除",
+  "item.take.unverifiable": "この出品は受け取れません（ピックアップ確認コードがありません）。",
+  "new.need_pickup_code": "ピックアップコードを準備中です。少し待って再試行してください。"
 }

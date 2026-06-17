@@ -5,7 +5,8 @@ import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
 import { searchPlaces } from '../lib/gazetteer.js'
-import { encodeGeohash } from '../lib/geo.js'
+import { encodeGeohash, haversineDistance } from '../lib/geo.js'
+import { formatDistance } from '../helpers/format.js'
 
 import 'leaflet/dist/leaflet.css'
 
@@ -142,13 +143,23 @@ export const MapSearchBox = () => {
   const searching = van.state(false)
   const results = van.state([])
 
-  // Geohash5 of the user's location (or map center) for proximity ranking.
-  const userGh5 = () => {
+  // The user's location (or map center) used both for proximity ranking and for
+  // the distance/direction shown on each result.
+  const origin = () => {
     if (!store.position.loading && store.position.lat != null && !store.position.isFallback) {
-      return encodeGeohash(store.position.lat, store.position.lng, 5)
+      return { lat: store.position.lat, lng: store.position.lng }
     }
-    if (_map) { const c = _map.getCenter(); return encodeGeohash(c.lat, c.lng, 5) }
-    return ''
+    if (_map) { const c = _map.getCenter(); return { lat: c.lat, lng: c.lng } }
+    return null
+  }
+
+  const ARROWS = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖'] // index 0 = north
+  const bearingArrow = (lat1, lng1, lat2, lng2) => {
+    const r = d => d * Math.PI / 180
+    const y = Math.sin(r(lng2 - lng1)) * Math.cos(r(lat2))
+    const x = Math.cos(r(lat1)) * Math.sin(r(lat2)) - Math.sin(r(lat1)) * Math.cos(r(lat2)) * Math.cos(r(lng2 - lng1))
+    const b = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360
+    return ARROWS[Math.round(b / 45) % 8]
   }
 
   const handleSearch = async () => {
@@ -156,7 +167,16 @@ export const MapSearchBox = () => {
     if (!q) { results.val = []; return }
     searching.val = true
     try {
-      results.val = await searchPlaces(q, userGh5())
+      const o = origin()
+      const gh5 = o ? encodeGeohash(o.lat, o.lng, 5) : ''
+      const places = await searchPlaces(q, gh5)
+      results.val = o
+        ? places.map(pl => ({
+            ...pl,
+            dist: formatDistance(haversineDistance(o.lat, o.lng, pl.lat, pl.lng)),
+            arrow: bearingArrow(o.lat, o.lng, pl.lat, pl.lng),
+          }))
+        : places
     } catch (err) {
       console.error(err)
       results.val = []
@@ -194,8 +214,11 @@ export const MapSearchBox = () => {
       return van.tags.div({ class: 'map-search-results' },
         ...list.map(place =>
           van.tags.div({ class: 'map-search-result', onclick: () => pick(place) },
-            van.tags.span({ class: 'msr-name' }, place.name),
-            place.label ? van.tags.span({ class: 'msr-label' }, place.label) : null
+            van.tags.div({ class: 'msr-text' },
+              van.tags.span({ class: 'msr-name' }, place.name),
+              place.label ? van.tags.span({ class: 'msr-label' }, place.label) : null
+            ),
+            place.dist ? van.tags.span({ class: 'msr-dist', title: `${place.arrow} ${place.dist}` }, place.arrow, ' ', place.dist) : null
           )
         )
       )

@@ -162,5 +162,7 @@
   "report.illegal_notice": "如果您认为此内容违法，请直接向国家举报热线或相关部门报告。在丹麦，您可以在 politi.dk 提交报告。",
   "settings.muted": "已屏蔽的用户",
   "settings.muted.empty": "没有已屏蔽的用户",
-  "settings.muted.unmute": "取消屏蔽"
+  "settings.muted.unmute": "取消屏蔽",
+  "item.take.unverifiable": "无法领取此物品——没有取件验证码。",
+  "new.need_pickup_code": "正在准备取件码——请稍后重试。"
 }

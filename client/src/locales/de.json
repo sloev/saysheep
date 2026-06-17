@@ -162,5 +162,7 @@
   "report.illegal_notice": "Wenn Sie glauben, dass dieser Inhalt illegal ist, melden Sie ihn bitte direkt der nationalen Meldestelle oder der zuständigen Behörde. In Dänemark können Sie Berichte unter politi.dk einreichen.",
   "settings.muted": "Stummgeschaltete Benutzer",
   "settings.muted.empty": "Keine stummgeschalteten Benutzer",
-  "settings.muted.unmute": "Stummschaltung aufheben"
+  "settings.muted.unmute": "Stummschaltung aufheben",
+  "item.take.unverifiable": "Dieser Eintrag kann nicht beansprucht werden — kein Abhol-Code vorhanden.",
+  "new.need_pickup_code": "Abhol-Code wird vorbereitet — bitte gleich erneut versuchen."
 }

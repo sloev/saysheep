@@ -162,5 +162,7 @@
   "report.illegal_notice": "Si cree que este contenido es ilegal, infórmelo directamente a la línea de denuncia nacional o a la autoridad correspondiente. En Dinamarca, puede enviar informes en politi.dk.",
   "settings.muted": "usuarios silenciados",
   "settings.muted.empty": "no hay usuarios silenciados",
-  "settings.muted.unmute": "desmutear"
+  "settings.muted.unmute": "desmutear",
+  "item.take.unverifiable": "Este artículo no se puede reclamar: no tiene código de verificación.",
+  "new.need_pickup_code": "Preparando tu código de recogida: inténtalo de nuevo en un segundo."
 }

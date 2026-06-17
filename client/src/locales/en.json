@@ -34,6 +34,7 @@
   "new.submit": "post it! 🐑",
   "new.waiting_gps": "⏳ waiting for GPS...",
   "new.need_tags": "add at least one tag",
+  "new.need_pickup_code": "Preparing your pickup code — try again in a second.",
   "new.need_photo": "add a photo",
   "settings.heading": "settings",
   "settings.language": "language",
@@ -165,6 +166,7 @@
   "settings.muted.unmute": "unmute",
   "item.take.prompt": "Enter the 12-digit Pickup Verification Code from the owner:",
   "item.take.invalid": "Invalid verification code! Please check the code and try again.",
+  "item.take.unverifiable": "This listing can't be claimed — it has no pickup verification code.",
   "new.pickup_code_alert": "Pickup Verification Code: {code}\n\nGive this 12-digit code to the taker when they pick up the item. They will enter it to mark the item as taken.",
   "new.location.unavailable": "GPS unavailable. Please check permissions or enable manual location."
 }

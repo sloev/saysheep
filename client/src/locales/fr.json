@@ -162,5 +162,7 @@
   "report.illegal_notice": "Si vous pensez que ce contenu est illégal, veuillez le signaler directement à la ligne de signalement nationale ou à l'autorité appropriée. Au Danemark, vous pouvez soumettre des rapports sur politi.dk.",
   "settings.muted": "utilisateurs masqués",
   "settings.muted.empty": "aucun utilisateur masqué",
-  "settings.muted.unmute": "réactiver"
+  "settings.muted.unmute": "réactiver",
+  "item.take.unverifiable": "Cet article ne peut pas être réclamé — aucun code de retrait.",
+  "new.need_pickup_code": "Préparation de votre code de retrait — réessayez dans un instant."
 }

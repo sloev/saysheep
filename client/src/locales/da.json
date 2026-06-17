@@ -162,5 +162,7 @@
   "report.illegal_notice": "Hvis du mener, at dette indhold er ulovligt, bedes du anmelde det direkte til den nationale tipline eller den relevante myndighed. I Danmark kan du indsende anmeldelser på politi.dk.",
   "settings.muted": "blokerede brugere",
   "settings.muted.empty": "ingen blokerede brugere",
-  "settings.muted.unmute": "fjern blokering"
+  "settings.muted.unmute": "fjern blokering",
+  "item.take.unverifiable": "Denne annonce kan ikke afhentes — den har ingen verifikationskode.",
+  "new.need_pickup_code": "Forbereder din afhentningskode — prøv igen om et øjeblik."
 }

@@ -198,13 +198,19 @@ export const NewItemPage = () => {
 
   const canSubmit = () => {
     const geo = getGeo()
-    return !submitting.val && tags.val.length > 0 && !!geo
+    // receiptHash (the pickup-code commitment) must be ready: every listing is
+    // published with an h tag so it can only be claimed with the right code.
+    return !submitting.val && tags.val.length > 0 && !!geo && !!receiptHash.val
   }
 
   const submit = async () => {
     const geo = getGeo()
     if (!geo || tags.val.length === 0) {
       error.val = tags.val.length === 0 ? t('new.need_tags') : t('error.no_gps')
+      return
+    }
+    if (!receiptHash.val) {
+      error.val = t('new.need_pickup_code')
       return
     }
     error.val = ''
