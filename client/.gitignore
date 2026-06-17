@@ -14,3 +14,6 @@ allCountries.zip
 allCountries.txt
 DK.zip
 DK.txt
+
+# Generated gazetteer (built in CI / via npm run build:gazetteer)
+src/public/gaz/

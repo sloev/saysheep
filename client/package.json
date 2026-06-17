@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite serve src",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:gazetteer": "node --max-old-space-size=4096 scripts/build-gazetteer.js"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",

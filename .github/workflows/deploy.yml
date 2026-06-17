@@ -48,6 +48,33 @@ jobs:
           name: browser-test-video
           path: test-artifacts/
 
+      # The gazetteer (cities blob + ~8k village buckets, ~82MB) is generated,
+      # not committed. Cache the built output keyed by the build script so normal
+      # deploys restore it instantly and only regenerate when the script changes.
+      - name: Restore prebuilt gazetteer
+        id: gaz-cache
+        uses: actions/cache@v4
+        with:
+          path: client/src/public/gaz
+          key: gazetteer-v1-${{ hashFiles('client/scripts/build-gazetteer.js') }}
+
+      - name: Cache GeoNames source data
+        if: steps.gaz-cache.outputs.cache-hit != 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            client/cities1000.txt
+            client/alternateNamesV2.txt
+            client/allCountries.txt
+            client/countryInfo.txt
+            client/admin1CodesASCII.txt
+          key: geonames-data-v1
+
+      - name: Build gazetteer (on cache miss)
+        if: steps.gaz-cache.outputs.cache-hit != 'true'
+        run: npm run build:gazetteer
+        working-directory: client
+
       - name: Build client
         run: npm run build
         env:
