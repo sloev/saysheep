@@ -45,6 +45,7 @@ export const LocationPicker = ({ initialLat, initialLng, onPick }) => {
     iconAnchor: [14, 28],
   })
 
+  let userMoved = hasChosen // a passed-in pin counts as already chosen
   const place = (latlng) => {
     if (marker) marker.setLatLng(latlng)
     else marker = L.marker(latlng, { icon: pinIcon }).addTo(map)
@@ -61,11 +62,20 @@ export const LocationPicker = ({ initialLat, initialLng, onPick }) => {
     // The container is sized by CSS after attach; nudge Leaflet to remeasure.
     setTimeout(() => { if (map) map.invalidateSize() }, 100)
 
-    // Seed a pin at the chosen/known location so manual mode starts usable; an
-    // unknown (fallback) location stays empty until the user actually clicks.
+    // Seed a pin at the chosen/known location so it starts usable.
     if (hasChosen || hasRealGps) place(center)
 
-    map.on('click', (e) => place(e.latlng))
+    // Tapping the map moves the pin (and stops GPS-following).
+    map.on('click', (e) => { userMoved = true; place(e.latlng) })
+
+    // Follow real GPS until the user moves the pin themselves — so the map
+    // defaults to the current location even when it resolves after mount.
+    van.derive(() => {
+      const { loading, lat, lng, isFallback } = store.position
+      if (!map || userMoved || loading || lat == null || isFallback) return
+      map.setView([lat, lng], map.getZoom())
+      place({ lat, lng })
+    })
   }
 
   // Initialise once attached to the DOM.

@@ -84,7 +84,7 @@
   "new.location.auto": "📍 使用我的位置",
   "new.location.heading": "位置",
   "new.location.manual": "手动设置位置",
-  "new.location.tap_map": "点击地图设置位置",
+  "new.location.tap_map": "点按地图移动图钉以设置位置",
   "new.location.unavailable": "GPS不可用。请检查权限或启用手动定位。",
   "new.need_photo": "请添加照片",
   "new.need_pickup_code": "正在准备取件码——请稍后重试。",

@@ -84,7 +84,7 @@
   "new.location.auto": "📍 utiliser ma position",
   "new.location.heading": "emplacement",
   "new.location.manual": "définir la position manuellement",
-  "new.location.tap_map": "Touchez la carte pour définir l'emplacement",
+  "new.location.tap_map": "Touchez la carte pour déplacer le repère et définir le lieu",
   "new.location.unavailable": "GPS indisponible. Vérifiez les autorisations ou activez la localisation manuelle.",
   "new.need_photo": "ajoutez une photo",
   "new.need_pickup_code": "Préparation de votre code de retrait — réessayez dans un instant.",

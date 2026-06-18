@@ -84,7 +84,7 @@
   "new.location.auto": "📍 usando mi ubicación",
   "new.location.heading": "ubicación",
   "new.location.manual": "fijar ubicación manualmente",
-  "new.location.tap_map": "Toca el mapa para fijar la ubicación",
+  "new.location.tap_map": "Toca el mapa para mover el pin y fijar la ubicación",
   "new.location.unavailable": "GPS no disponible. Comprueba los permisos o activa la ubicación manual.",
   "new.need_photo": "añade una foto",
   "new.need_pickup_code": "Preparando tu código de recogida: inténtalo de nuevo en un segundo.",

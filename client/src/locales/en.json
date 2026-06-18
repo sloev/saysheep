@@ -84,7 +84,7 @@
   "new.location.auto": "📍 using my location",
   "new.location.heading": "location",
   "new.location.manual": "set location manually",
-  "new.location.tap_map": "Tap the map to set the location",
+  "new.location.tap_map": "Tap the map to move the pin and set the location",
   "new.location.unavailable": "GPS unavailable. Please check permissions or enable manual location.",
   "new.need_photo": "add a photo",
   "new.need_pickup_code": "Preparing your pickup code — try again in a second.",

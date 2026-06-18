@@ -84,7 +84,7 @@
   "new.location.auto": "📍 現在地を使用",
   "new.location.heading": "場所",
   "new.location.manual": "手動で場所を設定",
-  "new.location.tap_map": "地図をタップして場所を設定",
+  "new.location.tap_map": "地図をタップしてピンを動かし、場所を設定します",
   "new.location.unavailable": "GPSを利用できません。権限を確認するか、手動で位置を設定してください。",
   "new.need_photo": "写真を追加してください",
   "new.need_pickup_code": "ピックアップコードを準備中です。少し待って再試行してください。",

@@ -20,7 +20,6 @@ export const NewItemPage = () => {
   const photoData = van.state(null)
   const description = van.state(_sharedDesc)
   const tags = van.state([])
-  const manualLocation = van.state(false)
   const customLat = van.state('')
   const customLng = van.state('')
   const customExpiry = van.state(7)
@@ -163,7 +162,6 @@ export const NewItemPage = () => {
     photoData.val = null
     description.val = ''
     tags.val = []
-    manualLocation.val = false
     customLat.val = ''
     customLng.val = ''
     customExpiry.val = 7
@@ -185,13 +183,13 @@ export const NewItemPage = () => {
     }
   })
 
+  // The map pin is authoritative — it seeds at the current GPS location and the
+  // user can drag/tap it elsewhere to set the location manually. Fall back to raw
+  // GPS only if the pin hasn't been placed yet.
   const getGeo = () => {
-    if (manualLocation.val) {
-      const lat = parseFloat(customLat.val)
-      const lng = parseFloat(customLng.val)
-      if (isNaN(lat) || isNaN(lng)) return null
-      return { lat, lng }
-    }
+    const lat = parseFloat(customLat.val)
+    const lng = parseFloat(customLng.val)
+    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng }
     if (store.position.loading || !store.position.lat || store.position.isFallback) return null
     return { lat: store.position.lat, lng: store.position.lng }
   }
@@ -283,35 +281,21 @@ export const NewItemPage = () => {
           oninput: e => description.val = e.target.value }, description)
       ),
 
-      // Location
+      // Location — always a map, defaulted to the current location, with a
+      // movable pin. Built once (not inside a reactive toggle) so it never
+      // flickers, and a small hint tells the user they can move it.
       div(
         div({ class: 'form-label' }, () => t('new.location.heading')),
-        div({ class: 'toggle-row' },
-          input({ type: 'checkbox', id: 'manual-loc',
-            onchange: e => manualLocation.val = e.target.checked }),
-          label({ for: 'manual-loc' }, () => t('new.location.manual'))
-        ),
-        () => !manualLocation.val
-          ? div({ style: 'font-size:13px;color:var(--muted);margin-top:6px' },
-              store.position.loading
-                ? t('new.waiting_gps')
-                : (store.position.isFallback
-                    ? div({ style: 'color:var(--pink);font-weight:700' }, () => t('new.location.unavailable'))
-                    : () => t('new.location.auto')
-                  )
-            )
-          : div({ style: 'margin-top:6px' },
-              div({ style: 'font-size:13px;color:var(--muted);margin-bottom:6px' }, () => t('new.location.tap_map')),
-              LocationPicker({
-                initialLat: customLat.val ? parseFloat(customLat.val) : null,
-                initialLng: customLng.val ? parseFloat(customLng.val) : null,
-                onPick: (lat, lng) => { customLat.val = String(lat); customLng.val = String(lng) },
-              }),
-              () => customLat.val && customLng.val
-                ? div({ style: 'font-size:13px;font-weight:700;margin-top:6px' },
-                    `📍 ${parseFloat(customLat.val).toFixed(5)}, ${parseFloat(customLng.val).toFixed(5)}`)
-                : div(),
-            )
+        div({ style: 'font-size:13px;color:var(--muted);margin-bottom:6px' }, () => t('new.location.tap_map')),
+        LocationPicker({
+          initialLat: customLat.val ? parseFloat(customLat.val) : null,
+          initialLng: customLng.val ? parseFloat(customLng.val) : null,
+          onPick: (lat, lng) => { customLat.val = String(lat); customLng.val = String(lng) },
+        }),
+        () => (customLat.val && customLng.val)
+          ? div({ style: 'font-size:13px;font-weight:700;margin-top:6px' },
+              `📍 ${parseFloat(customLat.val).toFixed(5)}, ${parseFloat(customLng.val).toFixed(5)}`)
+          : ''
       ),
 
       // Available until

@@ -84,7 +84,7 @@
   "new.location.auto": "📍 Meinen Standort verwenden",
   "new.location.heading": "Standort",
   "new.location.manual": "Standort manuell festlegen",
-  "new.location.tap_map": "Tippe auf die Karte, um den Ort festzulegen",
+  "new.location.tap_map": "Tippe auf die Karte, um den Pin zu verschieben und den Standort festzulegen",
   "new.location.unavailable": "GPS nicht verfügbar. Bitte prüfe die Berechtigungen oder aktiviere den manuellen Standort.",
   "new.need_photo": "Füge ein Foto hinzu",
   "new.need_pickup_code": "Abhol-Code wird vorbereitet — bitte gleich erneut versuchen.",

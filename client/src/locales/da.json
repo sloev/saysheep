@@ -84,7 +84,7 @@
   "new.location.auto": "📍 bruger min position",
   "new.location.heading": "placering",
   "new.location.manual": "sæt position manuelt",
-  "new.location.tap_map": "Tryk på kortet for at vælge placering",
+  "new.location.tap_map": "Tryk på kortet for at flytte nålen og angive placeringen",
   "new.location.unavailable": "GPS utilgængelig. Tjek tilladelser eller aktivér manuel placering.",
   "new.need_photo": "tilføj et foto",
   "new.need_pickup_code": "Forbereder din afhentningskode — prøv igen om et øjeblik.",
