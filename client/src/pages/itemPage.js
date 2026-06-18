@@ -1,17 +1,32 @@
 import van from 'vanjs-core'
 import { store, currentItemId, mutePubkey } from '../store.js'
 import { subscribeChat, sendChatMessage, markTaken, deleteItem, reportItem } from '../lib/sync.js'
-import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash, normalizeVerificationCode } from '../lib/nostr.js'
+import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, getItemId, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash, normalizeVerificationCode } from '../lib/nostr.js'
 import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
-import { cone } from '../router.js'
+import { cone, itemUrl } from '../router.js'
 import timeImg from '../images/time.png'
 import locationImg from '../images/location.png'
 const { div, img, button, input, span, h1, p, select, option } = van.tags
 
-export const ItemPage = () => {
+export const ItemPage = (params) => {
+  // The URL carries the stable d-tag (or, as a fallback, the raw event id).
+  // Resolve it to the in-store event so shared/deep links open the right item,
+  // even if the event only arrives from the network after navigation.
+  const routeId = params?.id
+  if (routeId) {
+    van.derive(() => {
+      const cur = currentItemId.val && store.items[currentItemId.val]
+      if (cur && getItemId(cur) === routeId) return
+      const match = Object.values(store.items).find(
+        e => e.kind === 30402 && (getItemId(e) === routeId || e.id === routeId)
+      )
+      if (match && currentItemId.val !== match.id) currentItemId.val = match.id
+    })
+  }
+
   const messages = van.state([])
   const chatInput = van.state('')
   const sending = van.state(false)
@@ -56,6 +71,48 @@ export const ItemPage = () => {
     }
     sending.val = false
   }
+
+  // Built ONCE and mounted as a stable sibling of the (reactive) item detail.
+  // Keeping it out of that big derive means GPS updates and event-store churn
+  // never recreate the chat input — which was dismissing the mobile keyboard.
+  const chatSection = div({ class: 'chat-section' },
+    div({ class: 'chat-header' }, () => t('item.chat')),
+    div({ class: 'chat-messages', id: 'chat-scroll' },
+      () => {
+        const msgs = messages.val
+        if (!msgs.length) return div({ style: 'color:var(--muted);font-size:13px;padding:16px' }, '...')
+        return div({},
+          ...msgs.map(msg => {
+            const mine = msg.pubkey === store.identity.pubkey
+            const isClaim = msg.kind === 30403
+            return div({ class: `chat-msg ${mine ? 'mine' : ''} ${isClaim ? 'claim-msg' : ''}` },
+              isClaim
+                ? span({ style: 'font-weight: 800; display: flex; align-items: center; gap: 4px;' }, '🐺 ', t('item.taken'))
+                : span(msg.content),
+              div({ class: 'chat-msg-meta' },
+                shortPubkey(msg.pubkey), ' · ', formatRelative(msg.created_at)
+              )
+            )
+          })
+        )
+      }
+    ),
+    div({ class: 'chat-input-row' },
+      input({
+        class: 'chat-input',
+        type: 'text',
+        placeholder: () => t('item.chat.placeholder'),
+        value: chatInput,
+        oninput: e => { chatInput.val = e.target.value },
+        onkeydown: e => { if (e.key === 'Enter') sendMsg() },
+      }),
+      button({
+        class: 'btn btn-sm btn-primary',
+        onclick: sendMsg,
+        disabled: sending,
+      }, () => t('item.chat.send'))
+    )
+  )
 
   const handleTake = async () => {
     const ev = event()
@@ -103,10 +160,13 @@ export const ItemPage = () => {
     if (!ev) return
     const title = getItemTitle(ev) || t('item.default_title')
     const summary = getItemSummary(ev)
+    const cats = getItemTags(ev)
     const geo = getItemGeo(ev)
-    const url = window.location.href
+    // Canonical deep link to this listing (stable d-tag), not just the current href.
+    const url = itemUrl(getItemId(ev))
 
     const parts = [t('item.share_text', { title })]
+    if (cats.length) parts.push('🏷️ ' + cats.map(translateTag).join(', '))
     if (summary) parts.push(summary)
     if (geo) parts.push(`📍 https://www.openstreetmap.org/?mlat=${geo.lat}&mlon=${geo.lng}#map=16/${geo.lat}/${geo.lng}`)
     parts.push(url)
@@ -211,49 +271,11 @@ export const ItemPage = () => {
           div({ style: 'font-size:11px;color:var(--muted);margin-top:8px' },
             t('item.by'), ' ', shortPubkey(ev.pubkey)
           ),
-        ),
-
-        // Chat
-        div({ class: 'chat-section' },
-          div({ class: 'chat-header' }, t('item.chat')),
-          div({ class: 'chat-messages', id: 'chat-scroll' },
-            () => {
-              const msgs = messages.val
-              if (!msgs.length) return div({ style: 'color:var(--muted);font-size:13px;padding:16px' }, '...')
-              return div({},
-                ...msgs.map(msg => {
-                  const mine = msg.pubkey === store.identity.pubkey
-                  const isClaim = msg.kind === 30403
-                  return div({ class: `chat-msg ${mine ? 'mine' : ''} ${isClaim ? 'claim-msg' : ''}` },
-                    isClaim
-                      ? span({ style: 'font-weight: 800; display: flex; align-items: center; gap: 4px;' }, '🐑 ', t('item.taken'))
-                      : span(msg.content),
-                    div({ class: 'chat-msg-meta' },
-                      shortPubkey(msg.pubkey), ' · ', formatRelative(msg.created_at)
-                    )
-                  )
-                })
-              )
-            }
-          ),
-          div({ class: 'chat-input-row' },
-            input({
-              class: 'chat-input',
-              type: 'text',
-              placeholder: () => t('item.chat.placeholder'),
-              value: chatInput,
-              oninput: e => { chatInput.val = e.target.value },
-              onkeydown: e => { if (e.key === 'Enter') sendMsg() },
-            }),
-            button({
-              class: 'btn btn-sm btn-primary',
-              onclick: sendMsg,
-              disabled: sending,
-            }, t('item.chat.send'))
-          )
         )
       )
     },
+    // Chat lives here as a stable sibling — never recreated by the derive above.
+    chatSection,
     () => {
       if (!showReportModal.val) return div({ style: 'display: none' })
 

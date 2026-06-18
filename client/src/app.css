@@ -178,6 +178,16 @@ html, body {
   animation-play-state: paused;
 }
 
+.topbar-logo { cursor: pointer; }
+.marquee-slogan { white-space: nowrap; }
+.marquee-wolf {
+  height: 18px;
+  width: auto;
+  margin: 0 14px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
 @keyframes marquee-scroll {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
@@ -992,7 +1002,7 @@ select.form-select {
     text-transform: lowercase !important;
   }
   .desktop-sidebar-title::after {
-    content: ' 🐑' !important;
+    content: ' 🐺' !important;
   }
   .navbar {
     position: relative !important;

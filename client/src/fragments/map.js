@@ -1,8 +1,7 @@
 import van from 'vanjs-core'
 import L from 'leaflet'
-import { store, onMapBoundsChange, currentItemId, registerOnPositionUpdate } from '../store.js'
+import { store, onMapBoundsChange, registerOnPositionUpdate, openItem } from '../store.js'
 import { getItemGeo, isTaken, getItemTitle } from '../lib/nostr.js'
-import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
 import { searchPlaces } from '../lib/gazetteer.js'
 import { encodeGeohash, haversineDistance, Geohash } from '../lib/geo.js'
@@ -117,10 +116,7 @@ export const setupMap = (lng, lat) => {
       const marker = L.marker([geo.lat, geo.lng], { icon })
         .addTo(_map)
 
-      el.addEventListener('click', () => {
-        currentItemId.val = id
-        cone.navigate('item', {})
-      })
+      el.addEventListener('click', () => openItem(event))
 
       _markers.set(id, { marker, el })
     }

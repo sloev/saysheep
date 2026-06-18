@@ -128,6 +128,10 @@ const runTest = async () => {
     // Explicitly grant geolocation permission for this origin
     await context.grantPermissions(['geolocation'], { origin: 'http://localhost:5173' })
 
+    // Pin the UI language to English so dialog-text assertions are deterministic
+    // regardless of the test runner's geo-IP (the app auto-detects locale).
+    await context.addInitScript(() => localStorage.setItem('saysheep_lang', 'en'))
+
     const page = await context.newPage()
     
     // Log browser events

@@ -3,9 +3,8 @@ import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, is
 import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
-import { store, currentItemId } from '../store.js'
+import { store, openItem } from '../store.js'
 import { t } from '../lib/i18n.js'
-import { cone } from '../router.js'
 import timeImg from '../images/time.png'
 import locationImg from '../images/location.png'
 import speechImg from '../images/speech.png'
@@ -25,10 +24,7 @@ export const ListItem = (event) => {
     return haversineDistance(store.position.lat, store.position.lng, geo.lat, geo.lng)
   }
 
-  const onClick = () => {
-    currentItemId.val = event.id
-    cone.navigate('item', {})
-  }
+  const onClick = () => openItem(event)
 
   return div({ class: `item-card ${taken ? 'taken' : ''}`, onclick: onClick },
     div({ class: 'item-card-img' },

@@ -9,9 +9,26 @@ import { getSearchableTerms } from './lib/categories.js'
 import { getRelays } from './lib/relay.js'
 import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext, computeReceiptHash, getItemTitle } from './lib/nostr.js'
 import { notifyIfMatches, findAgentMatch } from './lib/notifications.js'
+import { getItemId } from './lib/nostr.js'
+import { cone } from './router.js'
 
 const savedItemId = typeof window !== 'undefined' ? localStorage.getItem('saysheep_current_item_id') : null
 export const currentItemId = van.state(savedItemId)
+
+// Open an item's detail page with a deep-linkable URL (/item/<d-tag>), so the
+// address bar and shared links identify the specific listing. The stable d-tag
+// is used so a link survives the owner editing/republishing the listing.
+export const openItem = (event) => {
+  if (!event) return
+  currentItemId.val = event.id
+  cone.navigate('item', { params: { id: getItemId(event) } })
+}
+export const openItemById = (id) => {
+  if (!id) return
+  const ev = store.items?.[id]
+  currentItemId.val = id
+  cone.navigate('item', { params: { id: ev ? getItemId(ev) : id } })
+}
 
 van.derive(() => {
   if (typeof window !== 'undefined') {
