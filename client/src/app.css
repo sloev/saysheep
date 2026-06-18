@@ -166,7 +166,7 @@ html, body {
 .marquee-content {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee-scroll 35s linear infinite;
+  animation: marquee-scroll 75s linear infinite;
   padding-left: 20px;
   font-size: 13px;
   font-weight: 700;
@@ -193,12 +193,14 @@ html, body {
   width: 100%;
   max-width: 600px;
   height: calc(var(--nav-h) + var(--safe-bottom));
-  padding: 0 16px var(--safe-bottom) 16px;
+  padding-bottom: var(--safe-bottom);
   background: var(--surface);
   border-top: var(--border);
-  display: flex;
+  /* Even 5-column layout so every item is evenly spaced and the centre FAB
+     sits in its own slot instead of floating absolutely over the others. */
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   align-items: center;
-  justify-content: space-between;
   z-index: var(--z-nav);
 }
 
@@ -206,8 +208,9 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 6px 12px;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 0;
   text-decoration: none;
   color: var(--muted);
   font-size: 10px;
@@ -219,7 +222,6 @@ html, body {
   cursor: pointer;
   border: none;
   background: none;
-  flex: 1;
   text-align: center;
 }
 .nav-link svg {
@@ -232,12 +234,9 @@ html, body {
 .nav-link[aria-current="page"] { color: var(--pink); }
 
 .nav-fab {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: -8px;
-  width: 50px;
-  height: 50px;
+  justify-self: center;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--pink);
   border: var(--border);
@@ -247,6 +246,8 @@ html, body {
   justify-content: center;
   color: var(--surface) !important;
   text-decoration: none;
+  /* Lift it above the bar without leaving the grid flow. */
+  transform: translateY(-12px);
   z-index: calc(var(--z-nav) + 10);
   transition: transform 0.1s ease;
 }
@@ -254,9 +255,10 @@ html, body {
   width: 24px;
   height: 24px;
   stroke: var(--surface) !important;
+  display: block;
 }
 .nav-fab:active {
-  transform: translate(-50%, -6px);
+  transform: translateY(-6px);
   box-shadow: none;
 }
 .nav-fab[aria-current="page"] {
