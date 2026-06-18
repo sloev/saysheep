@@ -94,15 +94,39 @@ export const ItemPage = () => {
     }
   }
 
-  const handleShare = () => {
+  // Share carries the item's text, location and photo. GitHub Pages can't
+  // server-render per-item Open Graph tags (social crawlers don't run our JS),
+  // so the rich preview is built client-side: description + a maps link + the
+  // photo attached as a file via the Web Share API (level 2) when supported.
+  const handleShare = async () => {
     const ev = event()
     if (!ev) return
     const title = getItemTitle(ev) || t('item.default_title')
+    const summary = getItemSummary(ev)
+    const geo = getItemGeo(ev)
     const url = window.location.href
-    if (navigator.share) {
-      navigator.share({ title, text: t('item.share_text', { title }), url })
-    } else {
-      navigator.clipboard.writeText(`${title}\n${url}`)
+
+    const parts = [t('item.share_text', { title })]
+    if (summary) parts.push(summary)
+    if (geo) parts.push(`📍 https://www.openstreetmap.org/?mlat=${geo.lat}&mlon=${geo.lng}#map=16/${geo.lat}/${geo.lng}`)
+    parts.push(url)
+    const text = parts.join('\n')
+
+    try {
+      const photo = getItemImage(ev)
+      if (photo && navigator.canShare) {
+        const blob = await (await fetch(photo)).blob()
+        const file = new File([blob], 'saysheep-item.jpg', { type: blob.type || 'image/jpeg' })
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ title, text, url, files: [file] })
+          return
+        }
+      }
+      if (navigator.share) { await navigator.share({ title, text, url }); return }
+      await navigator.clipboard.writeText(text)
+    } catch (err) {
+      // user cancelled the share sheet, or it failed — fall back to clipboard
+      try { await navigator.clipboard.writeText(text) } catch {}
     }
   }
 
