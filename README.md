@@ -35,6 +35,89 @@ graph TD
 
 ---
 
+## How Relays Talk to Each Other
+
+saysheep relays form a **leaderless mesh** — there is no central server, and any relay can join or leave at any time. Three independent gossip mechanisms run in parallel, so events still spread even if one path is blocked:
+
+1. **Bootstrap discovery (via public Nostr relays).** On startup and every 10 minutes, each relay publishes a NIP-99 replaceable *presence* event (kind `30402`, tagged `t=saysheep-relay`, `d=saysheep-relay:<nodeId>`) to a set of public Nostr relays (default `wss://relay.damus.io`, `wss://nos.lol`). The presence card carries the relay's public WebSocket `url` and its Iroh `NodeAddr`. Each relay also *subscribes* to those same public relays for other `saysheep-relay` presence cards — so every relay learns the others' addresses with **no hardcoded peer list**. Discovered peers go into a Kademlia-style k-bucket routing table.
+
+2. **Nostr federation sync (WebSocket pull / backfill).** Every `sync_interval_minutes` (default 30), a relay opens a WebSocket to each known peer, sends a `REQ` for kinds `[30402, 1, 5]` since its last sync watermark, and stores anything new. The request is narrowed by the geohashes the relay's own clients care about (`#g` filter), so a relay only pulls events relevant to its users.
+
+3. **Iroh gossip swarm (real-time push).** All relays subscribe to one fixed gossip topic (`saysheep-nostr-v1`) over `@number0/iroh`. When a relay accepts a new event from a client, it immediately broadcasts it to the swarm; neighbours rebroadcast, so a valid event reaches the whole mesh in near real-time without per-peer connections. Iroh handles NAT traversal/hole-punching, seeded by the `NodeAddr`s found in the bootstrap presence cards.
+
+**Net effect:** a listing posted to one relay is (a) pushed live to the Iroh swarm, (b) pulled by peers on their next federation tick, and (c) reachable to any *new* relay that discovers the network through the public bootstrap relays. Every relay independently verifies signatures, proof-of-work, and moderation before storing or forwarding, and de-duplicates by Nostr event id.
+
+Clients connect to relays over standard Nostr WebSockets and can *also* exchange events directly browser-to-browser (WebRTC / Android WiFi Direct) — so the app keeps working peer-to-peer even with no relay reachable.
+
+---
+
+## Hosting a Relay
+
+A relay is a small Node.js process (WebSocket server + SQLite + Iroh node). It is entirely optional — saysheep works against public Nostr relays out of the box — but running your own makes your local community's listings fast and resilient, and strengthens the mesh.
+
+### Run from source
+```bash
+cd relay
+npm install
+npm start            # listens on :3001
+```
+
+### Run with Docker
+```bash
+cd relay
+docker build -t saysheep-relay .
+docker run -d --name saysheep-relay \
+  -p 3001:3001 \
+  -e PUBLIC_URL=wss://relay.example.com \
+  -v saysheep-data:/app/data \
+  saysheep-relay
+```
+The volume persists the SQLite database (`/app/data/relay.db`) **and** the Iroh node identity (`/app/data/iroh`) across restarts — keep it so your relay retains a stable node id in the mesh.
+
+### Configuration
+
+Settings live in `relay/relay.config.json`; each can be overridden by an environment variable:
+
+| Env var | Config key | Default | Purpose |
+| :-- | :-- | :-- | :-- |
+| `PORT` | `port` | `3001` | WebSocket listen port |
+| `PUBLIC_URL` | `public_url` | _(empty)_ | Your relay's public `wss://` URL. **Required to advertise to the mesh** — without it the relay still serves clients and pulls from peers, but won't announce itself. |
+| `FEDERATION_PEERS` | `federation.peers` | `[]` | Comma-separated `wss://` peers to always sync with |
+| `BOOTSTRAP_SEEDS` | `federation.seeds` | `wss://relay.damus.io,wss://nos.lol` | Public relays used for presence discovery |
+| `SYNC_INTERVAL_MINUTES` | `federation.sync_interval_minutes` | `30` | How often to pull from peers |
+| `MODERATION_ENABLED` | `moderation.enabled` | `true` | Image pHash + report-threshold screening |
+| `DB_PATH` | — | `data/relay.db` | SQLite database path |
+| `IROH_DATA_DIR` | — | `data/iroh` | Iroh identity/storage dir |
+
+Spam control is built in: listing events must carry proof-of-work (`min_pow_difficulty_item` = 8 bits, 4 for chat), are rate-limited to 60 events/min per IP, signature-verified, and capped at 512 KB.
+
+### Put it behind TLS
+
+Browsers require `wss://` (TLS) to connect from an HTTPS page. Terminate TLS with a reverse proxy forwarding to the relay's plain WebSocket port. Example nginx:
+```nginx
+server {
+  listen 443 ssl;
+  server_name relay.example.com;
+  ssl_certificate     /etc/letsencrypt/live/relay.example.com/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/relay.example.com/privkey.pem;
+  location / {
+    proxy_pass http://127.0.0.1:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+```
+Then set `PUBLIC_URL=wss://relay.example.com` so peers discover you at the TLS endpoint. (The relay reads `X-Forwarded-For` for per-IP rate limiting.)
+
+### Join the mesh & let clients use it
+- **Mesh:** set `PUBLIC_URL`. On the next announce tick your relay publishes its presence to the bootstrap seeds and other saysheep relays pick it up automatically — no coordination needed. To pin specific peers regardless of discovery, list them in `FEDERATION_PEERS`.
+- **Clients:** in the app, open **Settings → relay servers**, add `wss://relay.example.com`, and pick a connectivity mode (peers + relays / peers only / relays only).
+- **Health & info:** `GET https://relay.example.com/stats` returns live peer/uptime/report stats; `GET /` (or `Accept: application/nostr+json`) returns the NIP-11 relay info document.
+
+---
+
 ## Directory Structure
 
 - `client/`: The PWA frontend built with VanJS, MapLibre GL, and IndexedDB.
@@ -89,7 +172,7 @@ The client PWA features a full suite of automated browser tests (`run-browser-te
 | **Claiming Items** (Mark as Taken) | Click "Take It", verify that the item updates status immediately in real-time, and that a "Taken" stamp is rendered. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
 | **Item Chat** (Direct Communication) | Open chat section, enter message ("Is this item still available?"), submit, and confirm message is appended to chat list. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
 | **Deleting Listings** (Listing Purge) | Owner deletes their listing, confirming the dialog, and verifying that the listing is removed from the store and redirects back. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
-| **Managing Alerts** (Agents Page) | Navigate to `/agents`, input categories, add a tag-filtered alert subscription (agent), toggle notifications, and delete the agent. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
+| **Managing Agents** (Saved Searches) | From the list view, search and tap 🤖 to save the current search + map area as an agent, name it inline, then on `/agents` rename it, toggle notifications, edit (reopens it in the list view), and delete. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
 | **Configuration** (Settings Page) | Navigate to `/settings`, toggle language to Danish (verifying translation changes), toggle back to English, add a custom relay, and remove it. | [Latest Run Video](https://github.com/sloev/saysheep/actions/workflows/deploy.yml) (Artifact `browser-test-video`) |
 
 To run the browser-based E2E test suite locally:
