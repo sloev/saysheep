@@ -210,33 +210,48 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  padding: 6px 0;
+  padding: 6px 2px;
+  min-width: 0;
   text-decoration: none;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9.5px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-radius: 8px;
-  transition: color 0.15s;
+  letter-spacing: 0.3px;
+  border-radius: 10px;
   cursor: pointer;
   border: none;
   background: none;
   text-align: center;
+  /* Inactive tabs are slightly dimmed; the per-tab colour lives on color: below */
+  opacity: 0.6;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.nav-link span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .nav-link svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   stroke: currentColor;
-  transition: stroke 0.15s;
+  transition: transform 0.15s;
 }
-.nav-link:hover { color: var(--ink); }
-.nav-link[aria-current="page"] { color: var(--pink); }
+/* Kawaii per-tab colours (icon + label share the tab's hue) */
+.nav-link-map { color: #3aa0e3; }
+.nav-link-list { color: #1fb487; }
+.nav-link-alerts { color: #a564d6; }
+.nav-link-settings { color: #f0922b; }
+.nav-link:hover { opacity: 0.85; }
+.nav-link[aria-current="page"] { opacity: 1; }
+.nav-link[aria-current="page"] svg { transform: translateY(-1px) scale(1.1); }
 
 .nav-fab {
   justify-self: center;
-  width: 52px;
-  height: 52px;
+  box-sizing: border-box;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: var(--pink);
   border: var(--border);
@@ -244,16 +259,17 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 0; /* kill inline baseline gap so the + is dead-centre */
   color: var(--surface) !important;
   text-decoration: none;
   /* Lift it above the bar without leaving the grid flow. */
-  transform: translateY(-12px);
+  transform: translateY(-14px);
   z-index: calc(var(--z-nav) + 10);
   transition: transform 0.1s ease;
 }
 .nav-fab svg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   stroke: var(--surface) !important;
   display: block;
 }
@@ -265,6 +281,12 @@ html, body {
   background: var(--pink) !important;
   color: var(--surface) !important;
 }
+
+/* The FAB and the map tab also carry `.mobile-only`, whose `display: block`
+   would otherwise beat the single-class flex rules above (same specificity,
+   defined later). These two-class selectors win it back so flex centring holds. */
+.navbar .nav-fab { display: flex; }
+.navbar .nav-link { display: flex; }
 
 /* ── CONN STATUS ── */
 .conn-status {
