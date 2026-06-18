@@ -104,20 +104,22 @@ export const ListPage = () => {
         oninput: e => { store.ui.searchQuery = e.target.value },
       }),
       // Save the current search + map area as an agent (then name it inline).
+      // Reactive children return '' (never null) when "off": a VanJS child that
+      // returns null on a render becomes a dead binding and stops updating.
       () => editingAgentId.val
-        ? null
+        ? ''
         : button({ class: 'btn btn-icon save-agent-btn', title: () => t('agents.save_as'), onclick: createAgentFromList }, '🤖')
     ),
-    () => { const id = editingAgentId.val; return id ? agentEditBanner(id) : null },
+    () => { const id = editingAgentId.val; return id ? agentEditBanner(id) : '' },
     metaInfo,
     // Loading + empty are lightweight overlays toggled reactively; they never
     // recreate listEl, so existing rows stay in the DOM.
     () => (store.position.loading || !settled.val)
       ? div({ class: 'list-empty' }, span({ class: 'empty-emoji' }, '⏳'), t('list.loading'))
-      : null,
+      : '',
     () => (!store.position.loading && settled.val && getFilteredItems().length === 0)
       ? div({ class: 'list-empty' }, span({ class: 'empty-emoji' }, '📭'), t('list.empty'))
-      : null,
+      : '',
     listEl,
   )
 }

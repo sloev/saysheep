@@ -160,7 +160,7 @@ export const ItemPage = () => {
                       onclick: handleDelete,
                       disabled: deleting
                     },
-                      () => deleting.val ? div({ class: 'spinner' }) : null,
+                      () => deleting.val ? div({ class: 'spinner' }) : '',
                       () => t('item.delete')
                     )
                   : null
@@ -172,7 +172,7 @@ export const ItemPage = () => {
                     onclick: handleDelete,
                     disabled: deleting
                   },
-                    () => deleting.val ? div({ class: 'spinner' }) : null,
+                    () => deleting.val ? div({ class: 'spinner' }) : '',
                     () => t('item.delete')
                   )
                 : button({ class: 'btn btn-take', style: 'width:100%', onclick: handleTake }, () => t('item.take'))

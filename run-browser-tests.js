@@ -274,32 +274,35 @@ const runTest = async () => {
     }
     await page.waitForTimeout(2000)
 
-    // Navigate to Agents Page
-    console.log('Navigating to Agents page...')
-    await page.goto('http://localhost:5173/agents')
-    await page.waitForSelector('.form-section', { timeout: 5000 })
-    
-    // Add tag to Agent
-    console.log('Adding tags to agent...')
-    await page.fill('.tag-input-container .form-input', 'furniture')
-    await page.press('.tag-input-container .form-input', 'Enter')
+    // Create an agent from the list search box (the new agents flow)
+    console.log('Creating an agent from the list search...')
+    await page.goto('http://localhost:5173/list')
+    await page.waitForSelector('.search-input', { timeout: 5000 })
+    await page.fill('.search-input', 'furniture')
+    await page.waitForTimeout(500)
+    await page.click('.save-agent-btn')
+    await page.waitForSelector('.agent-edit-banner', { timeout: 5000 })
+
+    // Name the agent and save it
+    console.log('Naming the agent...')
+    await page.fill('.agent-name-input', 'My furniture agent')
+    await page.click('.agent-edit-banner .btn-primary')
     await page.waitForTimeout(500)
 
-    // Click "Add Agent" button
-    console.log('Submitting new agent subscription...')
-    await page.click('.btn-submit')
-    await page.waitForSelector('.alert-card', { timeout: 5000 })
-    console.log('Agent subscription added successfully!')
+    // Manage it on the Agents page
+    console.log('Navigating to Agents page...')
+    await page.goto('http://localhost:5173/agents')
+    await page.waitForSelector('.agent-card', { timeout: 5000 })
+    console.log('Agent created successfully!')
 
     // Toggle Notifications
     console.log('Toggling notifications for agent...')
-    const bellBtn = page.locator('.alert-card button').first()
-    await bellBtn.click()
+    await page.locator('.agent-card .agent-actions button').first().click()
     await page.waitForTimeout(500)
-    
+
     // Delete the Agent
     console.log('Removing agent...')
-    await page.click('.alert-card .btn-danger')
+    await page.click('.agent-card .btn-danger')
     await page.waitForTimeout(1000)
     console.log('Agent removed successfully.')
 
