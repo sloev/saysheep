@@ -2,14 +2,14 @@ import van from 'vanjs-core'
 import { t } from '../lib/i18n.js'
 import { NotificationsBell } from './notificationsPanel.js'
 
-const { div, span } = van.tags
+const { div, span, img } = van.tags
 
 export const TopBar = () => {
   return div({ class: 'topbar' },
     div({ class: 'topbar-logo' },
       span({ class: 'logo-text-say' }, 'say'),
       span({ class: 'logo-text-sheep' }, 'sheep'),
-      span({ style: 'margin-left: 4px;' }, '🐑')
+      img({ class: 'logo-wolf', src: 'images/icon-192.png', alt: 'saysheep wolf' })
     ),
     div({ class: 'topbar-marquee' },
       () => {
