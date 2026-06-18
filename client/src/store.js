@@ -7,8 +7,8 @@ import { encodeGeohash, precisionForZoom, geohashesForBounds, geohashBounds } fr
 import { getSearchableTerms } from './lib/categories.js'
 
 import { getRelays } from './lib/relay.js'
-import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext, computeReceiptHash } from './lib/nostr.js'
-import { notifyIfMatches } from './lib/notifications.js'
+import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext, computeReceiptHash, getItemTitle } from './lib/nostr.js'
+import { notifyIfMatches, findAgentMatch } from './lib/notifications.js'
 
 const savedItemId = typeof window !== 'undefined' ? localStorage.getItem('saysheep_current_item_id') : null
 export const currentItemId = van.state(savedItemId)
@@ -106,6 +106,15 @@ export const initStore = async () => {
     const m = localStorage.getItem('saysheep_muted')
     if (m) store.muted = JSON.parse(m) || []
   } catch {}
+
+  // Load the in-app notification feed + backfill watermark
+  initNotifications()
+
+  // First-ever launch: drop a welcome notification that opens the onboarding page.
+  if (!localStorage.getItem('saysheep_welcomed')) {
+    addNotification({ type: 'announcement', route: 'onboarding', key: 'welcome', params: { textKey: 'notif.welcome' } })
+    localStorage.setItem('saysheep_welcomed', '1')
+  }
 
   // Watch GPS
   if (navigator.geolocation) {
@@ -319,10 +328,11 @@ export const addEvent = (event) => {
     }
   }
 
-  // Notify if this new item matches any agent
+  // OS notification + in-app feed for matching listings and chat replies.
   if (event.kind === 30402 && !isTaken(event)) {
     notifyIfMatches(event, store.agents)
   }
+  maybeNotify(event)
 }
 
 // ---- Agents: a saved { name, query, bounds, notificationsEnabled } ----
@@ -351,6 +361,106 @@ export const updateAgent = (id, patch) => {
 export const removeAgent = (id) => {
   store.agents = (store.agents || []).filter(a => a.id !== id)
   saveAgents()
+}
+
+// ---- In-app notification feed ----
+// A notification is { id, key, type, params, itemId, ts, read }. `type` is one of
+// 'item' (an agent matched a new listing), 'message' (a chat reply on one of my
+// listings), or 'announcement' (from the platform). `params` is rendered with t()
+// at display time so the feed re-localises when the language changes.
+const NOTIF_CAP = 50
+// Only events newer than this (unix seconds) generate notifications, so the
+// initial relay backfill of historical listings doesn't flood the feed. Snapshot
+// at startup; the running max is persisted as the next session's baseline.
+let _notifBaseline = 0
+let _notifMax = 0
+
+// The feed is a plain van.state array (rendered wholesale, not keyed) — its
+// reassignment is reliably reactive, unlike a vanX array field.
+export const notifications = van.state([])
+
+const initNotifications = () => {
+  const stored = localStorage.getItem('saysheep_notif_ts')
+  _notifBaseline = stored == null ? Math.floor(Date.now() / 1000) : (parseInt(stored) || 0)
+  _notifMax = _notifBaseline
+  if (stored == null) localStorage.setItem('saysheep_notif_ts', String(_notifBaseline))
+  try {
+    notifications.val = JSON.parse(localStorage.getItem('saysheep_notifications') || '[]') || []
+  } catch { notifications.val = [] }
+}
+
+const saveNotifications = () => {
+  localStorage.setItem('saysheep_notifications', JSON.stringify(notifications.val.slice(0, NOTIF_CAP)))
+  localStorage.setItem('saysheep_notif_ts', String(_notifMax))
+}
+
+export const addNotification = ({ type, params = {}, itemId = null, route = null, ts, key }) => {
+  const when = ts || Math.floor(Date.now() / 1000)
+  const dedupeKey = key || `${type}:${itemId || ''}:${when}`
+  if (notifications.val.some(n => n.key === dedupeKey)) return
+  notifications.val = [
+    { id: randomUUID(), key: dedupeKey, type, params, itemId, route, ts: when, read: false },
+    ...notifications.val,
+  ].slice(0, NOTIF_CAP)
+  saveNotifications()
+}
+
+export const markNotificationsRead = () => {
+  if (!notifications.val.some(n => !n.read)) return
+  notifications.val = notifications.val.map(n => n.read ? n : { ...n, read: true })
+  saveNotifications()
+}
+
+export const clearNotifications = () => {
+  notifications.val = []
+  saveNotifications()
+}
+
+export const unreadNotificationCount = () => notifications.val.filter(n => !n.read).length
+
+// Inspect a freshly-ingested event and append any in-app notification it warrants.
+// Gated on the backfill watermark so only genuinely new events notify.
+const maybeNotify = (event) => {
+  if (!event?.created_at) return
+  if (event.created_at > _notifMax) _notifMax = event.created_at
+  if (event.created_at <= _notifBaseline) return
+
+  // An agent matched a new listing.
+  if (event.kind === 30402 && !isTaken(event)) {
+    const agent = findAgentMatch(event, store.agents)
+    if (agent) {
+      const what = (agent.query || '').trim() || getItemTitle(event) || ''
+      addNotification({
+        type: 'item',
+        itemId: event.id,
+        ts: event.created_at,
+        key: `item:${event.id}`,
+        params: { what, agent: agent.name || '' },
+      })
+    }
+    return
+  }
+
+  // A chat reply landed on a thread I'm part of: either a listing I own, or one
+  // I've already written a message on. Never notify for my own messages.
+  if (event.kind === 1 && event.pubkey !== store.identity.pubkey) {
+    const ref = event.tags.find(t => t[0] === 'e')?.[1]
+    if (!ref) return
+    const item = store.items[ref]
+    const iOwn = item && item.kind === 30402 && item.pubkey === store.identity.pubkey
+    const iParticipated = !iOwn && Object.values(store.items).some(e =>
+      e.kind === 1 && e.pubkey === store.identity.pubkey &&
+      e.tags.find(t => t[0] === 'e')?.[1] === ref)
+    if (iOwn || iParticipated) {
+      addNotification({
+        type: 'message',
+        itemId: ref,
+        ts: event.created_at,
+        key: `message:${event.id}`,
+        params: { title: getItemTitle(item) || '' },
+      })
+    }
+  }
 }
 
 // Does an item match a free-text query? Same logic as the list search box, so an

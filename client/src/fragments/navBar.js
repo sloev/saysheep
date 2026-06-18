@@ -7,6 +7,7 @@ import { NewItemPage } from '../pages/newItemPage.js'
 import { ItemPage } from '../pages/itemPage.js'
 import { SettingsPage } from '../pages/settingsPage.js'
 import { AgentsPage } from '../pages/agentsPage.js'
+import { OnboardingPage } from '../pages/onboardingPage.js'
 import { NotFoundPage } from '../pages/notFoundPage.js'
 
 const { nav, span } = van.tags
@@ -18,6 +19,7 @@ cone.route('list', '/list', ListPage, { title: 'saysheep | list' })
 cone.route('new', '/new', NewItemPage, { title: 'saysheep | give away' })
 cone.route('item', '/item', ItemPage, { title: 'saysheep | item' })
 cone.route('agents', '/agents', AgentsPage, { title: 'saysheep | agents' })
+cone.route('onboarding', '/onboarding', OnboardingPage, { title: 'saysheep | welcome' })
 cone.route('settings', '/settings', SettingsPage, { title: 'saysheep | settings' })
 cone.route('notFound', '.*', NotFoundPage, { title: 'saysheep | not found' })
 

@@ -1203,5 +1203,98 @@ select.form-select {
   max-width: 100%;
 }
 
+/* ---- Notification bell + dropdown feed ---- */
+.notif-bell-wrap { position: relative; height: 100%; flex-shrink: 0; }
+.notif-bell {
+  height: 100%;
+  border: none;
+  border-left: var(--border);
+  background: var(--surface);
+  padding: 0 14px;
+  font-size: 18px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.notif-bell:hover { background: var(--yellow-light); }
+.notif-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: var(--pink);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  line-height: 14px;
+  padding: 0 3px;
+  border-radius: 8px;
+  border: 1.5px solid var(--ink);
+  text-align: center;
+  box-sizing: border-box;
+}
+.notif-panel {
+  position: fixed;
+  top: 54px;
+  right: 8px;
+  width: min(340px, calc(100vw - 16px));
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border: var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  z-index: 200;
+}
+.notif-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1.5px solid var(--ink);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+}
+.notif-panel-title { font-weight: 800; font-size: 14px; text-transform: lowercase; }
+.notif-clear {
+  border: none;
+  background: none;
+  color: var(--pink);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+.notif-list { display: flex; flex-direction: column; }
+.notif-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+.notif-row:last-child { border-bottom: none; }
+.notif-row:hover { background: var(--yellow-light); }
+.notif-icon { font-size: 18px; flex-shrink: 0; }
+.notif-body { flex: 1; font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--ink); }
+.notif-time { font-size: 11px; color: var(--muted); font-weight: 700; flex-shrink: 0; }
+.notif-empty { padding: 24px 12px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* ---- Onboarding ---- */
+.onboarding-intro { font-size: 14px; font-weight: 600; line-height: 1.5; margin: 4px 0 14px; }
+.onboarding-step {
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--surface);
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 12px 14px;
+  margin: 0 0 10px;
+}
+.onboarding .btn-primary { margin-top: 6px; }
 
 

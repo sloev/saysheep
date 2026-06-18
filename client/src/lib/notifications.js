@@ -24,35 +24,43 @@ export const requestNotificationPermission = async () => {
 export const getNotificationPermission = () =>
   ('Notification' in window) ? Notification.permission : 'unsupported'
 
-// Notify if a new event matches any agent. Agent: { name, query, bounds, notificationsEnabled }.
-export const notifyIfMatches = (event, agents) => {
-  if (!_permissionGranted) return
-  if (!event?.tags || !agents?.length) return
+// Return the first agent whose query + map bounds match this event, or null.
+// Agent: { name, query, bounds, notificationsEnabled }. Pure — used for both the
+// OS notification and the in-app notification feed.
+export const findAgentMatch = (event, agents) => {
+  if (!event?.tags || !agents?.length) return null
 
   const geoTags = event.tags.filter(t => t[0] === 'g').map(t => t[1])
-  if (!geoTags.length) return
+  if (!geoTags.length) return null
   const gh = geoTags.sort((a, b) => b.length - a.length)[0]
   const { latitude: lat, longitude: lng } = Geohash.decode(gh)
-  const title = event.tags.find(t => t[0] === 'title')?.[1]
 
   for (const agent of agents) {
     if (agent.notificationsEnabled === false) continue
-
     const b = agent.bounds
     if (b && (lat < b.sw.lat || lat > b.ne.lat || lng < b.sw.lng || lng > b.ne.lng)) continue
     if (!matchesQuery(event, agent.query)) continue
-
-    const label = agent.name || 'agent'
-    const body = agent.query ? `${agent.query} — ${label}` : `New item — ${label}`
-    try {
-      new Notification(title || 'New free item nearby!', {
-        body,
-        icon: './images/icon.png',
-        badge: './images/icon.png',
-        tag: event.id, // deduplicate same event
-        renotify: false,
-      })
-    } catch {}
-    return // one notification per event is enough
+    return agent
   }
+  return null
+}
+
+// Fire an OS notification if a new event matches any agent.
+export const notifyIfMatches = (event, agents) => {
+  if (!_permissionGranted) return
+  const agent = findAgentMatch(event, agents)
+  if (!agent) return
+
+  const title = event.tags.find(t => t[0] === 'title')?.[1]
+  const label = agent.name || 'agent'
+  const body = agent.query ? `${agent.query} — ${label}` : `New item — ${label}`
+  try {
+    new Notification(title || 'New free item nearby!', {
+      body,
+      icon: './images/icon.png',
+      badge: './images/icon.png',
+      tag: event.id, // deduplicate same event
+      renotify: false,
+    })
+  } catch {}
 }
