@@ -12,7 +12,11 @@ export const CONNECTIVITY = {
   RELAYS: 'relays',
 }
 
-let _mode = CONNECTIVITY.BOTH
+// There is no user-facing connectivity toggle. saysheep always runs peers AND
+// relays at once; if no relay is reachable the relay calls simply no-op and the
+// peer layer (WebRTC / Android WiFi-Direct) carries sync on its own, so it
+// "downgrades" to peers-only automatically and re-upgrades when a relay returns.
+const _mode = CONNECTIVITY.BOTH
 let _areaUnsubs = new Map()
 let _chatUnsubs = new Map()
 let _onPeerCount = null
@@ -21,13 +25,8 @@ let _peerEventHandler = null
 let _onEventCallback = null
 
 export const getMode = () => CONNECTIVITY.BOTH
-export const setMode = (mode) => {
-  _mode = CONNECTIVITY.BOTH
-  localStorage.setItem('saysheep_connectivity', CONNECTIVITY.BOTH)
-}
 
 export const initSync = ({ onPeerCount, onRelayCount, onEvent, relayUrls }) => {
-  _mode = CONNECTIVITY.BOTH
   _onPeerCount = onPeerCount
   _onRelayCount = onRelayCount
   _onEventCallback = onEvent

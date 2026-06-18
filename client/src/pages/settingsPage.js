@@ -1,6 +1,5 @@
 import van from 'vanjs-core'
 import { store, updateIdentity, unmutePubkey } from '../store.js'
-import { setMode, CONNECTIVITY } from '../lib/sync.js'
 import { addRelay, removeRelay, getRelays, getRelaysStatus } from '../lib/relay.js'
 import { getLang, setLang, getSupportedLangs, t } from '../lib/i18n.js'
 import { getPubkey, getSecretKeyHex, isWebAuthnSupported, hasPasskey, registerPasskey, verifyPasskey, clearPasskey } from '../lib/identity.js'
