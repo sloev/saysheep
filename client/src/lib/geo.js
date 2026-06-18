@@ -10,6 +10,11 @@ export const decodeGeohash = (hash) => {
   return { lat: latitude, lng: longitude }
 }
 
+export const geohashBounds = (hash) => {
+  const [minLat, minLng, maxLat, maxLng] = Geohash.decode_bbox(hash)
+  return { sw: { lat: minLat, lng: minLng }, ne: { lat: maxLat, lng: maxLng } }
+}
+
 export const geohashesForBounds = async (sw, ne, precision) => {
   return shape2geohash(
     {

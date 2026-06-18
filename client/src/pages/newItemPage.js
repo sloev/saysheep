@@ -322,9 +322,12 @@ export const NewItemPage = () => {
           value: customExpiry,
           onchange: e => customExpiry.val = parseInt(e.target.value)
         },
-          ...Array.from({ length: 14 }, (_, i) => i + 1).map(day =>
+          // Daily granularity for the first week, then weekly up to 8 weeks.
+          ...[1, 2, 3, 4, 5, 6, 7, 14, 21, 28, 35, 42, 49, 56].map(day =>
             option({ value: day, selected: () => customExpiry.val === day },
-              () => `${day} ${day === 1 ? t('new.day') : t('new.days')}`
+              () => day >= 14
+                ? `${day / 7} ${t('new.weeks')}`
+                : `${day} ${day === 1 ? t('new.day') : t('new.days')}`
             )
           )
         )

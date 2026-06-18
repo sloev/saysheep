@@ -3,7 +3,7 @@ import * as vanX from 'vanjs-ext'
 import { initSync, subscribeArea, CONNECTIVITY, getMode } from './lib/sync.js'
 import { initI18n } from './lib/i18n.js'
 import { getIdentity, importIdentity } from './lib/identity.js'
-import { encodeGeohash, precisionForZoom, geohashesForBounds } from './lib/geo.js'
+import { encodeGeohash, precisionForZoom, geohashesForBounds, geohashBounds } from './lib/geo.js'
 import { getSearchableTerms } from './lib/categories.js'
 
 import { getRelays } from './lib/relay.js'
@@ -47,7 +47,7 @@ export const store = vanX.reactive({
     searchQuery: '',
     cacheLoaded: false,
   },
-  subscriptions: [],
+  agents: [],
   muted: [],
   areaUnsubs: {},
 })
@@ -80,10 +80,25 @@ export const initStore = async () => {
   })
   store.connectivity.mode = getMode()
 
-  // Load subscriptions from localStorage
+  // Load agents (migrating any legacy point-geohash subscriptions to the new
+  // query + map-bounds model).
   try {
-    const s = localStorage.getItem('saysheep_subscriptions')
-    if (s) store.subscriptions = JSON.parse(s) || []
+    const a = localStorage.getItem('saysheep_agents')
+    if (a) {
+      store.agents = JSON.parse(a) || []
+    } else {
+      const legacy = JSON.parse(localStorage.getItem('saysheep_subscriptions') || 'null')
+      if (Array.isArray(legacy)) {
+        store.agents = legacy.map(s => ({
+          id: s.id || randomUUID(),
+          name: s.label || s.geohash || 'agent',
+          query: (s.tags || []).join(' '),
+          bounds: s.geohash ? geohashBounds(s.geohash) : null,
+          notificationsEnabled: s.notificationsEnabled !== false,
+        }))
+        saveAgents()
+      }
+    }
   } catch {}
 
   // Load muted keys from localStorage
@@ -304,50 +319,69 @@ export const addEvent = (event) => {
     }
   }
 
-  // Notify if this new item matches any alert subscription
+  // Notify if this new item matches any agent
   if (event.kind === 30402 && !isTaken(event)) {
-    notifyIfMatches(event, store.subscriptions)
+    notifyIfMatches(event, store.agents)
   }
 }
 
-export const saveSubscriptions = () => {
-  localStorage.setItem('saysheep_subscriptions', JSON.stringify(store.subscriptions || []))
+// ---- Agents: a saved { name, query, bounds, notificationsEnabled } ----
+// query is exactly what you'd type in the list search box; bounds is a map view.
+export const editingAgentId = van.state(null)
+
+export const saveAgents = () => {
+  localStorage.setItem('saysheep_agents', JSON.stringify(store.agents || []))
 }
 
-export const addSubscription = (geohash, tags, label) => {
+export const addAgent = ({ name, query, bounds, notificationsEnabled = true }) => {
   const id = randomUUID()
-  if (!store.subscriptions) store.subscriptions = []
-  store.subscriptions.push({ id, geohash, tags: tags || [], label: label || geohash })
-  saveSubscriptions()
+  if (!store.agents) store.agents = []
+  store.agents.push({ id, name: name || '', query: query || '', bounds: bounds || null, notificationsEnabled })
+  saveAgents()
+  return id
 }
 
-export const removeSubscription = (id) => {
-  store.subscriptions = store.subscriptions.filter(s => s.id !== id)
-  saveSubscriptions()
+export const updateAgent = (id, patch) => {
+  const a = (store.agents || []).find(x => x.id === id)
+  if (!a) return
+  Object.assign(a, patch)
+  saveAgents()
+}
+
+export const removeAgent = (id) => {
+  store.agents = (store.agents || []).filter(a => a.id !== id)
+  saveAgents()
+}
+
+// Does an item match a free-text query? Same logic as the list search box, so an
+// agent's saved query behaves identically to typing it there.
+export const itemMatchesQuery = (ev, query) => {
+  const q = (query || '').toLowerCase().trim()
+  if (!q) return true
+  const { title, content, tags } = getSearchableTerms(ev)
+  return title.includes(q) || content.includes(q) || tags.some(t => t.includes(q))
+}
+
+// Is an item's location inside a { sw, ne } bounds box?
+export const itemInBounds = (ev, bounds) => {
+  if (!bounds) return true
+  const geo = getItemGeo(ev)
+  if (!geo) return false
+  const { sw, ne } = bounds
+  return geo.lat >= sw.lat && geo.lat <= ne.lat && geo.lng >= sw.lng && geo.lng <= ne.lng
 }
 
 export const getFilteredItems = () => {
-  const q = store.ui.searchQuery.toLowerCase().trim()
   const bounds = store.map.bounds
+  const q = store.ui.searchQuery
   return Object.values(store.items).filter(ev => {
     // The list is a feed of give-away listings only — never claim receipts
     // (30403), chat (1) or deletions (5), which also live in store.items.
     if (ev.kind !== 30402) return false
     if (isMuted(ev.pubkey)) return false
     if (isTaken(ev) || isExpired(ev)) return false
-
-    // viewport filter: only items whose location falls within current map bounds
-    if (bounds) {
-      const geo = getItemGeo(ev)            // { lat, lng } from the item's geohash
-      if (!geo) return false
-      const { sw, ne } = bounds
-      if (geo.lat < sw.lat || geo.lat > ne.lat) return false
-      if (geo.lng < sw.lng || geo.lng > ne.lng) return false
-    }
-
-    if (!q) return true
-    const { title, content, tags } = getSearchableTerms(ev)
-    return title.includes(q) || content.includes(q) || tags.some(t => t.includes(q))
+    if (!itemInBounds(ev, bounds)) return false
+    return itemMatchesQuery(ev, q)
   })
 }
 

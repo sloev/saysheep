@@ -8,36 +8,24 @@ export const TagInput = ({ tags, onTagsChange }) => {
   const suggestions = van.state([])
   const activeIdx = van.state(-1)
 
-  const addTag = (tag) => {
-    tag = tag.trim().toLowerCase()
-    // Find if this tag matches any localized name in the active language
-    const matchedTag = UNIQUE_TAGS.find(t => {
-      const localized = translateTag(t).toLowerCase()
-      return localized === tag
-    })
+  // Keep custom tags tidy: lowercase, only word-ish chars, max 30 chars.
+  const sanitizeCustom = (s) => s.replace(/[^a-z0-9 &+-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 30)
 
-    if (!matchedTag) {
-      const sugg = suggestions.val
-      if (sugg.length > 0) {
-        const firstSugg = sugg[0]
-        if (!tags.val.includes(firstSugg)) {
-          tags.val = [...tags.val, firstSugg]
-          onTagsChange?.(tags.val)
-        }
-      }
-      inputVal.val = ''
-      suggestions.val = []
-      return
+  const addTag = (raw) => {
+    const tag = (raw || '').trim().toLowerCase()
+    if (!tag) { inputVal.val = ''; suggestions.val = []; return }
+
+    // Resolve to a canonical taxonomy tag if it matches one (by canonical key or
+    // localized name); otherwise accept it as a free-form custom tag.
+    const canonical = UNIQUE_TAGS.includes(tag)
+      ? tag
+      : UNIQUE_TAGS.find(t => translateTag(t).toLowerCase() === tag)
+    const finalTag = canonical || sanitizeCustom(tag)
+
+    if (finalTag && !tags.val.includes(finalTag)) {
+      tags.val = [...tags.val, finalTag]
+      onTagsChange?.(tags.val)
     }
-
-    if (tags.val.includes(matchedTag)) {
-      inputVal.val = ''
-      suggestions.val = []
-      return
-    }
-
-    tags.val = [...tags.val, matchedTag]
-    onTagsChange?.(tags.val)
     inputVal.val = ''
     suggestions.val = []
   }

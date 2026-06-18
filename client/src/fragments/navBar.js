@@ -57,7 +57,7 @@ export const NavBar = () => {
     NavTab('map', 'map', 'map'),
     NavTab('list', 'list', 'list'),
     NavTab('new', 'plus', 'nav.new', true),
-    NavTab('agents', 'alerts', 'alerts'),
+    NavTab('agents', 'alerts', 'agents'),
     NavTab('settings', 'settings', 'settings')
   )
 }

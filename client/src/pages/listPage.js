@@ -1,10 +1,10 @@
 import van from 'vanjs-core'
 import * as vanX from 'vanjs-ext'
-import { store, getFilteredItems } from '../store.js'
+import { store, getFilteredItems, addAgent, updateAgent, editingAgentId } from '../store.js'
 import { ListItem } from '../fragments/listItem.js'
 import { ConnStatus } from '../fragments/connStatus.js'
 import { t } from '../lib/i18n.js'
-const { div, input, span } = van.tags
+const { div, input, span, button } = van.tags
 
 export const ListPage = () => {
   const sortedItems = vanX.reactive({})
@@ -57,6 +57,39 @@ export const ListPage = () => {
     span(() => t('list.total_count', { count: Object.keys(store.items).length }))
   )
 
+  // Create an agent from the current search box + map view, then drop into edit
+  // mode so it can be named right where its matches are visible.
+  const createAgentFromList = () => {
+    const id = addAgent({ name: store.ui.searchQuery.trim(), query: store.ui.searchQuery, bounds: store.map.bounds })
+    editingAgentId.val = id
+  }
+
+  // Inline banner shown while editing/naming an agent.
+  const agentEditBanner = (id) => {
+    const agent = (store.agents || []).find(a => a.id === id)
+    if (!agent) return null
+    return div({ class: 'agent-edit-banner' },
+      input({
+        class: 'agent-name-input',
+        placeholder: () => t('agents.name_placeholder'),
+        value: agent.name,
+        oninput: e => updateAgent(id, { name: e.target.value }),
+      }),
+      div({ class: 'agent-edit-hint' }, () =>
+        store.ui.searchQuery.trim()
+          ? t('agents.watching', { query: store.ui.searchQuery.trim() })
+          : t('agents.watching_everything')
+      ),
+      div({ style: 'display:flex;gap:8px' },
+        button({
+          class: 'btn btn-sm btn-primary',
+          onclick: () => { updateAgent(id, { query: store.ui.searchQuery, bounds: store.map.bounds }); editingAgentId.val = null },
+        }, () => t('agents.save')),
+        button({ class: 'btn btn-sm', onclick: () => { editingAgentId.val = null } }, () => t('agents.done'))
+      )
+    )
+  }
+
   return div({ class: 'page-content' },
     div({ class: 'page-header' },
       div({ class: 'page-title' }, () => t('list')),
@@ -69,8 +102,13 @@ export const ListPage = () => {
         placeholder: () => t('list.search'),
         value: store.ui.searchQuery,
         oninput: e => { store.ui.searchQuery = e.target.value },
-      })
+      }),
+      // Save the current search + map area as an agent (then name it inline).
+      () => editingAgentId.val
+        ? null
+        : button({ class: 'btn btn-icon save-agent-btn', title: () => t('agents.save_as'), onclick: createAgentFromList }, '🤖')
     ),
+    () => { const id = editingAgentId.val; return id ? agentEditBanner(id) : null },
     metaInfo,
     // Loading + empty are lightweight overlays toggled reactively; they never
     // recreate listEl, so existing rows stay in the DOM.

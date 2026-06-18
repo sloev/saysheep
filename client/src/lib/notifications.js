@@ -1,6 +1,16 @@
 import Geohash from 'ngeohash'
+import { getSearchableTerms } from './categories.js'
 
 let _permissionGranted = false
+
+// Same matching as the list search box, so an agent's saved query notifies on
+// exactly the items it would show.
+const matchesQuery = (event, query) => {
+  const q = (query || '').toLowerCase().trim()
+  if (!q) return true
+  const { title, content, tags } = getSearchableTerms(event)
+  return title.includes(q) || content.includes(q) || tags.some(t => t.includes(q))
+}
 
 export const requestNotificationPermission = async () => {
   if (!('Notification' in window)) return false
@@ -14,41 +24,28 @@ export const requestNotificationPermission = async () => {
 export const getNotificationPermission = () =>
   ('Notification' in window) ? Notification.permission : 'unsupported'
 
-// Check whether a new event matches any saved subscription and notify if so.
-// Subscriptions: [{ id, geohash, tags: string[], label }]
-export const notifyIfMatches = (event, subscriptions) => {
+// Notify if a new event matches any agent. Agent: { name, query, bounds, notificationsEnabled }.
+export const notifyIfMatches = (event, agents) => {
   if (!_permissionGranted) return
-  if (!event?.tags) return
-  if (subscriptions?.length === 0) return
+  if (!event?.tags || !agents?.length) return
 
-  const eventGeoTags = event.tags.filter(t => t[0] === 'g').map(t => t[1])
-  const eventTags = event.tags.filter(t => t[0] === 't').map(t => t[1].toLowerCase())
+  const geoTags = event.tags.filter(t => t[0] === 'g').map(t => t[1])
+  if (!geoTags.length) return
+  const gh = geoTags.sort((a, b) => b.length - a.length)[0]
+  const { latitude: lat, longitude: lng } = Geohash.decode(gh)
   const title = event.tags.find(t => t[0] === 'title')?.[1]
 
-  for (const sub of (subscriptions || [])) {
-    // Skip if notifications are disabled for this agent
-    if (sub.notificationsEnabled === false) continue
+  for (const agent of agents) {
+    if (agent.notificationsEnabled === false) continue
 
-    // Geohash match: event must be within or overlap the subscription area
-    const geoMatch = eventGeoTags.some(g =>
-      g.startsWith(sub.geohash) || sub.geohash.startsWith(g)
-    )
+    const b = agent.bounds
+    if (b && (lat < b.sw.lat || lat > b.ne.lat || lng < b.sw.lng || lng > b.ne.lng)) continue
+    if (!matchesQuery(event, agent.query)) continue
 
-    if (!geoMatch) continue
-
-    // Tag match: if sub has tags, at least one must match
-    const tagMatch = !sub.tags?.length ||
-      sub.tags.some(st => eventTags.includes(st.toLowerCase()))
-    if (!tagMatch) continue
-
-    // Show notification
-    const notifTitle = title || 'New free item nearby!'
-    const body = sub.tags?.length
-      ? `${sub.tags.join(', ')} — near ${sub.label || sub.geohash}`
-      : `New item near ${sub.label || sub.geohash}`
-
+    const label = agent.name || 'agent'
+    const body = agent.query ? `${agent.query} — ${label}` : `New item — ${label}`
     try {
-      new Notification(notifTitle, {
+      new Notification(title || 'New free item nearby!', {
         body,
         icon: './images/icon.png',
         badge: './images/icon.png',

@@ -129,6 +129,11 @@ export const setupMap = (lng, lat) => {
 
 export const MapComponent = () => mapDiv
 
+export const fitMapBounds = (bounds) => {
+  if (!_map || !bounds?.sw || !bounds?.ne) return
+  _map.fitBounds([[bounds.sw.lat, bounds.sw.lng], [bounds.ne.lat, bounds.ne.lng]])
+}
+
 export const flyToMap = (lng, lat, zoom = 14) => {
   if (!_map) return
   const currentCenter = _map.getCenter()
@@ -143,12 +148,9 @@ export const MapSearchBox = () => {
   const searching = van.state(false)
   const results = van.state([])
 
-  // The user's location (or map center) used both for proximity ranking and for
-  // the distance/direction shown on each result.
+  // Results are ranked and labelled by distance/direction from the current map
+  // centroid (what the user is looking at), not their GPS position.
   const origin = () => {
-    if (!store.position.loading && store.position.lat != null && !store.position.isFallback) {
-      return { lat: store.position.lat, lng: store.position.lng }
-    }
     if (_map) { const c = _map.getCenter(); return { lat: c.lat, lng: c.lng } }
     return null
   }
@@ -167,27 +169,29 @@ export const MapSearchBox = () => {
     if (!q) { results.val = []; return }
     searching.val = true
     try {
+      // The map centroid drives both proximity ranking and the per-result
+      // distance/direction, so the closest place to what's on screen ranks first.
       const o = origin()
-      const center = _map ? _map.getCenter() : null
-      const ref = o || (center ? { lat: center.lat, lng: center.lng } : null)
-      const gh5 = ref ? encodeGeohash(ref.lat, ref.lng, 5) : ''
-      // Load village buckets around the user and the current map view (plus
-      // their neighbours) so nearby small places are searchable.
+      const gh5 = o ? encodeGeohash(o.lat, o.lng, 5) : ''
+      // Load village buckets around the map view (plus its neighbours) so nearby
+      // small places are searchable.
       const areas = new Set()
-      const addArea = (lat, lng) => {
-        const g = encodeGeohash(lat, lng, 3)
+      if (o) {
+        const g = encodeGeohash(o.lat, o.lng, 3)
         areas.add(g)
         for (const n of Geohash.neighbors(g)) areas.add(n)
       }
-      if (o) addArea(o.lat, o.lng)
-      if (center) addArea(center.lat, center.lng)
       const places = await searchPlaces(q, gh5, [...areas])
       results.val = o
-        ? places.map(pl => ({
-            ...pl,
-            dist: formatDistance(haversineDistance(o.lat, o.lng, pl.lat, pl.lng)),
-            arrow: bearingArrow(o.lat, o.lng, pl.lat, pl.lng),
-          }))
+        ? places
+            .map(pl => ({ ...pl, _m: haversineDistance(o.lat, o.lng, pl.lat, pl.lng) }))
+            // Closest to the map centre ranks first, by true distance.
+            .sort((a, b) => a._m - b._m)
+            .map(pl => ({
+              ...pl,
+              dist: formatDistance(pl._m),
+              arrow: bearingArrow(o.lat, o.lng, pl.lat, pl.lng),
+            }))
         : places
     } catch (err) {
       console.error(err)
