@@ -6,17 +6,8 @@ import { NotificationsBell } from './notificationsPanel.js'
 const { div, span, img } = van.tags
 
 export const TopBar = () => {
-  // The wolf mascot separates slogans; build a fresh set of nodes each time
-  // (a DOM node can't appear twice) and duplicate for a seamless marquee loop.
-  const wolf = () => img({ class: 'marquee-wolf', src: 'images/icon-192.png', alt: '' })
-  const buildSeq = (slogans) => {
-    const out = []
-    for (const s of slogans) { out.push(span({ class: 'marquee-slogan' }, s), wolf()) }
-    return out
-  }
-
   return div({ class: 'topbar' },
-    // The logo doubles as a "home" link.
+    // The logo (wolf mascot image) doubles as a "home" link.
     div({ class: 'topbar-logo', role: 'link', title: 'saysheep', onclick: () => cone.navigate('home', {}) },
       span({ class: 'logo-text-say' }, 'say'),
       span({ class: 'logo-text-sheep' }, 'sheep'),
@@ -32,7 +23,9 @@ export const TopBar = () => {
           const val = t(key)
           if (val !== key) slogans.push(val)
         }
-        return div({ class: 'marquee-content' }, ...buildSeq(slogans), ...buildSeq(slogans))
+        // Wolf emoji separates slogans in the marquee.
+        const text = slogans.join('  🐺  ') + '  🐺  ' + slogans.join('  🐺  ')
+        return div({ class: 'marquee-content' }, text)
       }
     ),
     NotificationsBell()

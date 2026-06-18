@@ -43,9 +43,15 @@ export const ItemPage = (params) => {
     return id ? store.items[id] : null
   }
 
+  // Only (re)subscribe when the item id actually changes. This derive re-runs on
+  // every store.items reassignment (~every 150ms during event ingest); without
+  // the id guard it would clear messages.val and rebuild the whole chat list each
+  // time, which is what made the chat flicker.
+  let subscribedId = null
   van.derive(() => {
     const ev = event()
-    if (!ev) return
+    if (!ev || ev.id === subscribedId) return
+    subscribedId = ev.id
     if (unsub) unsub()
     messages.val = []
     subscribeChat(ev.id, (msg) => {
