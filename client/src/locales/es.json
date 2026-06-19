@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 Encuentra: explora el mapa o la lista, filtra con el buscador y guarda una búsqueda como agente 🤖 para recibir avisos cuando aparezcan cosas que coincidan.",
   "onboarding.step.take": "🤝 Tómalo: coordina la recogida en el chat del artículo. Quien lo regala comparte un código de 12 dígitos que introduces para marcarlo como recogido.",
   "onboarding.step.privacy": "🔒 Privado y offline-first: tu identidad es una clave que se guarda solo en tu dispositivo. saysheep sincroniza entre pares y a través de relés abiertos, y sigue funcionando sin conexión.",
-  "onboarding.cta": "empezar a explorar"
+  "onboarding.cta": "empezar a explorar",
+  "item.share_cta": "encuéntralo en saysheep:"
 }

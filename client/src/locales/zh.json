@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 寻找：浏览地图或列表，用搜索框筛选，并把搜索保存为🤖代理，当出现匹配物品时收到通知。",
   "onboarding.step.take": "🤝 领取：在物品聊天中约定取件。赠送者会给你一个12位验证码，输入后即可将物品标记为已取走。",
   "onboarding.step.privacy": "🔒 隐私且离线优先：你的身份是一把只保存在你设备上的密钥。saysheep 通过点对点和开放中继同步，离线也能继续使用。",
-  "onboarding.cta": "开始探索"
+  "onboarding.cta": "开始探索",
+  "item.share_cta": "在 saysheep 上找到它："
 }

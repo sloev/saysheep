@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 Encontre: explore o mapa ou a lista, filtre com a busca e salve uma busca como agente 🤖 para ser avisado quando itens correspondentes aparecerem.",
   "onboarding.step.take": "🤝 Pegue: combine a retirada no chat do item. Quem doa compartilha um código de 12 dígitos que você digita para marcar o item como retirado.",
   "onboarding.step.privacy": "🔒 Privado e offline-first: sua identidade é uma chave guardada só no seu dispositivo. O saysheep sincroniza ponto a ponto e por relés abertos, e continua funcionando offline.",
-  "onboarding.cta": "começar a explorar"
+  "onboarding.cta": "começar a explorar",
+  "item.share_cta": "encontre no saysheep:"
 }

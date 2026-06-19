@@ -5,7 +5,6 @@ import { NavBar } from './fragments/navBar.js'
 import { TopBar } from './fragments/topBar.js'
 import { routerElement, cone } from './router.js'
 import { MapComponent, MapSearchBox, MapControls } from './fragments/map.js'
-import { ConnStatus } from './fragments/connStatus.js'
 import { t } from './lib/i18n.js'
 
 if ('serviceWorker' in navigator) {
@@ -37,7 +36,6 @@ const App = () => {
       MapComponent(),
       MapSearchBox(),
       MapControls(),
-      div({ class: 'map-conn-status' }, ConnStatus())
     ),
     div({ id: 'main-layout' },
       div({ class: 'desktop-sidebar-header' },

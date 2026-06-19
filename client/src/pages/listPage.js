@@ -2,7 +2,6 @@ import van from 'vanjs-core'
 import * as vanX from 'vanjs-ext'
 import { store, getFilteredItems, addAgent, updateAgent, editingAgentId } from '../store.js'
 import { ListItem } from '../fragments/listItem.js'
-import { ConnStatus } from '../fragments/connStatus.js'
 import { t } from '../lib/i18n.js'
 const { div, input, span, button } = van.tags
 
@@ -91,10 +90,6 @@ export const ListPage = () => {
   }
 
   return div({ class: 'page-content' },
-    div({ class: 'page-header' },
-      div({ class: 'page-title' }, () => t('list')),
-      div({ class: 'mobile-only' }, ConnStatus())
-    ),
     div({ class: 'search-bar' },
       input({
         class: 'search-input',

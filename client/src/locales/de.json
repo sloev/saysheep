@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 Finden: durchstöbere Karte oder Liste, filtere mit dem Suchfeld und speichere eine Suche als 🤖 Agent, um benachrichtigt zu werden, wenn passende Sachen auftauchen.",
   "onboarding.step.take": "🤝 Nimm es: vereinbare die Abholung im Chat der Sache. Der Geber teilt einen 12-stelligen Code, den du eingibst, um die Sache als abgeholt zu markieren.",
   "onboarding.step.privacy": "🔒 Privat & offline-first: deine Identität ist ein Schlüssel, der nur auf deinem Gerät gespeichert wird. saysheep synchronisiert peer-to-peer und über offene Relays und funktioniert auch offline.",
-  "onboarding.cta": "loslegen"
+  "onboarding.cta": "loslegen",
+  "item.share_cta": "finde es auf saysheep:"
 }

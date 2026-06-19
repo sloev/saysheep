@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 Find: browse the map or list, filter with the search box, and save a search as an 🤖 agent to be notified when matching items show up.",
   "onboarding.step.take": "🤝 Take it: arrange pickup in the item chat. The giver shares a 12-digit code you enter to mark the item taken.",
   "onboarding.step.privacy": "🔒 Private & offline-first: your identity is a key kept only on your device. saysheep syncs peer-to-peer and over open relays, and keeps working offline.",
-  "onboarding.cta": "start exploring"
+  "onboarding.cta": "start exploring",
+  "item.share_cta": "find it on saysheep:"
 }

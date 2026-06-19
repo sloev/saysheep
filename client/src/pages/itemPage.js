@@ -167,14 +167,14 @@ export const ItemPage = (params) => {
     const title = getItemTitle(ev) || t('item.default_title')
     const summary = getItemSummary(ev)
     const cats = getItemTags(ev)
-    const geo = getItemGeo(ev)
     // Canonical deep link to this listing (stable d-tag), not just the current href.
     const url = itemUrl(getItemId(ev))
 
-    const parts = [t('item.share_text', { title })]
-    if (cats.length) parts.push('🏷️ ' + cats.map(translateTag).join(', '))
+    // Format: categories, description, "find it on saysheep:", url, (+ photo file).
+    const parts = []
+    if (cats.length) parts.push(cats.map(translateTag).join(', '))
     if (summary) parts.push(summary)
-    if (geo) parts.push(`📍 https://www.openstreetmap.org/?mlat=${geo.lat}&mlon=${geo.lng}#map=16/${geo.lat}/${geo.lng}`)
+    parts.push(t('item.share_cta'))
     parts.push(url)
     const text = parts.join('\n')
 

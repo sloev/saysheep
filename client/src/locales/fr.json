@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 Trouvez : parcourez la carte ou la liste, filtrez avec la recherche, et enregistrez une recherche comme agent 🤖 pour être averti quand des objets correspondants apparaissent.",
   "onboarding.step.take": "🤝 Prenez-le : organisez le retrait dans le chat de l'objet. Le donneur partage un code à 12 chiffres que vous saisissez pour marquer l'objet comme récupéré.",
   "onboarding.step.privacy": "🔒 Privé et hors-ligne d'abord : votre identité est une clé conservée uniquement sur votre appareil. saysheep se synchronise en pair-à-pair et via des relais ouverts, et fonctionne même hors ligne.",
-  "onboarding.cta": "commencer à explorer"
+  "onboarding.cta": "commencer à explorer",
+  "item.share_cta": "trouvez-le sur saysheep :"
 }

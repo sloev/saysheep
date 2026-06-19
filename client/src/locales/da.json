@@ -196,5 +196,6 @@
   "onboarding.step.find": "🔍 Find: gennemse kortet eller listen, filtrér med søgefeltet, og gem en søgning som en 🤖 agent for at få besked, når matchende ting dukker op.",
   "onboarding.step.take": "🤝 Tag den: aftal afhentning i tingens chat. Giveren deler en 12-cifret kode, som du indtaster for at markere tingen som taget.",
   "onboarding.step.privacy": "🔒 Privat og offline-først: din identitet er en nøgle, der kun gemmes på din enhed. saysheep synkroniserer peer-to-peer og via åbne relæer og virker også offline.",
-  "onboarding.cta": "begynd at udforske"
+  "onboarding.cta": "begynd at udforske",
+  "item.share_cta": "find den på saysheep:"
 }
