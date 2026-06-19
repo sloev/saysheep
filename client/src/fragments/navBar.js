@@ -55,7 +55,9 @@ const NavTab = (name, iconType, labelKey, isFab = false) => {
     name,
     title: t(labelKey),
     'aria-label': t(labelKey),
-    class: isFab ? 'nav-fab nav-new mobile-only' : `nav-link nav-link-${iconType}`
+    class: isFab
+      ? 'nav-fab nav-new mobile-only'
+      : `nav-link nav-link-${iconType}${name === 'map' ? ' mobile-only' : ''}`
   },
     iconSvg(iconType)
   )
@@ -81,9 +83,11 @@ const MessagesTab = () => cone.link({
 )
 
 export const NavBar = () => {
-  // Map is reached via the home logo, freeing a slot so the centre FAB stays
-  // symmetric with two tabs on each side.
+  // Mobile shows six slots (map is mobile-only — on desktop the map is the
+  // right-hand pane). Desktop hides map + the FAB, leaving list/messages/
+  // agents/settings in the sidebar.
   return nav({ class: 'navbar' },
+    NavTab('map', 'map', 'map'),
     NavTab('list', 'list', 'list'),
     MessagesTab(),
     NavTab('new', 'plus', 'nav.new', true),

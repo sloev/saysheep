@@ -227,10 +227,10 @@ html, body {
   padding-bottom: var(--safe-bottom);
   background: var(--surface);
   border-top: var(--border);
-  /* Even 5-column layout so every item is evenly spaced and the centre FAB
-     sits in its own slot instead of floating absolutely over the others. */
+  /* Even 6-column layout so every item is evenly spaced and the FAB sits in
+     its own slot instead of floating absolutely over the others. */
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   align-items: center;
   z-index: var(--z-nav);
 }
@@ -1146,6 +1146,7 @@ select.form-select {
   #app.route-map .page-content.full-height {
     overflow-y: auto !important;
   }
+  /* Map is the right-hand pane on desktop, so its bottom-nav tab is hidden. */
   .nav-link-map {
     display: none !important;
   }
