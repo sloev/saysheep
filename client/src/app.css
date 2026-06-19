@@ -1083,6 +1083,11 @@ select.form-select {
     grid-area: sidebar !important;
     width: 100% !important;
     height: 100% !important;
+    /* A grid item's default min-height:auto lets it grow past its track to fit
+       content, which pushed the navbar below the fold and stopped page-content
+       from scrolling. Pin it to the cell so the inner content scrolls instead. */
+    min-height: 0 !important;
+    overflow: hidden !important;
     border-right: var(--border) !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1124,6 +1129,15 @@ select.form-select {
   }
   .desktop-sidebar-only {
     display: block !important;
+  }
+  /* The router mounts pages into #router-outlet, an otherwise unstyled wrapper
+     between #main-content and .page-content. It has to carry the flex height
+     constraint through, or .page-content can't become a scroll container. */
+  #router-outlet {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   /* Sidebar column = topbar row (50px) is separate now, so the page content
      just flexes to fill the space between the sidebar header and the navbar. */
