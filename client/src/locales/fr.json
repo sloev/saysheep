@@ -202,5 +202,6 @@
   "settings.install": "installer lapp",
   "settings.install.pwa": "📲 Installer saysheep",
   "settings.install.ios_hint": "Sur iPhone/iPad : touchez Partager, puis “Sur lécran daccueil”.",
-  "settings.install.android": "🤖 Télécharger lapp Android (.apk)"
+  "settings.install.android": "🤖 Télécharger lapp Android (.apk)",
+  "agents.saved": "enregistré ✓"
 }

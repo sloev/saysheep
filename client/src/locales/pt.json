@@ -202,5 +202,6 @@
   "settings.install": "instalar app",
   "settings.install.pwa": "📲 Instalar saysheep",
   "settings.install.ios_hint": "No iPhone/iPad: toque em Compartilhar e em “Adicionar à Tela de Início”.",
-  "settings.install.android": "🤖 Baixar app Android (.apk)"
+  "settings.install.android": "🤖 Baixar app Android (.apk)",
+  "agents.saved": "salvo ✓"
 }

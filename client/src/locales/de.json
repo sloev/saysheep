@@ -202,5 +202,6 @@
   "settings.install": "App installieren",
   "settings.install.pwa": "📲 saysheep installieren",
   "settings.install.ios_hint": "Auf iPhone/iPad: auf Teilen tippen, dann “Zum Home-Bildschirm”.",
-  "settings.install.android": "🤖 Android-App herunterladen (.apk)"
+  "settings.install.android": "🤖 Android-App herunterladen (.apk)",
+  "agents.saved": "gespeichert ✓"
 }

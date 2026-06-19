@@ -202,5 +202,6 @@
   "settings.install": "ऐप इंस्टॉल करें",
   "settings.install.pwa": "📲 saysheep इंस्टॉल करें",
   "settings.install.ios_hint": "iPhone/iPad पर: शेयर बटन दबाएँ, फिर “होम स्क्रीन में जोड़ें”।",
-  "settings.install.android": "🤖 Android ऐप डाउनलोड करें (.apk)"
+  "settings.install.android": "🤖 Android ऐप डाउनलोड करें (.apk)",
+  "agents.saved": "सहेजा गया ✓"
 }

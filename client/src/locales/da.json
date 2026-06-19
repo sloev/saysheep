@@ -202,5 +202,6 @@
   "settings.install": "installér app",
   "settings.install.pwa": "📲 Installér saysheep",
   "settings.install.ios_hint": "På iPhone/iPad: tryk på Del-knappen og vælg “Føj til hjemmeskærm”.",
-  "settings.install.android": "🤖 Hent Android-app (.apk)"
+  "settings.install.android": "🤖 Hent Android-app (.apk)",
+  "agents.saved": "gemt ✓"
 }

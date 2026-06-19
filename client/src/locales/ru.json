@@ -202,5 +202,6 @@
   "settings.install": "установить приложение",
   "settings.install.pwa": "📲 Установить saysheep",
   "settings.install.ios_hint": "На iPhone/iPad: нажмите «Поделиться», затем «На экран Домой».",
-  "settings.install.android": "🤖 Скачать Android-приложение (.apk)"
+  "settings.install.android": "🤖 Скачать Android-приложение (.apk)",
+  "agents.saved": "сохранено ✓"
 }

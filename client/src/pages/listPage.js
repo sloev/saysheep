@@ -63,29 +63,52 @@ export const ListPage = () => {
     editingAgentId.val = id
   }
 
-  // Inline banner shown while editing/naming an agent.
+  // Has the current filter (search + map area) drifted from what the agent has
+  // saved? Used to gate the Save button. Bounds use a tolerance so the fitBounds
+  // padding when an agent is opened doesn't count as a change — only real pans/zooms do.
+  const filterDirty = (agent) => {
+    if (store.ui.searchQuery.trim() !== (agent.query || '').trim()) return true
+    const cur = store.map.bounds, saved = agent.bounds
+    if (!saved) return false
+    if (!cur) return false
+    const spanLat = Math.abs(saved.ne.lat - saved.sw.lat) || 0.02
+    const spanLng = Math.abs(saved.ne.lng - saved.sw.lng) || 0.02
+    const dLat = Math.abs((cur.sw.lat + cur.ne.lat) / 2 - (saved.sw.lat + saved.ne.lat) / 2)
+    const dLng = Math.abs((cur.sw.lng + cur.ne.lng) / 2 - (saved.sw.lng + saved.ne.lng) / 2)
+    if (dLat > spanLat * 0.2 || dLng > spanLng * 0.2) return true
+    if (Math.abs(Math.abs(cur.ne.lat - cur.sw.lat) - spanLat) > spanLat * 0.5) return true
+    return false
+  }
+
+  // Inline header shown while an agent is open: its title + a Save button that
+  // only lights up when the filter has changed (dirty state).
   const agentEditBanner = (id) => {
     const agent = (store.agents || []).find(a => a.id === id)
-    if (!agent) return null
+    if (!agent) return ''
     return div({ class: 'agent-edit-banner' },
-      input({
-        class: 'agent-name-input',
-        placeholder: () => t('agents.name_placeholder'),
-        value: agent.name,
-        oninput: e => updateAgent(id, { name: e.target.value }),
-      }),
+      div({ class: 'agent-edit-title-row' },
+        input({
+          class: 'agent-name-input',
+          placeholder: () => t('agents.name_placeholder'),
+          value: agent.name,
+          oninput: e => updateAgent(id, { name: e.target.value }),
+        }),
+        button({ class: 'btn btn-sm', onclick: () => { editingAgentId.val = null } }, () => t('agents.done'))
+      ),
       div({ class: 'agent-edit-hint' }, () =>
         store.ui.searchQuery.trim()
           ? t('agents.watching', { query: store.ui.searchQuery.trim() })
           : t('agents.watching_everything')
       ),
-      div({ style: 'display:flex;gap:8px' },
-        button({
+      () => {
+        const dirty = filterDirty(agent)
+        return button({
           class: 'btn btn-sm btn-primary',
-          onclick: () => { updateAgent(id, { query: store.ui.searchQuery, bounds: store.map.bounds }); editingAgentId.val = null },
-        }, () => t('agents.save')),
-        button({ class: 'btn btn-sm', onclick: () => { editingAgentId.val = null } }, () => t('agents.done'))
-      )
+          style: 'width:100%',
+          disabled: !dirty,
+          onclick: () => updateAgent(id, { query: store.ui.searchQuery, bounds: store.map.bounds }),
+        }, () => dirty ? t('agents.save') : t('agents.saved'))
+      }
     )
   }
 

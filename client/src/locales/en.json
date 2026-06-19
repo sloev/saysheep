@@ -202,5 +202,6 @@
   "settings.install": "install app",
   "settings.install.pwa": "📲 Install saysheep",
   "settings.install.ios_hint": "On iPhone/iPad: tap the Share button, then “Add to Home Screen”.",
-  "settings.install.android": "🤖 Download Android app (.apk)"
+  "settings.install.android": "🤖 Download Android app (.apk)",
+  "agents.saved": "saved ✓"
 }

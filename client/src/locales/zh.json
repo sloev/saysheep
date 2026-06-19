@@ -202,5 +202,6 @@
   "settings.install": "安装应用",
   "settings.install.pwa": "📲 安装 saysheep",
   "settings.install.ios_hint": "在 iPhone/iPad 上：点按分享按钮，然后选择「添加到主屏幕」。",
-  "settings.install.android": "🤖 下载安卓应用（.apk）"
+  "settings.install.android": "🤖 下载安卓应用（.apk）",
+  "agents.saved": "已保存 ✓"
 }

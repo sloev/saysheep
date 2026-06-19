@@ -180,6 +180,9 @@ html, body {
 
 .topbar-logo { cursor: pointer; }
 
+.agent-edit-title-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.agent-edit-title-row .agent-name-input { flex: 1; margin: 0; }
+
 .list-filter-hint {
   font-size: 12px;
   font-weight: 600;
