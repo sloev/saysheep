@@ -63,7 +63,7 @@
   "list": "lista",
   "list.empty": "nada aqui ainda — seja o primeiro a publicar!",
   "list.loading": "carregando...",
-  "list.search": "🔍 buscar...",
+  "list.search": "🔍 filtrar por palavras… (ex. sofá, livros, bicicleta)",
   "list.showing_count": "Mostrando {count} itens dentro da visualização do mapa",
   "list.total_count": "Total: {count}",
   "loading": "carregando...",
@@ -197,5 +197,6 @@
   "onboarding.step.take": "🤝 Pegue: combine a retirada no chat do item. Quem doa compartilha um código de 12 dígitos que você digita para marcar o item como retirado.",
   "onboarding.step.privacy": "🔒 Privado e offline-first: sua identidade é uma chave guardada só no seu dispositivo. O saysheep sincroniza ponto a ponto e por relés abertos, e continua funcionando offline.",
   "onboarding.cta": "começar a explorar",
-  "item.share_cta": "encontre no saysheep:"
+  "item.share_cta": "encontre no saysheep:",
+  "list.filter_hint": "Resultados da vista atual do mapa e destes termos de busca:"
 }

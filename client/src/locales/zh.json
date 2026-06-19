@@ -63,7 +63,7 @@
   "list": "列表",
   "list.empty": "这里还没有东西 — 成为第一个发布的人！",
   "list.loading": "加载中...",
-  "list.search": "🔍 搜索...",
+  "list.search": "🔍 按词筛选…（如沙发、书、自行车）",
   "list.showing_count": "显示地图视图内的 {count} 个项目",
   "list.total_count": "总计: {count}",
   "loading": "加载中...",
@@ -197,5 +197,6 @@
   "onboarding.step.take": "🤝 领取：在物品聊天中约定取件。赠送者会给你一个12位验证码，输入后即可将物品标记为已取走。",
   "onboarding.step.privacy": "🔒 隐私且离线优先：你的身份是一把只保存在你设备上的密钥。saysheep 通过点对点和开放中继同步，离线也能继续使用。",
   "onboarding.cta": "开始探索",
-  "item.share_cta": "在 saysheep 上找到它："
+  "item.share_cta": "在 saysheep 上找到它：",
+  "list.filter_hint": "当前地图视图和以下搜索词的结果："
 }

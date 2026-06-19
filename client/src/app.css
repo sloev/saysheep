@@ -180,6 +180,32 @@ html, body {
 
 .topbar-logo { cursor: pointer; }
 
+.list-filter-hint {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 2px 2px 8px;
+  line-height: 1.4;
+}
+
+/* "create new agent" — robot with a plus badge */
+.save-agent-btn { position: relative; overflow: visible; }
+.agent-plus-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--pink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 14px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  text-align: center;
+}
+
 @keyframes marquee-scroll {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
@@ -243,7 +269,7 @@ html, body {
 /* Kawaii per-tab colours (icon + label share the tab's hue) */
 .nav-link-map { color: #3aa0e3; }
 .nav-link-list { color: #1fb487; }
-.nav-link-alerts { color: #a564d6; }
+.nav-link-robot { color: #a564d6; }
 .nav-link-settings { color: #f0922b; }
 .nav-link:hover { opacity: 0.85; }
 .nav-link[aria-current="page"] { opacity: 1; }

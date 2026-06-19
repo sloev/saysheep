@@ -90,6 +90,7 @@ export const ListPage = () => {
   }
 
   return div({ class: 'page-content' },
+    div({ class: 'list-filter-hint' }, () => t('list.filter_hint')),
     div({ class: 'search-bar' },
       input({
         class: 'search-input',
@@ -103,7 +104,8 @@ export const ListPage = () => {
       // returns null on a render becomes a dead binding and stops updating.
       () => editingAgentId.val
         ? ''
-        : button({ class: 'btn btn-icon save-agent-btn', title: () => t('agents.save_as'), onclick: createAgentFromList }, '🤖')
+        : button({ class: 'btn btn-icon save-agent-btn', title: () => t('agents.save_as'), onclick: createAgentFromList },
+            '🤖', span({ class: 'agent-plus-badge' }, '＋'))
     ),
     () => { const id = editingAgentId.val; return id ? agentEditBanner(id) : '' },
     metaInfo,

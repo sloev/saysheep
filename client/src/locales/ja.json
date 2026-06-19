@@ -63,7 +63,7 @@
   "list": "リスト",
   "list.empty": "まだ何もありません — 最初に投稿して!",
   "list.loading": "読み込み中...",
-  "list.search": "🔍 検索...",
+  "list.search": "🔍 言葉で絞り込む…（例：ソファ、本、自転車）",
   "list.showing_count": "マップ表示内の{count}件を表示中",
   "list.total_count": "合計: {count}",
   "loading": "読み込み中...",
@@ -197,5 +197,6 @@
   "onboarding.step.take": "🤝 受け取る：アイテムのチャットで受け取りを調整します。譲る人が12桁のコードを共有し、それを入力するとアイテムが受け取り済みになります。",
   "onboarding.step.privacy": "🔒 プライバシーとオフライン優先：あなたの身元は端末だけに保存される鍵です。saysheepはピアツーピアとオープンなリレーで同期し、オフラインでも動作します。",
   "onboarding.cta": "始める",
-  "item.share_cta": "saysheepで見つけよう："
+  "item.share_cta": "saysheepで見つけよう：",
+  "list.filter_hint": "現在の地図表示とこれらの検索語の結果："
 }

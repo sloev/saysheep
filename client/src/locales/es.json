@@ -63,7 +63,7 @@
   "list": "lista",
   "list.empty": "nada aquí todavía — ¡sé el primero en publicar!",
   "list.loading": "cargando...",
-  "list.search": "🔍 buscar...",
+  "list.search": "🔍 filtrar por palabras… (p. ej. sofá, libros, bici)",
   "list.showing_count": "Mostrando {count} elementos dentro de la vista de mapa",
   "list.total_count": "Total: {count}",
   "loading": "cargando...",
@@ -197,5 +197,6 @@
   "onboarding.step.take": "🤝 Tómalo: coordina la recogida en el chat del artículo. Quien lo regala comparte un código de 12 dígitos que introduces para marcarlo como recogido.",
   "onboarding.step.privacy": "🔒 Privado y offline-first: tu identidad es una clave que se guarda solo en tu dispositivo. saysheep sincroniza entre pares y a través de relés abiertos, y sigue funcionando sin conexión.",
   "onboarding.cta": "empezar a explorar",
-  "item.share_cta": "encuéntralo en saysheep:"
+  "item.share_cta": "encuéntralo en saysheep:",
+  "list.filter_hint": "Resultados de la vista del mapa actual y estos términos de búsqueda:"
 }
