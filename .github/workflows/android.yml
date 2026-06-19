@@ -55,10 +55,19 @@ jobs:
       - name: Build release APK
         run: cd client/android && ./gradlew assembleRelease
 
+      # The signing action's zipalign/apksigner default to build-tools 29.0.3,
+      # which isn't installed on the runner. Pin it to the newest build-tools the
+      # gradle build actually installed.
+      - name: Resolve build-tools version
+        id: bt
+        run: echo "ver=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)" >> "$GITHUB_OUTPUT"
+
       - name: Sign AAB
         if: ${{ env.KEYSTORE_BASE64 != '' }}
         uses: r0adkll/sign-android-release@v1
         id: sign_aab
+        env:
+          BUILD_TOOLS_VERSION: ${{ steps.bt.outputs.ver }}
         with:
           releaseDirectory: client/android/app/build/outputs/bundle/release
           signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -70,6 +79,8 @@ jobs:
         if: ${{ env.KEYSTORE_BASE64 != '' }}
         uses: r0adkll/sign-android-release@v1
         id: sign_apk
+        env:
+          BUILD_TOOLS_VERSION: ${{ steps.bt.outputs.ver }}
         with:
           releaseDirectory: client/android/app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
