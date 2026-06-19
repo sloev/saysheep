@@ -750,15 +750,26 @@ html, body {
 .thread-row:hover { background: var(--bg); }
 .thread-row.unread .thread-title { font-weight: 900; }
 .thread-thumb {
-  width: 46px;
-  height: 46px;
-  border-radius: 10px;
-  border: 1.5px solid var(--ink);
+  /* The thumbnail is masked into a speech-bubble silhouette to fit the chat
+     context. A border can't follow that shape, so the outline is faked with
+     four 1px ink drop-shadows that trace the masked alpha. */
+  --bubble-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M21%2015a2%202%200%200%201-2%202H7l-4%204V5a2%202%200%200%201%202-2h14a2%202%200%200%201%202%202z%22%2F%3E%3C%2Fsvg%3E") no-repeat center / 100% 100%;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 0;
   object-fit: cover;
   flex-shrink: 0;
   cursor: pointer;
+  -webkit-mask: var(--bubble-mask);
+          mask: var(--bubble-mask);
+  filter:
+    drop-shadow(1px 0 0 var(--ink))
+    drop-shadow(-1px 0 0 var(--ink))
+    drop-shadow(0 1px 0 var(--ink))
+    drop-shadow(0 -1px 0 var(--ink));
 }
-.thread-thumb-empty { display: flex; align-items: center; justify-content: center; font-size: 22px; background: var(--bg); }
+.thread-thumb-empty { display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--bg); }
 .thread-main { flex: 1; min-width: 0; }
 .thread-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .thread-title { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
