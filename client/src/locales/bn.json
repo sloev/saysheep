@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 ব্যক্তিগত ও অফলাইন-প্রথম: আপনার পরিচয় একটি চাবি যা কেবল আপনার ডিভাইসে থাকে। saysheep পিয়ার-টু-পিয়ার এবং খোলা রিলের মাধ্যমে সিঙ্ক করে, এবং অফলাইনেও কাজ করে।",
   "onboarding.cta": "অন্বেষণ শুরু করুন",
   "item.share_cta": "saysheep-এ খুঁজে নিন:",
-  "list.filter_hint": "বর্তমান মানচিত্র দৃশ্য এবং এই অনুসন্ধান শব্দগুলির ফলাফল:"
+  "list.filter_hint": "বর্তমান মানচিত্র দৃশ্য এবং এই অনুসন্ধান শব্দগুলির ফলাফল:",
+  "settings.install": "অ্যাপ ইনস্টল করুন",
+  "settings.install.pwa": "📲 saysheep ইনস্টল করুন",
+  "settings.install.ios_hint": "iPhone/iPad-এ: শেয়ার বোতাম চাপুন, তারপর “হোম স্ক্রিনে যোগ করুন”।",
+  "settings.install.android": "🤖 Android অ্যাপ ডাউনলোড করুন (.apk)"
 }

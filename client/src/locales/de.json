@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 Privat & offline-first: deine Identität ist ein Schlüssel, der nur auf deinem Gerät gespeichert wird. saysheep synchronisiert peer-to-peer und über offene Relays und funktioniert auch offline.",
   "onboarding.cta": "loslegen",
   "item.share_cta": "finde es auf saysheep:",
-  "list.filter_hint": "Ergebnisse aus dem aktuellen Kartenausschnitt und diesen Suchbegriffen:"
+  "list.filter_hint": "Ergebnisse aus dem aktuellen Kartenausschnitt und diesen Suchbegriffen:",
+  "settings.install": "App installieren",
+  "settings.install.pwa": "📲 saysheep installieren",
+  "settings.install.ios_hint": "Auf iPhone/iPad: auf Teilen tippen, dann “Zum Home-Bildschirm”.",
+  "settings.install.android": "🤖 Android-App herunterladen (.apk)"
 }

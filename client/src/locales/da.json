@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 Privat og offline-først: din identitet er en nøgle, der kun gemmes på din enhed. saysheep synkroniserer peer-to-peer og via åbne relæer og virker også offline.",
   "onboarding.cta": "begynd at udforske",
   "item.share_cta": "find den på saysheep:",
-  "list.filter_hint": "Resultater fra det aktuelle kortudsnit og disse søgeord:"
+  "list.filter_hint": "Resultater fra det aktuelle kortudsnit og disse søgeord:",
+  "settings.install": "installér app",
+  "settings.install.pwa": "📲 Installér saysheep",
+  "settings.install.ios_hint": "På iPhone/iPad: tryk på Del-knappen og vælg “Føj til hjemmeskærm”.",
+  "settings.install.android": "🤖 Hent Android-app (.apk)"
 }

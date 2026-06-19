@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 Privé et hors-ligne d'abord : votre identité est une clé conservée uniquement sur votre appareil. saysheep se synchronise en pair-à-pair et via des relais ouverts, et fonctionne même hors ligne.",
   "onboarding.cta": "commencer à explorer",
   "item.share_cta": "trouvez-le sur saysheep :",
-  "list.filter_hint": "Résultats de la vue actuelle de la carte et de ces termes de recherche :"
+  "list.filter_hint": "Résultats de la vue actuelle de la carte et de ces termes de recherche :",
+  "settings.install": "installer lapp",
+  "settings.install.pwa": "📲 Installer saysheep",
+  "settings.install.ios_hint": "Sur iPhone/iPad : touchez Partager, puis “Sur lécran daccueil”.",
+  "settings.install.android": "🤖 Télécharger lapp Android (.apk)"
 }

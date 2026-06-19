@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 निजी और ऑफ़लाइन-प्रथम: आपकी पहचान एक कुंजी है जो केवल आपके डिवाइस पर रहती है। saysheep पीयर-टू-पीयर और खुले रिले के माध्यम से सिंक करता है, और ऑफ़लाइन भी काम करता रहता है।",
   "onboarding.cta": "खोजबीन शुरू करें",
   "item.share_cta": "इसे saysheep पर पाएं:",
-  "list.filter_hint": "वर्तमान मानचित्र दृश्य और इन खोज शब्दों के परिणाम:"
+  "list.filter_hint": "वर्तमान मानचित्र दृश्य और इन खोज शब्दों के परिणाम:",
+  "settings.install": "ऐप इंस्टॉल करें",
+  "settings.install.pwa": "📲 saysheep इंस्टॉल करें",
+  "settings.install.ios_hint": "iPhone/iPad पर: शेयर बटन दबाएँ, फिर “होम स्क्रीन में जोड़ें”।",
+  "settings.install.android": "🤖 Android ऐप डाउनलोड करें (.apk)"
 }

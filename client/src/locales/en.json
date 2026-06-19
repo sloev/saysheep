@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 Private & offline-first: your identity is a key kept only on your device. saysheep syncs peer-to-peer and over open relays, and keeps working offline.",
   "onboarding.cta": "start exploring",
   "item.share_cta": "find it on saysheep:",
-  "list.filter_hint": "Results from the current map view and these search terms:"
+  "list.filter_hint": "Results from the current map view and these search terms:",
+  "settings.install": "install app",
+  "settings.install.pwa": "📲 Install saysheep",
+  "settings.install.ios_hint": "On iPhone/iPad: tap the Share button, then “Add to Home Screen”.",
+  "settings.install.android": "🤖 Download Android app (.apk)"
 }

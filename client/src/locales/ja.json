@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 プライバシーとオフライン優先：あなたの身元は端末だけに保存される鍵です。saysheepはピアツーピアとオープンなリレーで同期し、オフラインでも動作します。",
   "onboarding.cta": "始める",
   "item.share_cta": "saysheepで見つけよう：",
-  "list.filter_hint": "現在の地図表示とこれらの検索語の結果："
+  "list.filter_hint": "現在の地図表示とこれらの検索語の結果：",
+  "settings.install": "アプリをインストール",
+  "settings.install.pwa": "📲 saysheepをインストール",
+  "settings.install.ios_hint": "iPhone/iPadでは：共有ボタンをタップして「ホーム画面に追加」を選びます。",
+  "settings.install.android": "🤖 Androidアプリをダウンロード（.apk）"
 }

@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 隐私且离线优先：你的身份是一把只保存在你设备上的密钥。saysheep 通过点对点和开放中继同步，离线也能继续使用。",
   "onboarding.cta": "开始探索",
   "item.share_cta": "在 saysheep 上找到它：",
-  "list.filter_hint": "当前地图视图和以下搜索词的结果："
+  "list.filter_hint": "当前地图视图和以下搜索词的结果：",
+  "settings.install": "安装应用",
+  "settings.install.pwa": "📲 安装 saysheep",
+  "settings.install.ios_hint": "在 iPhone/iPad 上：点按分享按钮，然后选择「添加到主屏幕」。",
+  "settings.install.android": "🤖 下载安卓应用（.apk）"
 }

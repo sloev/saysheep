@@ -198,5 +198,9 @@
   "onboarding.step.privacy": "🔒 Privado e offline-first: sua identidade é uma chave guardada só no seu dispositivo. O saysheep sincroniza ponto a ponto e por relés abertos, e continua funcionando offline.",
   "onboarding.cta": "começar a explorar",
   "item.share_cta": "encontre no saysheep:",
-  "list.filter_hint": "Resultados da vista atual do mapa e destes termos de busca:"
+  "list.filter_hint": "Resultados da vista atual do mapa e destes termos de busca:",
+  "settings.install": "instalar app",
+  "settings.install.pwa": "📲 Instalar saysheep",
+  "settings.install.ios_hint": "No iPhone/iPad: toque em Compartilhar e em “Adicionar à Tela de Início”.",
+  "settings.install.android": "🤖 Baixar app Android (.apk)"
 }
