@@ -16,6 +16,11 @@ const prefix = typeof window !== 'undefined' ? window.location.origin + base : b
 export const itemUrl = (id) =>
   `${typeof window !== 'undefined' ? window.location.origin : ''}${base}/item/${encodeURIComponent(id)}`
 
+// Absolute path to a static asset under the app base. Needed because a bare
+// relative src ("images/x.png") resolves against the current SPA route
+// (e.g. /saysheep/list/) and 404s on every non-root route.
+export const assetUrl = (path) => `${base}/${path.replace(/^\//, '')}`
+
 export const routerElement = van.tags.div({ id: 'router-outlet' })
 export const cone = createCone({
   routerElement,

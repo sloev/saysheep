@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 import { t } from '../lib/i18n.js'
-import { cone } from '../router.js'
+import { cone, assetUrl } from '../router.js'
 import { NotificationsBell } from './notificationsPanel.js'
 
 const { div, span, img } = van.tags
@@ -11,7 +11,7 @@ export const TopBar = () => {
     div({ class: 'topbar-logo', role: 'link', title: 'saysheep', onclick: () => cone.navigate('home', {}) },
       span({ class: 'logo-text-say' }, 'say'),
       span({ class: 'logo-text-sheep' }, 'sheep'),
-      img({ class: 'logo-wolf', src: 'images/icon-192.png', alt: 'saysheep wolf' })
+      img({ class: 'logo-wolf', src: assetUrl('images/icon-192.png'), alt: 'saysheep wolf' })
     ),
     div({ class: 'topbar-marquee' },
       () => {

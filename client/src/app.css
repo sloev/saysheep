@@ -989,7 +989,7 @@ select.form-select {
     grid-template-rows: 50px 1fr !important;
     grid-template-columns: 400px 1fr !important;
     grid-template-areas:
-      "sidebar topbar"
+      "topbar topbar"
       "sidebar map" !important;
     margin: 0 !important;
     overflow: hidden !important;
@@ -1020,23 +1020,15 @@ select.form-select {
   .desktop-sidebar-header {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    padding: 12px 16px !important;
+    padding: 10px 12px !important;
     border-bottom: var(--border) !important;
     background: var(--surface) !important;
-    height: 50px !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
   }
-  .desktop-sidebar-title {
-    font-size: 18px !important;
-    font-weight: 900 !important;
-    letter-spacing: -0.5px !important;
-    color: var(--pink) !important;
-    text-transform: lowercase !important;
-  }
-  .desktop-sidebar-title::after {
-    content: ' 🐺' !important;
+  .desktop-sidebar-header .btn-give-away {
+    flex: 1 !important;
+    min-height: 38px !important;
   }
   .navbar {
     position: relative !important;
@@ -1060,9 +1052,12 @@ select.form-select {
   .desktop-sidebar-only {
     display: block !important;
   }
-  /* Avoid overlapping with navbar at the bottom of the sidebar */
+  /* Sidebar column = topbar row (50px) is separate now, so the page content
+     just flexes to fill the space between the sidebar header and the navbar. */
   .page-content {
-    height: calc(100vh - var(--nav-h) - 50px) !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: auto !important;
     overflow-y: auto !important;
     padding-bottom: 24px !important;
   }
@@ -1079,9 +1074,6 @@ select.form-select {
     overflow-y: auto !important;
   }
   .nav-link-map {
-    display: none !important;
-  }
-  .topbar-logo {
     display: none !important;
   }
 }

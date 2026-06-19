@@ -39,7 +39,8 @@ const App = () => {
     ),
     div({ id: 'main-layout' },
       div({ class: 'desktop-sidebar-header' },
-        span({ class: 'desktop-sidebar-title' }, 'saysheep'),
+        // The wolf logo now lives in the full-width topbar (same as mobile), so
+        // the sidebar header just carries the give-away action.
         button({
           class: 'btn btn-primary btn-give-away',
           onclick: () => cone.navigate('new', {})
