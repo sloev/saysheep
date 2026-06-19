@@ -206,5 +206,11 @@
   "agents.saved": "gespeichert ✓",
   "onboarding.step.filter": "🎯 Filtern: Die Ergebnisse sind alles innerhalb deines aktuellen Kartenausschnitts UND passend zu deinen Suchbegriffen. Verschiebe oder zoome die Karte, um den Bereich zu ändern, tippe Wörter zum Eingrenzen — beide Filter wirken zusammen.",
   "onboarding.step.agents": "🤖 Suche speichern: Tippe auf den Roboter neben dem Suchfeld, um den aktuellen Kartenbereich + Wörter als Agent zu speichern und benachrichtigt zu werden, wenn passende Sachen auftauchen.",
-  "onboarding.install.title": "📲 App installieren"
+  "onboarding.install.title": "📲 App installieren",
+  "messages.title": "nachrichten",
+  "messages.empty": "noch keine nachrichten — schreib zu einem ding, um einen chat zu starten",
+  "messages.start_hint": "noch keine nachrichten — sende die erste",
+  "messages.item_gone": "dieses ding ist nicht mehr verfügbar",
+  "item.message_owner": "besitzer anschreiben",
+  "item.view_messages": "nachrichten ansehen"
 }

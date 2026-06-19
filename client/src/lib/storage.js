@@ -1,4 +1,5 @@
 import { openDB } from 'idb'
+import { CHAT_KIND } from './dm.js'
 
 const DB_NAME = 'saysheep'
 const DB_VERSION = 2
@@ -118,13 +119,9 @@ export const getItemsByGeohash = async (geohashPrefix) => {
   })
 }
 
-export const getChatForItem = async (itemEventId) => {
-  const kind1 = await getEventsByKind(1)
-  const kind30403 = await getEventsByKind(30403)
-  return [...kind1, ...kind30403]
-    .filter(ev => ev.tags.some(t => t[0] === 'e' && t[1] === itemEventId))
-    .sort((a, b) => a.created_at - b.created_at)
-}
+// All cached private-chat (NIP-44) DM events, replayed on startup so threads
+// survive reloads and show up offline.
+export const getDMs = async () => getEventsByKind(CHAT_KIND)
 
 export const deleteEvent = async (id) => {
   (await db()).delete('events', id)

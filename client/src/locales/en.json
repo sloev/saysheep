@@ -206,5 +206,11 @@
   "agents.saved": "saved ✓",
   "onboarding.step.filter": "🎯 Filter: results are everything inside your current map view AND matching your search words. Pan or zoom to change the area, type words to narrow it — the two filters combine.",
   "onboarding.step.agents": "🤖 Save a search: tap the robot next to the search box to save the current map area + words as an agent and get notified when matching items appear.",
-  "onboarding.install.title": "📲 Install the app"
+  "onboarding.install.title": "📲 Install the app",
+  "messages.title": "messages",
+  "messages.empty": "no messages yet — say hi on an item to start a chat",
+  "messages.start_hint": "no messages yet — send the first one",
+  "messages.item_gone": "this item is no longer available",
+  "item.message_owner": "message the owner",
+  "item.view_messages": "view messages"
 }

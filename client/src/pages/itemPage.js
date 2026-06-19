@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
-import { store, currentItemId, mutePubkey } from '../store.js'
-import { subscribeChat, sendChatMessage, markTaken, deleteItem, reportItem } from '../lib/sync.js'
+import { store, currentItemId, mutePubkey, openOwnerThread } from '../store.js'
+import { markTaken, deleteItem, reportItem } from '../lib/sync.js'
 import { getItemTitle, getItemSummary, getItemImage, getItemTags, getItemGeo, getItemId, isTaken, isExpired, getItemExpiry, shortPubkey, computeReceiptHash, normalizeVerificationCode } from '../lib/nostr.js'
 import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
@@ -9,7 +9,7 @@ import { t } from '../lib/i18n.js'
 import { cone, itemUrl } from '../router.js'
 import timeImg from '../images/time.png'
 import locationImg from '../images/location.png'
-const { div, img, button, input, span, h1, p, select, option } = van.tags
+const { div, img, button, span, h1, p, select, option } = van.tags
 
 export const ItemPage = (params) => {
   // The URL carries the stable d-tag (or, as a fallback, the raw event id).
@@ -27,12 +27,7 @@ export const ItemPage = (params) => {
     })
   }
 
-  const messages = van.state([])
-  const chatInput = van.state('')
-  const sending = van.state(false)
-  let unsub = null
-
-   const showReportModal = van.state(false)
+  const showReportModal = van.state(false)
   const reportReason = van.state('spam')
   const reportSubmitted = van.state(false)
   const isIllegal = van.state(false)
@@ -42,83 +37,6 @@ export const ItemPage = (params) => {
     const id = currentItemId.val
     return id ? store.items[id] : null
   }
-
-  // Only (re)subscribe when the item id actually changes. This derive re-runs on
-  // every store.items reassignment (~every 150ms during event ingest); without
-  // the id guard it would clear messages.val and rebuild the whole chat list each
-  // time, which is what made the chat flicker.
-  let subscribedId = null
-  van.derive(() => {
-    const ev = event()
-    if (!ev || ev.id === subscribedId) return
-    subscribedId = ev.id
-    if (unsub) unsub()
-    messages.val = []
-    subscribeChat(ev.id, (msg) => {
-      const existing = messages.val.find(m => m.id === msg.id)
-      if (!existing) {
-        messages.val = [...messages.val, msg].sort((a, b) => a.created_at - b.created_at)
-      }
-    }).then(u => { unsub = u })
-  })
-
-  const sendMsg = async () => {
-    const ev = event()
-    const text = chatInput.val.trim()
-    if (!text || !ev || sending.val) return
-    sending.val = true
-    chatInput.val = ''
-    const newMsg = await sendChatMessage(ev.id, text, ev)
-    if (newMsg) {
-      const existing = messages.val.find(m => m.id === newMsg.id)
-      if (!existing) {
-        messages.val = [...messages.val, newMsg].sort((a, b) => a.created_at - b.created_at)
-      }
-    }
-    sending.val = false
-  }
-
-  // Built ONCE and mounted as a stable sibling of the (reactive) item detail.
-  // Keeping it out of that big derive means GPS updates and event-store churn
-  // never recreate the chat input — which was dismissing the mobile keyboard.
-  const chatSection = div({ class: 'chat-section' },
-    div({ class: 'chat-header' }, () => t('item.chat')),
-    div({ class: 'chat-messages', id: 'chat-scroll' },
-      () => {
-        const msgs = messages.val
-        if (!msgs.length) return div({ style: 'color:var(--muted);font-size:13px;padding:16px' }, '...')
-        return div({},
-          ...msgs.map(msg => {
-            const mine = msg.pubkey === store.identity.pubkey
-            const isClaim = msg.kind === 30403
-            return div({ class: `chat-msg ${mine ? 'mine' : ''} ${isClaim ? 'claim-msg' : ''}` },
-              isClaim
-                ? span({ style: 'font-weight: 800; display: flex; align-items: center; gap: 4px;' }, '🐺 ', t('item.taken'))
-                : span(msg.content),
-              div({ class: 'chat-msg-meta' },
-                shortPubkey(msg.pubkey), ' · ', formatRelative(msg.created_at)
-              )
-            )
-          })
-        )
-      }
-    ),
-    div({ class: 'chat-input-row' },
-      input({
-        class: 'chat-input',
-        type: 'text',
-        placeholder: () => t('item.chat.placeholder'),
-        value: chatInput,
-        oninput: e => { chatInput.val = e.target.value },
-        onkeydown: e => { if (e.key === 'Enter') sendMsg() },
-      }),
-      button({
-        class: 'btn btn-sm btn-primary',
-        onclick: sendMsg,
-        disabled: sending,
-      }, () => t('item.chat.send'))
-    )
-  )
 
   const handleTake = async () => {
     const ev = event()
@@ -268,6 +186,14 @@ export const ItemPage = (params) => {
                 : button({ class: 'btn btn-take', style: 'width:100%', onclick: handleTake }, () => t('item.take'))
               ),
 
+          // Private chat: interested users message the owner; the owner reviews
+          // all their item's threads from the Messages tab.
+          !isOwner
+            ? button({ class: 'btn btn-primary', style: 'width:100%;margin-top:12px', onclick: () => openOwnerThread(ev) },
+                '💬 ', () => t('item.message_owner'))
+            : button({ class: 'btn', style: 'width:100%;margin-top:12px', onclick: () => cone.navigate('messages', {}) },
+                '💬 ', () => t('item.view_messages')),
+
           // Owner actions
           div({ style: 'display:flex;gap:8px;flex-wrap:wrap;margin-top:12px' },
             button({ class: 'btn btn-sm', onclick: handleShare }, () => t('item.share')),
@@ -280,8 +206,6 @@ export const ItemPage = (params) => {
         )
       )
     },
-    // Chat lives here as a stable sibling — never recreated by the derive above.
-    chatSection,
     () => {
       if (!showReportModal.val) return div({ style: 'display: none' })
 

@@ -206,5 +206,11 @@
   "agents.saved": "已保存 ✓",
   "onboarding.step.filter": "🎯 筛选：结果是当前地图视野内并且匹配你搜索词的所有物品。平移或缩放地图以更改区域，输入文字以缩小范围——两个筛选条件会同时生效。",
   "onboarding.step.agents": "🤖 保存搜索：点击搜索框旁边的机器人，将当前地图区域 + 关键词保存为一个智能体，当有匹配的物品出现时会通知你。",
-  "onboarding.install.title": "📲 安装应用"
+  "onboarding.install.title": "📲 安装应用",
+  "messages.title": "消息",
+  "messages.empty": "还没有消息——在某个物品上打个招呼开始聊天吧",
+  "messages.start_hint": "还没有消息——发送第一条吧",
+  "messages.item_gone": "该物品已不再可用",
+  "item.message_owner": "联系物主",
+  "item.view_messages": "查看消息"
 }

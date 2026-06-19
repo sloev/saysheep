@@ -206,5 +206,11 @@
   "agents.saved": "gemt ✓",
   "onboarding.step.filter": "🎯 Filtrér: resultaterne er alt inden for dit nuværende kortudsnit OG som matcher dine søgeord. Flyt eller zoom kortet for at ændre området, skriv ord for at indsnævre — de to filtre kombineres.",
   "onboarding.step.agents": "🤖 Gem en søgning: tryk på robotten ved siden af søgefeltet for at gemme det aktuelle kortområde + ord som en agent og få besked, når der dukker matchende ting op.",
-  "onboarding.install.title": "📲 Installér appen"
+  "onboarding.install.title": "📲 Installér appen",
+  "messages.title": "beskeder",
+  "messages.empty": "ingen beskeder endnu — skriv på en ting for at starte en chat",
+  "messages.start_hint": "ingen beskeder endnu — send den første",
+  "messages.item_gone": "denne ting er ikke længere tilgængelig",
+  "item.message_owner": "skriv til ejeren",
+  "item.view_messages": "se beskeder"
 }

@@ -247,28 +247,36 @@ const runTest = async () => {
     }
     console.log('Take it button is hidden when item is taken - verified!')
 
-    // Verify claim message exists in chat and does not show raw "Item claimed: " string (Bug #1 regression check)
-    const chatContent = await page.textContent('.chat-messages')
-    if (chatContent.includes('Item claimed:')) {
-      throw new Error('Claim message is not formatted, showing raw "Item claimed:" text!')
-    }
-    console.log('Claim message in chat is formatted successfully!')
-    
-    // Chat message
-    console.log('Sending chat message...')
-    await page.fill('.chat-input', 'Is this item still available?')
-    await page.click('.chat-input-row .btn-primary')
+    // Send a private (NIP-44) message to the owner from the item page.
+    console.log('Messaging the owner (private NIP-44 DM)...')
+    await page.click('button:has-text("message the owner")')
+    await page.waitForSelector('.thread-view .chat-input', { timeout: 5000 })
+    await page.fill('.thread-view .chat-input', 'Is this item still available?')
+    await page.click('.thread-view .chat-input-row .btn-primary')
     await page.waitForTimeout(1000)
-    
-    // Restore owner identity to test delete
-    console.log('Switching back to Owner identity to delete listing...')
+    const takerThread = await page.textContent('.thread-messages')
+    if (!takerThread.includes('Is this item still available?')) {
+      throw new Error('Sent DM did not appear in the sender thread!')
+    }
+    console.log('DM sent and shown in sender thread.')
+
+    // Restore owner identity — the owner must be able to DECRYPT the taker's DM.
+    console.log('Switching back to Owner identity...')
     await page.evaluate((key) => localStorage.setItem('saysheep_identity_v1', key), ownerIdentity)
-    
-    // Reload item detail page as owner
-    await page.reload()
+    await page.goto('http://localhost:5173/messages')
+    await page.waitForSelector('.thread-row', { timeout: 8000 })
+    await page.click('.thread-row')
+    await page.waitForSelector('.thread-messages', { timeout: 5000 })
+    const ownerThread = await page.textContent('.thread-messages')
+    if (!ownerThread.includes('Is this item still available?')) {
+      throw new Error('Owner could not decrypt the private DM (NIP-44 failure)!')
+    }
+    console.log('Owner decrypted the taker\'s private message — NIP-44 chat verified!')
+
+    // Open the item from the thread and delete it.
+    console.log('Opening the item from the thread to delete it...')
+    await page.click('.thread-view .thread-thumb')
     await page.waitForSelector('.item-detail', { timeout: 5000 })
-    
-    // Delete item
     console.log('Deleting listing...')
     try {
       await page.click('.btn-danger', { timeout: 5000 })
@@ -287,10 +295,11 @@ const runTest = async () => {
     await page.click('.save-agent-btn')
     await page.waitForSelector('.agent-edit-banner', { timeout: 5000 })
 
-    // Name the agent and save it
+    // Name the agent. It's already persisted on creation (and the Save button
+    // stays disabled "saved ✓" until the filter drifts), so just close the editor.
     console.log('Naming the agent...')
     await page.fill('.agent-name-input', 'My furniture agent')
-    await page.click('.agent-edit-banner .btn-primary')
+    await page.click('.agent-edit-title-row button')
     await page.waitForTimeout(500)
 
     // Manage it on the Agents page
@@ -319,9 +328,9 @@ const runTest = async () => {
     console.log('Changing interface language to Danish...')
     await page.selectOption('select.form-select', 'da')
     await page.waitForTimeout(1000)
-    // Verify translation changed (e.g. settings header or relays label)
-    const settingsHeader = await page.textContent('.page-title')
-    console.log(`Settings header text in Danish: "${settingsHeader}"`)
+    // Verify translation changed (pane titles were removed, so check a section label)
+    const settingsHeader = await page.textContent('.settings-section-title')
+    console.log(`Settings section label in Danish: "${settingsHeader}"`)
 
     // Change back to English ('en')
     console.log('Changing interface language back to English...')

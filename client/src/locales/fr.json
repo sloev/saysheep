@@ -206,5 +206,11 @@
   "agents.saved": "enregistré ✓",
   "onboarding.step.filter": "🎯 Filtrer : les résultats sont tout ce qui se trouve dans votre vue actuelle de la carte ET correspond à vos mots-clés. Déplacez ou zoomez pour changer de zone, tapez des mots pour affiner — les deux filtres se combinent.",
   "onboarding.step.agents": "🤖 Enregistrer une recherche : appuyez sur le robot à côté du champ de recherche pour enregistrer la zone de la carte + les mots comme agent et être notifié quand des objets correspondants apparaissent.",
-  "onboarding.install.title": "📲 Installer l'appli"
+  "onboarding.install.title": "📲 Installer l'appli",
+  "messages.title": "messages",
+  "messages.empty": "pas encore de messages — dites bonjour sur un objet pour démarrer une discussion",
+  "messages.start_hint": "pas encore de messages — envoyez le premier",
+  "messages.item_gone": "cet objet n’est plus disponible",
+  "item.message_owner": "contacter le propriétaire",
+  "item.view_messages": "voir les messages"
 }

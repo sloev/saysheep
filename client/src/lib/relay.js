@@ -1,5 +1,6 @@
 // Custom relay client — multiplexes Nostr NIP-01 + P2P protocol
 // on the same WebSocket connection.
+import { CHAT_KIND } from './dm.js'
 
 // VITE_RELAY_URL can be set at build time to inject the self-hosted relay as the
 // first default. Falls back to public Nostr relays that support NIP-01 for item
@@ -209,9 +210,15 @@ export const subscribeArea = (geohashPrefixes, onEvent, onEose) => {
   return () => unsubs.forEach(fn => fn())
 }
 
-export const subscribeChat = (itemEventId, onEvent) => {
-  const subId = 'chat-' + Math.random().toString(36).slice(2)
-  const filters = [{ kinds: [1, 30403], '#e': [itemEventId], limit: 100 }]
+// Subscribe to private item-chat (NIP-44) DMs addressed to me OR sent by me, so
+// every device reconstructs the same threads. Content stays encrypted; only the
+// recipient can read it.
+export const subscribeDMs = (myPubkey, onEvent) => {
+  const subId = 'dm-' + Math.random().toString(36).slice(2)
+  const filters = [
+    { kinds: [CHAT_KIND], '#p': [myPubkey], limit: 500 },
+    { kinds: [CHAT_KIND], authors: [myPubkey], limit: 500 },
+  ]
   const unsubs = []
   for (const conn of _connections.values()) {
     unsubs.push(conn.subscribe(subId, filters, onEvent, null))

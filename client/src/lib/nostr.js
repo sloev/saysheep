@@ -235,40 +235,6 @@ export const buildTakerTakenEvent = async ({ secretKey, originalEvent, code }) =
   }, secretKey)
 }
 
-// Build a chat message referencing an item with NIP-13 PoW (difficulty 4)
-export const buildChatEvent = ({ secretKey, itemEventId, text }) => {
-  const now = Math.floor(Date.now() / 1000)
-  const pubkey = getPublicKey(secretKey)
-  const eventTags = [
-    ['e', itemEventId, '', 'reply'],
-    ['nonce', '', '4']
-  ]
-  const nonceIdx = 1
-  const baseEvent = {
-    pubkey,
-    created_at: now,
-    kind: 1,
-    content: text,
-    tags: eventTags
-  }
-  let counter = 0
-  while (true) {
-    eventTags[nonceIdx][1] = String(counter)
-    const eventId = getEventHash(baseEvent)
-    if (getEventPow(eventId) >= 4) {
-      break
-    }
-    counter++
-  }
-
-  return finalizeEvent({
-    kind: 1,
-    created_at: now,
-    tags: eventTags,
-    content: text,
-  }, secretKey)
-}
-
 // Build a delete event (NIP-09)
 export const buildDeleteEvent = ({ secretKey, eventId }) => {
   return finalizeEvent({

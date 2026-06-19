@@ -1,6 +1,7 @@
 import van from 'vanjs-core'
 import * as vanX from 'vanjs-ext'
-import { initSync, subscribeArea, CONNECTIVITY, getMode } from './lib/sync.js'
+import { initSync, subscribeArea, subscribeDMs, sendDM, CONNECTIVITY, getMode } from './lib/sync.js'
+import { toMessage, threadKey, parseThreadKey, CHAT_KIND } from './lib/dm.js'
 import { initI18n } from './lib/i18n.js'
 import { getIdentity, importIdentity } from './lib/identity.js'
 import { encodeGeohash, precisionForZoom, geohashesForBounds, geohashBounds } from './lib/geo.js'
@@ -127,6 +128,10 @@ export const initStore = async () => {
   // Load the in-app notification feed + backfill watermark
   initNotifications()
 
+  // Private item chat: replay cached DMs + subscribe for new ones (to/from me).
+  loadThreadReads()
+  subscribeDMs(store.identity.pubkey, (ev) => addEvent(ev))
+
   // First-ever launch: drop a welcome notification that opens the onboarding page.
   if (!localStorage.getItem('saysheep_welcomed')) {
     addNotification({ type: 'announcement', route: 'onboarding', key: 'welcome', params: { textKey: 'notif.welcome' } })
@@ -236,9 +241,15 @@ export const addEvent = (event) => {
       if (!/^[a-z0-9]+$/.test(gh) || gh.length > 9) return
     }
   }
-  if (event.kind === 1) {
-    if (!event.content || event.content.length > 1000) return
+  // Private item chat (NIP-44 DM): decrypt, thread, and feed the Messages view.
+  // These never enter store.items (which is listings only).
+  if (event.kind === CHAT_KIND) {
+    if (!event.content || event.content.length > 16000) return
+    ingestMessage(event)
+    return
   }
+  // Legacy plaintext chat (kind 1) is dropped — chat is private now.
+  if (event.kind === 1) return
 
   // Discard test events for general users
   const isTestItem = event.tags.some(t => t[0] === 'test' && t[1] === 'true')
@@ -247,9 +258,8 @@ export const addEvent = (event) => {
   }
 
   // Spam prevention: PoW (Proof of Work) verification
-  if (event.kind === 30402 || event.kind === 1) {
-    const requiredPow = event.kind === 30402 ? 8 : 4
-    if (getEventPow(event.id) < requiredPow) {
+  if (event.kind === 30402) {
+    if (getEventPow(event.id) < 8) {
       return // Discard spam event
     }
   }
@@ -455,29 +465,111 @@ const maybeNotify = (event) => {
         params: { what, agent: agent.name || '' },
       })
     }
-    return
   }
+  // DM notifications are raised in ingestMessage (the content must be decrypted
+  // first to know which thread it belongs to).
+}
 
-  // A chat reply landed on a thread I'm part of: either a listing I own, or one
-  // I've already written a message on. Never notify for my own messages.
-  if (event.kind === 1 && event.pubkey !== store.identity.pubkey) {
-    const ref = event.tags.find(t => t[0] === 'e')?.[1]
-    if (!ref) return
-    const item = store.items[ref]
-    const iOwn = item && item.kind === 30402 && item.pubkey === store.identity.pubkey
-    const iParticipated = !iOwn && Object.values(store.items).some(e =>
-      e.kind === 1 && e.pubkey === store.identity.pubkey &&
-      e.tags.find(t => t[0] === 'e')?.[1] === ref)
-    if (iOwn || iParticipated) {
+// ---- Private item chat (NIP-44 DM) threads ----
+// Decrypted messages, newest-appended. A plain van.state (rendered wholesale),
+// like the notification feed — vanX array fields don't reliably re-bind.
+export const messages = van.state([])
+// Per-thread last-read unix seconds, for unread dots. van.state so the navbar
+// badge and thread list re-derive when it changes.
+export const threadReads = van.state({})
+// The thread open in the Messages page (a threadKey), or null for the list.
+export const openThread = van.state(null)
+
+const loadThreadReads = () => {
+  try { threadReads.val = JSON.parse(localStorage.getItem('saysheep_thread_reads') || '{}') || {} }
+  catch { threadReads.val = {} }
+}
+
+// Decrypt + thread a DM event, append it to the feed, and notify if it's an
+// inbound message newer than the backfill watermark.
+const ingestMessage = (event) => {
+  const { secretKey } = getIdentity()
+  const msg = toMessage(event, secretKey, store.identity.pubkey)
+  if (!msg) return
+  if (messages.val.some(m => m.id === msg.id)) return
+  messages.val = [...messages.val, msg].sort((a, b) => a.created_at - b.created_at)
+
+  if (!msg.fromMe) {
+    if (event.created_at > _notifMax) _notifMax = event.created_at
+    if (event.created_at > _notifBaseline) {
+      const item = findItemByDtag(msg.itemId)
       addNotification({
         type: 'message',
-        itemId: ref,
+        itemId: msg.itemId,
+        route: 'messages',
         ts: event.created_at,
-        key: `message:${event.id}`,
-        params: { title: getItemTitle(item) || '' },
+        key: `dm:${event.id}`,
+        params: { title: item ? (getItemTitle(item) || '') : '', threadKey: msg.key },
       })
     }
   }
+}
+
+// Resolve a listing by its stable d-tag (messages reference items by d-tag so a
+// thread survives the owner republishing the listing).
+export const findItemByDtag = (dtag) =>
+  Object.values(store.items).find(e => e.kind === 30402 && getItemId(e) === dtag) || null
+
+// The other participant in a thread, from my perspective.
+export const threadOther = (ownerPubkey, takerPubkey) =>
+  store.identity.pubkey === ownerPubkey ? takerPubkey : ownerPubkey
+
+// Threads, newest-activity first: { key, itemId, ownerPubkey, takerPubkey, last }.
+export const getThreads = () => {
+  const map = new Map()
+  for (const m of messages.val) {
+    const cur = map.get(m.key)
+    if (!cur) {
+      map.set(m.key, { key: m.key, itemId: m.itemId, ownerPubkey: m.ownerPubkey, takerPubkey: m.takerPubkey, last: m })
+    } else if (m.created_at > cur.last.created_at) {
+      cur.last = m
+    }
+  }
+  return [...map.values()].sort((a, b) => b.last.created_at - a.last.created_at)
+}
+
+export const getThreadMessages = (key) =>
+  messages.val.filter(m => m.key === key).sort((a, b) => a.created_at - b.created_at)
+
+// Unread if the newest inbound message is newer than my last read of the thread.
+export const threadUnread = (key) => {
+  let lastIn = 0
+  for (const m of messages.val) if (m.key === key && !m.fromMe && m.created_at > lastIn) lastIn = m.created_at
+  return lastIn > (threadReads.val[key] || 0)
+}
+
+export const unreadThreadTotal = () => getThreads().filter(th => threadUnread(th.key)).length
+
+export const markThreadRead = (key) => {
+  const next = { ...threadReads.val, [key]: Math.floor(Date.now() / 1000) }
+  threadReads.val = next
+  localStorage.setItem('saysheep_thread_reads', JSON.stringify(next))
+}
+
+// Send a message in a thread: resolves the recipient (the other participant) and
+// the live item event needed for peer geohash routing.
+export const sendThreadMessage = async (key, text) => {
+  const trimmed = (text || '').trim()
+  if (!trimmed) return null
+  const { ownerPubkey, takerPubkey, itemId } = parseThreadKey(key)
+  const itemEvent = findItemByDtag(itemId)
+  if (!itemEvent) return null
+  const event = await sendDM({ recipientPubkey: threadOther(ownerPubkey, takerPubkey), itemEvent, text: trimmed })
+  ingestMessage(event)
+  return event
+}
+
+// Open (or start) the thread between me — an interested user — and an item owner.
+export const openOwnerThread = (itemEvent) => {
+  const key = threadKey(getItemId(itemEvent), itemEvent.pubkey, store.identity.pubkey)
+  openThread.val = key
+  markThreadRead(key)
+  cone.navigate('messages', {})
 }
 
 // Does an item match a free-text query? Same logic as the list search box, so an

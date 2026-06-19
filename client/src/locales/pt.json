@@ -206,5 +206,11 @@
   "agents.saved": "salvo ✓",
   "onboarding.step.filter": "🎯 Filtre: os resultados são tudo o que está dentro da sua vista atual do mapa E corresponde às suas palavras de pesquisa. Mova ou amplie para mudar a área, escreva palavras para refinar — os dois filtros combinam-se.",
   "onboarding.step.agents": "🤖 Guarde uma pesquisa: toque no robô ao lado da caixa de pesquisa para guardar a área do mapa + palavras como um agente e ser notificado quando surgirem itens correspondentes.",
-  "onboarding.install.title": "📲 Instalar a app"
+  "onboarding.install.title": "📲 Instalar a app",
+  "messages.title": "mensagens",
+  "messages.empty": "ainda sem mensagens — diz olá num item para iniciar uma conversa",
+  "messages.start_hint": "ainda sem mensagens — envia a primeira",
+  "messages.item_gone": "este item já não está disponível",
+  "item.message_owner": "enviar mensagem ao dono",
+  "item.view_messages": "ver mensagens"
 }

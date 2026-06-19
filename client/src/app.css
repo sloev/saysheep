@@ -272,6 +272,7 @@ html, body {
 /* Kawaii per-tab colours (icon + label share the tab's hue) */
 .nav-link-map { color: #3aa0e3; }
 .nav-link-list { color: #1fb487; }
+.nav-link-chat { color: #e3568f; }
 .nav-link-robot { color: #a564d6; }
 .nav-link-settings { color: #f0922b; }
 .nav-link { position: relative; }
@@ -699,12 +700,18 @@ html, body {
 .item-detail-desc { font-size: 15px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
 .item-detail-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 
-/* ── CHAT ── */
-.chat-section { border-top: var(--border); }
-.chat-header { padding: 12px 16px; font-weight: 800; font-size: 14px; text-transform: lowercase; letter-spacing: 1px; color: var(--muted); }
-.chat-messages { padding: 8px 16px; display: flex; flex-direction: column; gap: 8px; min-height: 80px; max-height: 300px; overflow-y: auto; }
+/* ── CHAT / MESSAGES ── */
+/* A message row = avatar (🐺 me / 🐑 them) + bubble. Mine sits on the right. */
 .chat-msg {
-  max-width: 80%;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 88%;
+  align-self: flex-start;
+}
+.chat-msg.mine { align-self: flex-end; flex-direction: row-reverse; }
+.chat-avatar { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.chat-bubble {
   padding: 8px 12px;
   border-radius: 12px;
   border: 1.5px solid var(--ink);
@@ -712,8 +719,9 @@ html, body {
   line-height: 1.4;
   background: var(--surface);
   box-shadow: var(--shadow-sm);
+  word-break: break-word;
 }
-.chat-msg.mine { background: var(--mint-light); align-self: flex-end; }
+.chat-msg.mine .chat-bubble { background: var(--mint-light); }
 .chat-msg-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
 .chat-input-row { display: flex; gap: 8px; padding: 10px 16px; border-top: 1.5px solid rgba(0,0,0,0.08); }
 .chat-input {
@@ -728,6 +736,71 @@ html, body {
   box-shadow: var(--shadow-sm);
 }
 .chat-input:focus { border-color: var(--pink); }
+
+/* ── MESSAGES: thread list ── */
+.thread-list { display: flex; flex-direction: column; }
+.thread-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1.5px solid rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+.thread-row:hover { background: var(--bg); }
+.thread-row.unread .thread-title { font-weight: 900; }
+.thread-thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ink);
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.thread-thumb-empty { display: flex; align-items: center; justify-content: center; font-size: 22px; background: var(--bg); }
+.thread-main { flex: 1; min-width: 0; }
+.thread-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.thread-title { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread-time { font-size: 11px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+.thread-sub { display: flex; gap: 6px; align-items: baseline; font-size: 13px; color: var(--muted); margin-top: 2px; }
+.thread-who { white-space: nowrap; font-weight: 700; }
+.thread-last { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread-unread-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pink); border: 1.5px solid var(--ink); flex-shrink: 0; }
+
+/* ── MESSAGES: thread view ── */
+.thread-view { display: flex; flex-direction: column; height: 100%; }
+.thread-view-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: var(--border);
+  background: var(--surface);
+}
+.thread-view-title { display: flex; flex-direction: column; min-width: 0; }
+.thread-view-title .thread-title { font-size: 15px; }
+.thread-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; }
+.thread-empty-hint, .thread-gone { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 16px; }
+
+/* Unread badge on the messages nav tab */
+.nav-badge {
+  position: absolute;
+  top: 2px;
+  right: calc(50% - 18px);
+  background: var(--pink);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 16px;
+  height: 16px;
+  line-height: 14px;
+  padding: 0 3px;
+  border-radius: 8px;
+  border: 1.5px solid var(--ink);
+  text-align: center;
+  box-sizing: border-box;
+}
 
 /* ── SETTINGS ── */
 .settings-section { padding: 16px; border-bottom: 1.5px solid rgba(0,0,0,0.08); }

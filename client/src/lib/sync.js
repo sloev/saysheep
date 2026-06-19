@@ -1,9 +1,10 @@
 import { getIdentity } from './identity.js'
-import { initRelay, publishEvent as relayPublish, subscribeArea as relaySubscribeArea, subscribeChat as relaySubscribeChat } from './relay.js'
+import { initRelay, publishEvent as relayPublish, subscribeArea as relaySubscribeArea, subscribeDMs as relaySubscribeDMs } from './relay.js'
 import { initPeer, handleP2PMessage, announceGeohash, leaveGeohash, broadcastEvent as peerBroadcast } from './peer.js'
-import { storeEvent, getItemsByGeohash, getChatForItem, purgeExpired } from './storage.js'
+import { storeEvent, getItemsByGeohash, getDMs, purgeExpired } from './storage.js'
 import { isWebXDC, webxdcSend, webxdcListen } from './webxdc.js'
-import { buildItemEvent, buildTakenEvent, buildTakerTakenEvent, buildChatEvent, buildDeleteEvent, buildReportEvent, getItemGeohash, randomUUID } from './nostr.js'
+import { buildItemEvent, buildTakenEvent, buildTakerTakenEvent, buildDeleteEvent, buildReportEvent, getItemGeohash, getItemId, randomUUID } from './nostr.js'
+import { buildDMEvent } from './dm.js'
 import { phashFromDataUrl } from './phash.js'
 
 export const CONNECTIVITY = {
@@ -86,19 +87,25 @@ export const unsubscribeArea = (geohash) => {
   leaveGeohash(geohash.slice(0, 4))
 }
 
-export const subscribeChat = async (itemEventId, onMessage) => {
-  const cached = await getChatForItem(itemEventId)
-  cached.forEach(onMessage)
+// Subscribe to all private DMs for the current identity. Cached DMs replay
+// first; incoming relay DMs are persisted before being handed up so they
+// survive reloads. Peer-delivered DMs arrive through the shared area handler.
+export const subscribeDMs = async (myPubkey, onEvent) => {
+  const cached = await getDMs()
+  cached.forEach(onEvent)
 
   const unsubs = []
   if (!isWebXDC() && _mode !== CONNECTIVITY.PEERS) {
-    unsubs.push(relaySubscribeChat(itemEventId, onMessage))
+    unsubs.push(relaySubscribeDMs(myPubkey, async (ev) => {
+      await storeEvent(ev)
+      onEvent(ev)
+    }))
   }
 
-  _chatUnsubs.set(itemEventId, unsubs)
+  _chatUnsubs.set('dm', unsubs)
   return () => {
     unsubs.forEach(fn => fn())
-    _chatUnsubs.delete(itemEventId)
+    _chatUnsubs.delete('dm')
   }
 }
 
@@ -134,19 +141,28 @@ export const markTaken = async (originalEvent, code) => {
   return event
 }
 
-export const sendChatMessage = async (itemEventId, text, itemEvent) => {
+// Send a private (NIP-44) DM to one participant of an item thread. recipient is
+// the item owner when an interested user writes, or the interested user when the
+// owner replies.
+export const sendDM = async ({ recipientPubkey, itemEvent, text }) => {
   const { secretKey } = getIdentity()
-  const event = buildChatEvent({ secretKey, itemEventId, text })
+  const gh = getItemGeohash(itemEvent)
+  const event = buildDMEvent({
+    secretKey,
+    recipientPubkey,
+    itemEventId: itemEvent.id,
+    itemId: getItemId(itemEvent),
+    ownerPubkey: itemEvent.pubkey,
+    geohash: gh ? gh.slice(0, 4) : null,
+    text,
+  })
   await storeEvent(event)
 
   if (isWebXDC()) {
     webxdcSend(event)
   } else {
     if (_mode !== CONNECTIVITY.PEERS) await relayPublish(event)
-    if (_mode !== CONNECTIVITY.RELAYS && itemEvent) {
-      const gh = getItemGeohash(itemEvent)
-      if (gh) peerBroadcast(event, gh.slice(0, 4))
-    }
+    if (_mode !== CONNECTIVITY.RELAYS && gh) peerBroadcast(event, gh.slice(0, 4))
   }
   return event
 }

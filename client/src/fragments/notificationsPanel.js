@@ -1,5 +1,5 @@
 import van from 'vanjs-core'
-import { notifications, openItemById, markNotificationsRead, clearNotifications } from '../store.js'
+import { notifications, openItemById, markNotificationsRead, clearNotifications, openThread, markThreadRead } from '../store.js'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
 import { formatRelative } from '../helpers/format.js'
@@ -32,6 +32,13 @@ export const NotificationsBell = () => {
 
   const openNotification = (n) => {
     open.val = false
+    // A message notification opens its exact thread in the Messages page.
+    if (n.type === 'message' && n.params?.threadKey) {
+      openThread.val = n.params.threadKey
+      markThreadRead(n.params.threadKey)
+      cone.navigate('messages', {})
+      return
+    }
     if (n.route) {
       cone.navigate(n.route, {})
     } else if (n.itemId) {

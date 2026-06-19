@@ -206,5 +206,11 @@
   "agents.saved": "保存済み ✓",
   "onboarding.step.filter": "🎯 絞り込む：結果は現在の地図の表示範囲内かつ検索語に一致するものすべてです。地図を移動・ズームして範囲を変え、語句を入力して絞り込みます——2つのフィルターは組み合わさります。",
   "onboarding.step.agents": "🤖 検索を保存：検索ボックス横のロボットをタップすると、現在の地図範囲＋語句をエージェントとして保存し、一致する物が現れたときに通知を受け取れます。",
-  "onboarding.install.title": "📲 アプリをインストール"
+  "onboarding.install.title": "📲 アプリをインストール",
+  "messages.title": "メッセージ",
+  "messages.empty": "まだメッセージはありません——物にあいさつしてチャットを始めましょう",
+  "messages.start_hint": "まだメッセージはありません——最初の一通を送りましょう",
+  "messages.item_gone": "この物はもう利用できません",
+  "item.message_owner": "出品者にメッセージ",
+  "item.view_messages": "メッセージを見る"
 }
