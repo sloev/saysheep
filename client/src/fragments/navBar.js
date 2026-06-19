@@ -46,12 +46,14 @@ const iconSvg = (type) => {
 }
 
 const NavTab = (name, iconType, labelKey, isFab = false) => {
+  // Icon-only tabs; the label is kept as a tooltip/aria-label for accessibility.
   return cone.link({
     name,
+    title: t(labelKey),
+    'aria-label': t(labelKey),
     class: isFab ? 'nav-fab nav-new mobile-only' : `nav-link nav-link-${iconType}${name === 'map' ? ' mobile-only' : ''}`
   },
-    iconSvg(iconType),
-    isFab ? null : span(() => t(labelKey))
+    iconSvg(iconType)
   )
 }
 

@@ -271,9 +271,22 @@ html, body {
 .nav-link-list { color: #1fb487; }
 .nav-link-robot { color: #a564d6; }
 .nav-link-settings { color: #f0922b; }
+.nav-link { position: relative; }
 .nav-link:hover { opacity: 0.85; }
 .nav-link[aria-current="page"] { opacity: 1; }
-.nav-link[aria-current="page"] svg { transform: translateY(-1px) scale(1.1); }
+.nav-link[aria-current="page"] svg { transform: translateY(-1px) scale(1.12); }
+/* Active-tab dot in the tab's own colour (labels are gone, so this marks it) */
+.nav-link[aria-current="page"]::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
 
 .nav-fab {
   justify-self: center;

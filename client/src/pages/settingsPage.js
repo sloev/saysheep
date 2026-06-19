@@ -23,9 +23,6 @@ export const SettingsPage = () => {
   }
 
   const pageEl = div({ class: 'page-content' },
-    div({ class: 'page-header' },
-      div({ class: 'page-title' }, () => t('settings.heading'))
-    ),
 
     // 1. Preferences Section
     div({ class: 'settings-section' },

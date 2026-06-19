@@ -16,9 +16,6 @@ export const AgentsPage = () => {
   }
 
   return div({ class: 'page-content' },
-    div({ class: 'page-header' },
-      div({ class: 'page-title' }, () => t('agents.heading'))
-    ),
     div({ class: 'form-section' },
       p({ style: 'font-size:13px;color:var(--muted);line-height:1.5' }, () => t('agents.description')),
       button({ class: 'btn btn-primary', onclick: () => cone.navigate('list', {}) }, () => t('agents.create_cta'))
