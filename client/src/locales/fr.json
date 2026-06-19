@@ -190,10 +190,10 @@
   "notif.item": "nouveau « {what} » trouvé par {agent}",
   "notif.message": "nouveau message sur « {title} »",
   "notif.welcome": "👋 Bienvenue sur saysheep ! Touchez pour découvrir comment ça marche.",
-  "onboarding.title": "bienvenue sur saysheep 🐑",
+  "onboarding.title": "bienvenue sur saysheep 🐺",
   "onboarding.intro": "saysheep vous aide à donner et à trouver des objets gratuits près de chez vous — sans compte, sans argent, sans pistage.",
   "onboarding.step.give": "🎁 Donnez : appuyez sur « donner », prenez une photo, ajoutez des tags et publiez. Vos voisins le voient aussitôt.",
-  "onboarding.step.find": "🔍 Trouvez : parcourez la carte ou la liste, filtrez avec la recherche, et enregistrez une recherche comme agent 🤖 pour être averti quand des objets correspondants apparaissent.",
+  "onboarding.step.find": "🔍 Trouver : parcourez les objets gratuits sur la carte ou dans la liste — les deux vues affichent les mêmes objets.",
   "onboarding.step.take": "🤝 Prenez-le : organisez le retrait dans le chat de l'objet. Le donneur partage un code à 12 chiffres que vous saisissez pour marquer l'objet comme récupéré.",
   "onboarding.step.privacy": "🔒 Privé et hors-ligne d'abord : votre identité est une clé conservée uniquement sur votre appareil. saysheep se synchronise en pair-à-pair et via des relais ouverts, et fonctionne même hors ligne.",
   "onboarding.cta": "commencer à explorer",
@@ -203,5 +203,8 @@
   "settings.install.pwa": "📲 Installer saysheep",
   "settings.install.ios_hint": "Sur iPhone/iPad : touchez Partager, puis “Sur lécran daccueil”.",
   "settings.install.android": "🤖 Télécharger lapp Android (.apk)",
-  "agents.saved": "enregistré ✓"
+  "agents.saved": "enregistré ✓",
+  "onboarding.step.filter": "🎯 Filtrer : les résultats sont tout ce qui se trouve dans votre vue actuelle de la carte ET correspond à vos mots-clés. Déplacez ou zoomez pour changer de zone, tapez des mots pour affiner — les deux filtres se combinent.",
+  "onboarding.step.agents": "🤖 Enregistrer une recherche : appuyez sur le robot à côté du champ de recherche pour enregistrer la zone de la carte + les mots comme agent et être notifié quand des objets correspondants apparaissent.",
+  "onboarding.install.title": "📲 Installer l'appli"
 }

@@ -190,10 +190,10 @@
   "notif.item": "{agent}发现了新的“{what}”",
   "notif.message": "“{title}”有新消息",
   "notif.welcome": "👋 欢迎来到 saysheep！点按了解它的用法。",
-  "onboarding.title": "欢迎来到 saysheep 🐑",
+  "onboarding.title": "欢迎来到 saysheep 🐺",
   "onboarding.intro": "saysheep 帮你赠送和寻找附近的免费物品——无需账户、无需金钱、不做追踪。",
   "onboarding.step.give": "🎁 赠送：点按“赠送”，拍张照片，添加标签并发布。邻居立刻就能看到。",
-  "onboarding.step.find": "🔍 寻找：浏览地图或列表，用搜索框筛选，并把搜索保存为🤖代理，当出现匹配物品时收到通知。",
+  "onboarding.step.find": "🔍 查找：在地图或列表中浏览免费物品——两个视图显示相同的物品。",
   "onboarding.step.take": "🤝 领取：在物品聊天中约定取件。赠送者会给你一个12位验证码，输入后即可将物品标记为已取走。",
   "onboarding.step.privacy": "🔒 隐私且离线优先：你的身份是一把只保存在你设备上的密钥。saysheep 通过点对点和开放中继同步，离线也能继续使用。",
   "onboarding.cta": "开始探索",
@@ -203,5 +203,8 @@
   "settings.install.pwa": "📲 安装 saysheep",
   "settings.install.ios_hint": "在 iPhone/iPad 上：点按分享按钮，然后选择「添加到主屏幕」。",
   "settings.install.android": "🤖 下载安卓应用（.apk）",
-  "agents.saved": "已保存 ✓"
+  "agents.saved": "已保存 ✓",
+  "onboarding.step.filter": "🎯 筛选：结果是当前地图视野内并且匹配你搜索词的所有物品。平移或缩放地图以更改区域，输入文字以缩小范围——两个筛选条件会同时生效。",
+  "onboarding.step.agents": "🤖 保存搜索：点击搜索框旁边的机器人，将当前地图区域 + 关键词保存为一个智能体，当有匹配的物品出现时会通知你。",
+  "onboarding.install.title": "📲 安装应用"
 }

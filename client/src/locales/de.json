@@ -190,10 +190,10 @@
   "notif.item": "neue „{what}“ von {agent} gefunden",
   "notif.message": "neue Nachricht zu „{title}“",
   "notif.welcome": "👋 Willkommen bei saysheep! Tippe, um zu erfahren, wie es funktioniert.",
-  "onboarding.title": "willkommen bei saysheep 🐑",
+  "onboarding.title": "willkommen bei saysheep 🐺",
   "onboarding.intro": "saysheep hilft dir, kostenlose Sachen in der Nähe zu verschenken und zu finden — keine Konten, kein Geld, kein Tracking.",
   "onboarding.step.give": "🎁 Verschenken: tippe auf „verschenken“, mach ein Foto, füge Tags hinzu und poste es. Nachbarn sehen es sofort.",
-  "onboarding.step.find": "🔍 Finden: durchstöbere Karte oder Liste, filtere mit dem Suchfeld und speichere eine Suche als 🤖 Agent, um benachrichtigt zu werden, wenn passende Sachen auftauchen.",
+  "onboarding.step.find": "🔍 Finden: Stöbere kostenlose Sachen auf der Karte oder in der Liste — beide Ansichten zeigen dieselben Dinge.",
   "onboarding.step.take": "🤝 Nimm es: vereinbare die Abholung im Chat der Sache. Der Geber teilt einen 12-stelligen Code, den du eingibst, um die Sache als abgeholt zu markieren.",
   "onboarding.step.privacy": "🔒 Privat & offline-first: deine Identität ist ein Schlüssel, der nur auf deinem Gerät gespeichert wird. saysheep synchronisiert peer-to-peer und über offene Relays und funktioniert auch offline.",
   "onboarding.cta": "loslegen",
@@ -203,5 +203,8 @@
   "settings.install.pwa": "📲 saysheep installieren",
   "settings.install.ios_hint": "Auf iPhone/iPad: auf Teilen tippen, dann “Zum Home-Bildschirm”.",
   "settings.install.android": "🤖 Android-App herunterladen (.apk)",
-  "agents.saved": "gespeichert ✓"
+  "agents.saved": "gespeichert ✓",
+  "onboarding.step.filter": "🎯 Filtern: Die Ergebnisse sind alles innerhalb deines aktuellen Kartenausschnitts UND passend zu deinen Suchbegriffen. Verschiebe oder zoome die Karte, um den Bereich zu ändern, tippe Wörter zum Eingrenzen — beide Filter wirken zusammen.",
+  "onboarding.step.agents": "🤖 Suche speichern: Tippe auf den Roboter neben dem Suchfeld, um den aktuellen Kartenbereich + Wörter als Agent zu speichern und benachrichtigt zu werden, wenn passende Sachen auftauchen.",
+  "onboarding.install.title": "📲 App installieren"
 }

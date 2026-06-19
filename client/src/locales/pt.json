@@ -190,10 +190,10 @@
   "notif.item": "novo “{what}” encontrado por {agent}",
   "notif.message": "nova mensagem em “{title}”",
   "notif.welcome": "👋 Bem-vindo ao saysheep! Toque para ver como funciona.",
-  "onboarding.title": "bem-vindo ao saysheep 🐑",
+  "onboarding.title": "bem-vindo ao saysheep 🐺",
   "onboarding.intro": "o saysheep ajuda você a doar e encontrar coisas grátis por perto — sem contas, sem dinheiro, sem rastreamento.",
   "onboarding.step.give": "🎁 Doe: toque em “doar”, tire uma foto, adicione tags e publique. Os vizinhos veem na hora.",
-  "onboarding.step.find": "🔍 Encontre: explore o mapa ou a lista, filtre com a busca e salve uma busca como agente 🤖 para ser avisado quando itens correspondentes aparecerem.",
+  "onboarding.step.find": "🔍 Encontre: explore coisas grátis no mapa ou na lista — ambas as vistas mostram os mesmos itens.",
   "onboarding.step.take": "🤝 Pegue: combine a retirada no chat do item. Quem doa compartilha um código de 12 dígitos que você digita para marcar o item como retirado.",
   "onboarding.step.privacy": "🔒 Privado e offline-first: sua identidade é uma chave guardada só no seu dispositivo. O saysheep sincroniza ponto a ponto e por relés abertos, e continua funcionando offline.",
   "onboarding.cta": "começar a explorar",
@@ -203,5 +203,8 @@
   "settings.install.pwa": "📲 Instalar saysheep",
   "settings.install.ios_hint": "No iPhone/iPad: toque em Compartilhar e em “Adicionar à Tela de Início”.",
   "settings.install.android": "🤖 Baixar app Android (.apk)",
-  "agents.saved": "salvo ✓"
+  "agents.saved": "salvo ✓",
+  "onboarding.step.filter": "🎯 Filtre: os resultados são tudo o que está dentro da sua vista atual do mapa E corresponde às suas palavras de pesquisa. Mova ou amplie para mudar a área, escreva palavras para refinar — os dois filtros combinam-se.",
+  "onboarding.step.agents": "🤖 Guarde uma pesquisa: toque no robô ao lado da caixa de pesquisa para guardar a área do mapa + palavras como um agente e ser notificado quando surgirem itens correspondentes.",
+  "onboarding.install.title": "📲 Instalar a app"
 }

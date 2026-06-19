@@ -1356,6 +1356,15 @@ select.form-select {
   margin: 0 0 10px;
 }
 .onboarding .btn-primary { margin-top: 6px; }
+.onboarding-install {
+  margin: 14px 0 4px;
+  padding: 14px;
+  background: var(--yellow-light);
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.onboarding-install-title { font-size: 14px; font-weight: 900; margin-bottom: 10px; }
 
 /* Wolf mascot (saysheep is a wolf in sheep's clothing) */
 .logo-wolf {

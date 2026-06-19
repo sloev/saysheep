@@ -190,10 +190,10 @@
   "notif.item": "new “{what}” found by {agent}",
   "notif.message": "new message on “{title}”",
   "notif.welcome": "👋 Welcome to saysheep! Tap to learn how it works.",
-  "onboarding.title": "welcome to saysheep 🐑",
+  "onboarding.title": "welcome to saysheep 🐺",
   "onboarding.intro": "saysheep helps you give away and find free stuff nearby — no accounts, no money, no tracking.",
   "onboarding.step.give": "🎁 Give away: tap “give away”, snap a photo, add tags, and post it. Neighbours see it right away.",
-  "onboarding.step.find": "🔍 Find: browse the map or list, filter with the search box, and save a search as an 🤖 agent to be notified when matching items show up.",
+  "onboarding.step.find": "🔍 Find: browse free stuff on the map or in the list — both views show the same items.",
   "onboarding.step.take": "🤝 Take it: arrange pickup in the item chat. The giver shares a 12-digit code you enter to mark the item taken.",
   "onboarding.step.privacy": "🔒 Private & offline-first: your identity is a key kept only on your device. saysheep syncs peer-to-peer and over open relays, and keeps working offline.",
   "onboarding.cta": "start exploring",
@@ -203,5 +203,8 @@
   "settings.install.pwa": "📲 Install saysheep",
   "settings.install.ios_hint": "On iPhone/iPad: tap the Share button, then “Add to Home Screen”.",
   "settings.install.android": "🤖 Download Android app (.apk)",
-  "agents.saved": "saved ✓"
+  "agents.saved": "saved ✓",
+  "onboarding.step.filter": "🎯 Filter: results are everything inside your current map view AND matching your search words. Pan or zoom to change the area, type words to narrow it — the two filters combine.",
+  "onboarding.step.agents": "🤖 Save a search: tap the robot next to the search box to save the current map area + words as an agent and get notified when matching items appear.",
+  "onboarding.install.title": "📲 Install the app"
 }

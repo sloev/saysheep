@@ -190,10 +190,10 @@
   "notif.item": "nuevo «{what}» encontrado por {agent}",
   "notif.message": "nuevo mensaje en «{title}»",
   "notif.welcome": "👋 ¡Bienvenido a saysheep! Toca para ver cómo funciona.",
-  "onboarding.title": "bienvenido a saysheep 🐑",
+  "onboarding.title": "bienvenido a saysheep 🐺",
   "onboarding.intro": "saysheep te ayuda a regalar y encontrar cosas gratis cerca de ti — sin cuentas, sin dinero, sin rastreo.",
   "onboarding.step.give": "🎁 Regala: toca “regalar”, haz una foto, añade etiquetas y publícalo. Tus vecinos lo ven al instante.",
-  "onboarding.step.find": "🔍 Encuentra: explora el mapa o la lista, filtra con el buscador y guarda una búsqueda como agente 🤖 para recibir avisos cuando aparezcan cosas que coincidan.",
+  "onboarding.step.find": "🔍 Encuentra: explora cosas gratis en el mapa o en la lista — ambas vistas muestran los mismos artículos.",
   "onboarding.step.take": "🤝 Tómalo: coordina la recogida en el chat del artículo. Quien lo regala comparte un código de 12 dígitos que introduces para marcarlo como recogido.",
   "onboarding.step.privacy": "🔒 Privado y offline-first: tu identidad es una clave que se guarda solo en tu dispositivo. saysheep sincroniza entre pares y a través de relés abiertos, y sigue funcionando sin conexión.",
   "onboarding.cta": "empezar a explorar",
@@ -203,5 +203,8 @@
   "settings.install.pwa": "📲 Instalar saysheep",
   "settings.install.ios_hint": "En iPhone/iPad: toca Compartir y luego “Añadir a inicio”.",
   "settings.install.android": "🤖 Descargar app Android (.apk)",
-  "agents.saved": "guardado ✓"
+  "agents.saved": "guardado ✓",
+  "onboarding.step.filter": "🎯 Filtra: los resultados son todo lo que está dentro de tu vista actual del mapa Y coincide con tus palabras de búsqueda. Mueve o haz zoom para cambiar la zona, escribe palabras para acotar — los dos filtros se combinan.",
+  "onboarding.step.agents": "🤖 Guarda una búsqueda: toca el robot junto al cuadro de búsqueda para guardar la zona del mapa + palabras como un agente y recibir avisos cuando aparezcan artículos que coincidan.",
+  "onboarding.install.title": "📲 Instalar la app"
 }
