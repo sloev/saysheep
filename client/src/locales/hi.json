@@ -212,5 +212,6 @@
   "messages.start_hint": "अभी कोई संदेश नहीं — पहला भेजें",
   "messages.item_gone": "यह चीज़ अब उपलब्ध नहीं है",
   "item.message_owner": "मालिक को संदेश भेजें",
-  "item.view_messages": "संदेश देखें"
+  "item.view_messages": "संदेश देखें",
+  "item.share_copied": "लिंक क्लिपबोर्ड पर कॉपी हो गया ✓"
 }

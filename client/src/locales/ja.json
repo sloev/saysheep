@@ -212,5 +212,6 @@
   "messages.start_hint": "まだメッセージはありません——最初の一通を送りましょう",
   "messages.item_gone": "この物はもう利用できません",
   "item.message_owner": "出品者にメッセージ",
-  "item.view_messages": "メッセージを見る"
+  "item.view_messages": "メッセージを見る",
+  "item.share_copied": "リンクをクリップボードにコピーしました ✓"
 }

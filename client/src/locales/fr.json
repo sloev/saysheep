@@ -212,5 +212,6 @@
   "messages.start_hint": "pas encore de messages — envoyez le premier",
   "messages.item_gone": "cet objet n’est plus disponible",
   "item.message_owner": "contacter le propriétaire",
-  "item.view_messages": "voir les messages"
+  "item.view_messages": "voir les messages",
+  "item.share_copied": "lien copié dans le presse-papiers ✓"
 }

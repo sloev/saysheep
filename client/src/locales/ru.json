@@ -212,5 +212,6 @@
   "messages.start_hint": "сообщений пока нет — отправьте первое",
   "messages.item_gone": "эта вещь больше недоступна",
   "item.message_owner": "написать владельцу",
-  "item.view_messages": "посмотреть сообщения"
+  "item.view_messages": "посмотреть сообщения",
+  "item.share_copied": "ссылка скопирована в буфер обмена ✓"
 }

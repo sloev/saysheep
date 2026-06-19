@@ -212,5 +212,6 @@
   "messages.start_hint": "noch keine nachrichten — sende die erste",
   "messages.item_gone": "dieses ding ist nicht mehr verfügbar",
   "item.message_owner": "besitzer anschreiben",
-  "item.view_messages": "nachrichten ansehen"
+  "item.view_messages": "nachrichten ansehen",
+  "item.share_copied": "link in die zwischenablage kopiert ✓"
 }

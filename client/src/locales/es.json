@@ -212,5 +212,6 @@
   "messages.start_hint": "aún no hay mensajes — envía el primero",
   "messages.item_gone": "este artículo ya no está disponible",
   "item.message_owner": "enviar mensaje al dueño",
-  "item.view_messages": "ver mensajes"
+  "item.view_messages": "ver mensajes",
+  "item.share_copied": "enlace copiado al portapapeles ✓"
 }

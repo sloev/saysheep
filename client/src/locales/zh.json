@@ -212,5 +212,6 @@
   "messages.start_hint": "还没有消息——发送第一条吧",
   "messages.item_gone": "该物品已不再可用",
   "item.message_owner": "联系物主",
-  "item.view_messages": "查看消息"
+  "item.view_messages": "查看消息",
+  "item.share_copied": "链接已复制到剪贴板 ✓"
 }

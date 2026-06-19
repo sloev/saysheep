@@ -212,5 +212,6 @@
   "messages.start_hint": "no messages yet — send the first one",
   "messages.item_gone": "this item is no longer available",
   "item.message_owner": "message the owner",
-  "item.view_messages": "view messages"
+  "item.view_messages": "view messages",
+  "item.share_copied": "link copied to clipboard ✓"
 }

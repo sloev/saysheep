@@ -96,21 +96,36 @@ export const ItemPage = (params) => {
     parts.push(url)
     const text = parts.join('\n')
 
+    // Prefer the native share sheet (mobile + some desktop browsers).
     try {
       const photo = getItemImage(ev)
       if (photo && navigator.canShare) {
-        const blob = await (await fetch(photo)).blob()
-        const file = new File([blob], 'saysheep-item.jpg', { type: blob.type || 'image/jpeg' })
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ title, text, url, files: [file] })
-          return
+        try {
+          const blob = await (await fetch(photo)).blob()
+          const file = new File([blob], 'saysheep-item.jpg', { type: blob.type || 'image/jpeg' })
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({ title, text, url, files: [file] })
+            return
+          }
+        } catch (e) {
+          if (e && e.name === 'AbortError') return // user dismissed the sheet
+          // otherwise fall through to a text-only share / clipboard
         }
       }
       if (navigator.share) { await navigator.share({ title, text, url }); return }
-      await navigator.clipboard.writeText(text)
     } catch (err) {
-      // user cancelled the share sheet, or it failed — fall back to clipboard
-      try { await navigator.clipboard.writeText(text) } catch {}
+      if (err && err.name === 'AbortError') return // user dismissed the sheet
+      // no Web Share support — fall back to clipboard below
+    }
+
+    // Most desktop browsers have no Web Share API. Copy the link and SAY SO,
+    // otherwise the button looks like it did nothing.
+    try {
+      await navigator.clipboard.writeText(text)
+      alert(t('item.share_copied'))
+    } catch {
+      // Insecure context / no clipboard API: surface the text to copy manually.
+      prompt(t('item.share_copied'), text)
     }
   }
 

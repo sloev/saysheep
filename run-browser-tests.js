@@ -139,8 +139,10 @@ const runTest = async () => {
     page.on('pageerror', err => console.error('BROWSER ERROR:', err.message))
 
     let verificationCode = ''
+    let shareCopiedAlert = false
     page.on('dialog', async dialog => {
       console.log(`Dialog opened: [${dialog.type()}] "${dialog.message()}" - accepting...`)
+      if (dialog.message().includes('copied')) shareCopiedAlert = true
       if (dialog.message().includes('Pickup Verification Code:')) {
         const match = dialog.message().match(/Code: ([0-9A-Za-z\-]+)/)
         if (match) {
@@ -229,6 +231,17 @@ const runTest = async () => {
     await page.click('.item-card')
     await page.waitForSelector('.item-detail', { timeout: 5000 })
     
+    // Share button must give visible feedback even when the Web Share API is
+    // absent (most desktop browsers) — otherwise it looks like it does nothing.
+    console.log('Testing share button (clipboard fallback)...')
+    await page.evaluate(() => { try { delete navigator.share } catch {} try { delete navigator.canShare } catch {} })
+    await page.click('button:has-text("share")')
+    await page.waitForTimeout(800)
+    if (!shareCopiedAlert) {
+      throw new Error('Share button gave no feedback (clipboard/copy fallback alert missing)!')
+    }
+    console.log('Share button copied the link with feedback - verified!')
+
     // Click Take It
     console.log('Taking the item...')
     try {

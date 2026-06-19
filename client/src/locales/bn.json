@@ -212,5 +212,6 @@
   "messages.start_hint": "এখনও কোনো বার্তা নেই — প্রথমটি পাঠান",
   "messages.item_gone": "এই জিনিসটি আর উপলব্ধ নেই",
   "item.message_owner": "মালিককে বার্তা দিন",
-  "item.view_messages": "বার্তা দেখুন"
+  "item.view_messages": "বার্তা দেখুন",
+  "item.share_copied": "লিঙ্ক ক্লিপবোর্ডে কপি হয়েছে ✓"
 }

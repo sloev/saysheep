@@ -212,5 +212,6 @@
   "messages.start_hint": "ingen beskeder endnu — send den første",
   "messages.item_gone": "denne ting er ikke længere tilgængelig",
   "item.message_owner": "skriv til ejeren",
-  "item.view_messages": "se beskeder"
+  "item.view_messages": "se beskeder",
+  "item.share_copied": "link kopieret til udklipsholder ✓"
 }
