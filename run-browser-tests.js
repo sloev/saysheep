@@ -49,6 +49,14 @@ const waitForPort = (port, timeout = 15000) => {
 const mockJpg = Buffer.from('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=', 'base64')
 fs.writeFileSync('mock-upload.jpg', mockJpg)
 
+// Start from a fresh relay DB. A crashed previous run can leave accumulated
+// events behind, and the resulting event churn slows the client enough to make
+// early waitForSelector calls flaky.
+;['./data/relay-test.db', './data/relay-test.db-wal', './data/relay-test.db-shm'].forEach(f => {
+  try { fs.rmSync(f, { force: true }) } catch {}
+})
+try { fs.rmSync('./data/iroh-test', { recursive: true, force: true }) } catch {}
+
 console.log('Spawning local relay on port 3008...')
 const relayEnv = { ...process.env, PORT: '3008', DB_PATH: './data/relay-test.db', IROH_DATA_DIR: 'data/iroh-test' }
 const relay = spawn('node', ['relay/src/index.js'], { env: relayEnv, stdio: 'inherit' })
