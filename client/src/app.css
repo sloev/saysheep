@@ -180,9 +180,6 @@ html, body {
 
 .topbar-logo { cursor: pointer; }
 
-.agent-edit-title-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-.agent-edit-title-row .agent-name-input { flex: 1; margin: 0; }
-
 .list-filter-hint {
   font-size: 12px;
   font-weight: 600;
@@ -961,17 +958,6 @@ html, body {
   justify-content: center;
 }
 .btn-muted { background: var(--bg); color: var(--muted); }
-.agent-edit-banner {
-  margin: 0 12px 12px;
-  padding: 10px 12px;
-  background: var(--yellow);
-  border: var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 .agent-name-input {
   height: 36px;
   padding: 0 10px;
@@ -982,7 +968,6 @@ html, body {
   font-size: 14px;
   width: 100%;
 }
-.agent-edit-hint { font-size: 12px; font-weight: 700; color: var(--ink); }
 .agent-saved-hint { font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; padding: 4px 0; }
 .agent-card {
   background: var(--surface);
