@@ -307,25 +307,31 @@ const runTest = async () => {
     }
     await page.waitForTimeout(2000)
 
-    // Create an agent from the list search box (the new agents flow)
+    // Create an agent from the list search box — snaps the view and opens the
+    // new agent's detail in the Agents tab.
     console.log('Creating an agent from the list search...')
     await page.goto('http://localhost:5173/list')
     await page.waitForSelector('.search-input', { timeout: 5000 })
     await page.fill('.search-input', 'furniture')
     await page.waitForTimeout(500)
     await page.click('.save-agent-btn')
-    await page.waitForSelector('.agent-edit-banner', { timeout: 5000 })
+    await page.waitForSelector('.agent-detail', { timeout: 5000 })
 
-    // Name the agent. It's already persisted on creation (and the Save button
-    // stays disabled "saved ✓" until the filter drifts), so just close the editor.
-    console.log('Naming the agent...')
-    await page.fill('.agent-name-input', 'My furniture agent')
-    await page.click('.agent-edit-title-row button')
+    // Rename it (local-state input — must NOT lose focus per keystroke) and save.
+    console.log('Renaming the agent in its detail view...')
+    const nameInput = page.locator('.agent-detail .agent-name-input').first()
+    await nameInput.fill('My furniture agent')
+    // Type a few chars and assert focus is retained (regression: per-letter defocus).
+    await nameInput.type(' x')
+    if (!(await nameInput.evaluate(el => el === document.activeElement))) {
+      throw new Error('Agent name input lost focus while typing!')
+    }
+    await nameInput.fill('My furniture agent')
+    await page.click('.agent-detail-top .btn-primary') // "save changes" (dirty)
     await page.waitForTimeout(500)
 
-    // Manage it on the Agents page
-    console.log('Navigating to Agents page...')
-    await page.goto('http://localhost:5173/agents')
+    // Back to the agent list
+    await page.click('.agent-detail .back-btn')
     await page.waitForSelector('.agent-card', { timeout: 5000 })
     console.log('Agent created successfully!')
 

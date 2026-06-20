@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 saysheep রিলে",
   "relay.kind.nostr": "nostr রিলে",
   "agents.unnamed": "নামহীন এজেন্ট",
-  "agents.save_changes": "এজেন্টে পরিবর্তন সংরক্ষণ করুন"
+  "agents.save_changes": "এজেন্টে পরিবর্তন সংরক্ষণ করুন",
+  "agents.name_label": "নাম",
+  "agents.terms_label": "অনুসন্ধান শব্দ",
+  "agents.area_label": "এলাকা",
+  "agents.area_custom": "একটি মানচিত্র এলাকা",
+  "agents.area_everywhere": "সর্বত্র",
+  "agents.use_current_area": "বর্তমান মানচিত্র ভিউ ব্যবহার করুন",
+  "agents.matches": "বর্তমান মিল",
+  "agents.no_matches": "এখনও কোনো মিল নেই — এখানে দেখা যাবে",
+  "agents.notifications_on": "বিজ্ঞপ্তি চালু",
+  "agents.notifications_off": "বিজ্ঞপ্তি বন্ধ"
 }

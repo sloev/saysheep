@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 реле saysheep",
   "relay.kind.nostr": "реле nostr",
   "agents.unnamed": "агент без имени",
-  "agents.save_changes": "сохранить изменения агента"
+  "agents.save_changes": "сохранить изменения агента",
+  "agents.name_label": "имя",
+  "agents.terms_label": "поисковые слова",
+  "agents.area_label": "область",
+  "agents.area_custom": "область карты",
+  "agents.area_everywhere": "везде",
+  "agents.use_current_area": "использовать текущий вид карты",
+  "agents.matches": "текущие совпадения",
+  "agents.no_matches": "пока нет совпадений — они появятся здесь",
+  "agents.notifications_on": "уведомления включены",
+  "agents.notifications_off": "уведомления выключены"
 }

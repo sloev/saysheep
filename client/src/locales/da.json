@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 saysheep-relæ",
   "relay.kind.nostr": "nostr-relæ",
   "agents.unnamed": "unavngiven agent",
-  "agents.save_changes": "gem ændringer til agent"
+  "agents.save_changes": "gem ændringer til agent",
+  "agents.name_label": "navn",
+  "agents.terms_label": "søgeord",
+  "agents.area_label": "område",
+  "agents.area_custom": "et kortområde",
+  "agents.area_everywhere": "overalt",
+  "agents.use_current_area": "brug nuværende kortudsnit",
+  "agents.matches": "aktuelle match",
+  "agents.no_matches": "ingen match endnu — de vises her",
+  "agents.notifications_on": "notifikationer til",
+  "agents.notifications_off": "notifikationer fra"
 }

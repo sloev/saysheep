@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 saysheep रिले",
   "relay.kind.nostr": "nostr रिले",
   "agents.unnamed": "अनाम एजेंट",
-  "agents.save_changes": "एजेंट में बदलाव सहेजें"
+  "agents.save_changes": "एजेंट में बदलाव सहेजें",
+  "agents.name_label": "नाम",
+  "agents.terms_label": "खोज शब्द",
+  "agents.area_label": "क्षेत्र",
+  "agents.area_custom": "एक नक्शा क्षेत्र",
+  "agents.area_everywhere": "हर जगह",
+  "agents.use_current_area": "मौजूदा नक्शा दृश्य उपयोग करें",
+  "agents.matches": "मौजूदा मिलान",
+  "agents.no_matches": "अभी कोई मिलान नहीं — यहाँ दिखेंगे",
+  "agents.notifications_on": "सूचनाएँ चालू",
+  "agents.notifications_off": "सूचनाएँ बंद"
 }

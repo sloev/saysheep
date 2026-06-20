@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 relais saysheep",
   "relay.kind.nostr": "relais nostr",
   "agents.unnamed": "agent sans nom",
-  "agents.save_changes": "enregistrer les modifications de l’agent"
+  "agents.save_changes": "enregistrer les modifications de l’agent",
+  "agents.name_label": "nom",
+  "agents.terms_label": "mots-clés",
+  "agents.area_label": "zone",
+  "agents.area_custom": "une zone de la carte",
+  "agents.area_everywhere": "partout",
+  "agents.use_current_area": "utiliser la vue actuelle de la carte",
+  "agents.matches": "résultats actuels",
+  "agents.no_matches": "aucun résultat pour l’instant — ils apparaîtront ici",
+  "agents.notifications_on": "notifications activées",
+  "agents.notifications_off": "notifications désactivées"
 }

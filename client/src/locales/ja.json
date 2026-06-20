@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 saysheep リレー",
   "relay.kind.nostr": "nostr リレー",
   "agents.unnamed": "名前のないエージェント",
-  "agents.save_changes": "エージェントの変更を保存"
+  "agents.save_changes": "エージェントの変更を保存",
+  "agents.name_label": "名前",
+  "agents.terms_label": "検索語",
+  "agents.area_label": "エリア",
+  "agents.area_custom": "地図のエリア",
+  "agents.area_everywhere": "すべての場所",
+  "agents.use_current_area": "現在の地図表示を使う",
+  "agents.matches": "現在の一致",
+  "agents.no_matches": "一致はまだありません——ここに表示されます",
+  "agents.notifications_on": "通知オン",
+  "agents.notifications_off": "通知オフ"
 }

@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 relé saysheep",
   "relay.kind.nostr": "relé nostr",
   "agents.unnamed": "agente sem nome",
-  "agents.save_changes": "guardar alterações no agente"
+  "agents.save_changes": "guardar alterações no agente",
+  "agents.name_label": "nome",
+  "agents.terms_label": "termos de pesquisa",
+  "agents.area_label": "área",
+  "agents.area_custom": "uma área do mapa",
+  "agents.area_everywhere": "em todo o lado",
+  "agents.use_current_area": "usar a vista atual do mapa",
+  "agents.matches": "correspondências atuais",
+  "agents.no_matches": "ainda sem correspondências — aparecerão aqui",
+  "agents.notifications_on": "notificações ativadas",
+  "agents.notifications_off": "notificações desativadas"
 }

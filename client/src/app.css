@@ -1011,6 +1011,21 @@ html, body {
 .agent-card-name { font-weight: 800; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agent-card-chevron { font-size: 22px; font-weight: 900; color: var(--muted); line-height: 1; padding: 0 2px; }
 
+/* ── Agent detail ── */
+.agent-detail { display: flex; flex-direction: column; }
+.agent-detail-head {
+  padding: 10px 12px 12px;
+  border-bottom: var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.agent-detail-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.agent-field { display: flex; flex-direction: column; gap: 4px; }
+.agent-field-label { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: lowercase; }
+.agent-detail-matches { padding-bottom: 8px; }
+
 /* ── BACK BUTTON ── */
 .back-btn {
   display: inline-flex;

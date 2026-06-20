@@ -1,6 +1,6 @@
 import van from 'vanjs-core'
 import * as vanX from 'vanjs-ext'
-import { store, getFilteredItems, addAgent, updateAgent, editingAgentId } from '../store.js'
+import { store, getFilteredItems, addAgent, openAgent } from '../store.js'
 import { ListItem } from '../fragments/listItem.js'
 import { t } from '../lib/i18n.js'
 const { div, input, span, button } = van.tags
@@ -56,62 +56,11 @@ export const ListPage = () => {
     span(() => t('list.total_count', { count: Object.keys(store.items).length }))
   )
 
-  // Create an agent from the current search box + map view, then drop into edit
-  // mode so it can be named right where its matches are visible.
+  // Snap the current search box + map view into a new agent and open it in the
+  // Agents tab (its own detail view), rather than editing inline here.
   const createAgentFromList = () => {
     const id = addAgent({ name: store.ui.searchQuery.trim(), query: store.ui.searchQuery, bounds: store.map.bounds })
-    editingAgentId.val = id
-  }
-
-  // Has the current filter (search + map area) drifted from what the agent has
-  // saved? Used to gate the Save button. Bounds use a tolerance so the fitBounds
-  // padding when an agent is opened doesn't count as a change — only real pans/zooms do.
-  const filterDirty = (agent) => {
-    if (store.ui.searchQuery.trim() !== (agent.query || '').trim()) return true
-    const cur = store.map.bounds, saved = agent.bounds
-    if (!saved) return false
-    if (!cur) return false
-    const spanLat = Math.abs(saved.ne.lat - saved.sw.lat) || 0.02
-    const spanLng = Math.abs(saved.ne.lng - saved.sw.lng) || 0.02
-    const dLat = Math.abs((cur.sw.lat + cur.ne.lat) / 2 - (saved.sw.lat + saved.ne.lat) / 2)
-    const dLng = Math.abs((cur.sw.lng + cur.ne.lng) / 2 - (saved.sw.lng + saved.ne.lng) / 2)
-    if (dLat > spanLat * 0.2 || dLng > spanLng * 0.2) return true
-    if (Math.abs(Math.abs(cur.ne.lat - cur.sw.lat) - spanLat) > spanLat * 0.5) return true
-    return false
-  }
-
-  // Inline header shown while an agent is open: its title + a Save button that
-  // only lights up when the filter has changed (dirty state).
-  const agentEditBanner = (id) => {
-    const agent = (store.agents || []).find(a => a.id === id)
-    if (!agent) return ''
-    return div({ class: 'agent-edit-banner' },
-      div({ class: 'agent-edit-title-row' },
-        input({
-          class: 'agent-name-input',
-          placeholder: () => t('agents.name_placeholder'),
-          value: agent.name,
-          oninput: e => updateAgent(id, { name: e.target.value }),
-        }),
-        button({ class: 'btn btn-sm', onclick: () => { editingAgentId.val = null } }, () => t('agents.done'))
-      ),
-      div({ class: 'agent-edit-hint' }, () =>
-        store.ui.searchQuery.trim()
-          ? t('agents.watching', { query: store.ui.searchQuery.trim() })
-          : t('agents.watching_everything')
-      ),
-      // The save prompt only appears once the search/map has actually changed.
-      () => {
-        const dirty = filterDirty(agent)
-        return dirty
-          ? button({
-              class: 'btn btn-sm btn-primary',
-              style: 'width:100%',
-              onclick: () => updateAgent(id, { query: store.ui.searchQuery, bounds: store.map.bounds }),
-            }, () => t('agents.save_changes'))
-          : div({ class: 'agent-saved-hint' }, () => t('agents.saved'))
-      }
-    )
+    openAgent(id)
   }
 
   return div({ class: 'page-content' },
@@ -124,15 +73,10 @@ export const ListPage = () => {
         value: store.ui.searchQuery,
         oninput: e => { store.ui.searchQuery = e.target.value },
       }),
-      // Save the current search + map area as an agent (then name it inline).
-      // Reactive children return '' (never null) when "off": a VanJS child that
-      // returns null on a render becomes a dead binding and stops updating.
-      () => editingAgentId.val
-        ? ''
-        : button({ class: 'btn btn-icon save-agent-btn', title: () => t('agents.save_as'), onclick: createAgentFromList },
-            '🤖', span({ class: 'agent-plus-badge' }, '＋'))
+      // Snap the current search + map area into a new agent (opens in Agents tab).
+      button({ class: 'btn btn-icon save-agent-btn', title: () => t('agents.save_as'), onclick: createAgentFromList },
+        '🤖', span({ class: 'agent-plus-badge' }, '＋'))
     ),
-    () => { const id = editingAgentId.val; return id ? agentEditBanner(id) : '' },
     metaInfo,
     // Loading + empty are lightweight overlays toggled reactively; they never
     // recreate listEl, so existing rows stay in the DOM.

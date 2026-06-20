@@ -365,7 +365,14 @@ export const addEvent = (event) => {
 
 // ---- Agents: a saved { name, query, bounds, notificationsEnabled } ----
 // query is exactly what you'd type in the list search box; bounds is a map view.
+// editingAgentId is the agent open in the Agents tab's detail view (null = list).
 export const editingAgentId = van.state(null)
+
+// Open an agent in the Agents tab's detail view.
+export const openAgent = (id) => {
+  editingAgentId.val = id
+  cone.navigate('agents', {})
+}
 
 export const saveAgents = () => {
   localStorage.setItem('saysheep_agents', JSON.stringify(store.agents || []))

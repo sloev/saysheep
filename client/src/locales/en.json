@@ -220,5 +220,15 @@
   "relay.kind.saysheep": "🐺 saysheep relay",
   "relay.kind.nostr": "nostr relay",
   "agents.unnamed": "unnamed agent",
-  "agents.save_changes": "save changes to agent"
+  "agents.save_changes": "save changes to agent",
+  "agents.name_label": "name",
+  "agents.terms_label": "search terms",
+  "agents.area_label": "area",
+  "agents.area_custom": "a map area",
+  "agents.area_everywhere": "everywhere",
+  "agents.use_current_area": "use current map view",
+  "agents.matches": "current matches",
+  "agents.no_matches": "no matches yet — they’ll appear here",
+  "agents.notifications_on": "notifications on",
+  "agents.notifications_off": "notifications off"
 }

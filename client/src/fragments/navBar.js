@@ -10,7 +10,7 @@ import { AgentsPage } from '../pages/agentsPage.js'
 import { MessagesPage } from '../pages/messagesPage.js'
 import { OnboardingPage } from '../pages/onboardingPage.js'
 import { NotFoundPage } from '../pages/notFoundPage.js'
-import { openThread, unreadThreadTotal } from '../store.js'
+import { openThread, unreadThreadTotal, editingAgentId } from '../store.js'
 
 const { nav, span } = van.tags
 
@@ -82,6 +82,15 @@ const MessagesTab = () => cone.link({
   }
 )
 
+// Agents tab resets to the agent list on tap (mirrors the Messages tab).
+const AgentsTab = () => cone.link({
+  name: 'agents',
+  title: t('agents'),
+  'aria-label': t('agents'),
+  class: 'nav-link nav-link-robot',
+  onclick: (e) => { e.preventDefault(); editingAgentId.val = null; cone.navigate('agents', {}) },
+}, iconSvg('robot'))
+
 export const NavBar = () => {
   // Mobile shows six slots (map is mobile-only — on desktop the map is the
   // right-hand pane). Desktop hides map + the FAB, leaving list/messages/
@@ -91,7 +100,7 @@ export const NavBar = () => {
     NavTab('list', 'list', 'list'),
     MessagesTab(),
     NavTab('new', 'plus', 'nav.new', true),
-    NavTab('agents', 'robot', 'agents'),
+    AgentsTab(),
     NavTab('settings', 'settings', 'settings')
   )
 }
