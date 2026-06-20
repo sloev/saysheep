@@ -6,7 +6,7 @@ import { getTagColor, translateTag } from '../lib/categories.js'
 import { formatRelative, formatDistance, formatDate, formatExpiry } from '../helpers/format.js'
 import { haversineDistance } from '../lib/geo.js'
 import { t } from '../lib/i18n.js'
-import { cone, itemUrl } from '../router.js'
+import { cone, shareUrl } from '../router.js'
 import timeImg from '../images/time.png'
 import locationImg from '../images/location.png'
 const { div, img, button, span, h1, p, select, option } = van.tags
@@ -85,8 +85,8 @@ export const ItemPage = (params) => {
     const title = getItemTitle(ev) || t('item.default_title')
     const summary = getItemSummary(ev)
     const cats = getItemTags(ev)
-    // Canonical deep link to this listing (stable d-tag), not just the current href.
-    const url = itemUrl(getItemId(ev))
+    // Shareable link (relay OG-preview URL when configured, else the PWA link).
+    const url = shareUrl(getItemId(ev))
 
     // Format: categories, description, "find it on saysheep:", url, (+ photo file).
     const parts = []

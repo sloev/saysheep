@@ -1,6 +1,7 @@
 {
   "port": 3001,
   "public_url": "",
+  "pwa_url": "https://sloev.github.io/saysheep",
   "name": "saysheep Relay",
   "description": "Free stuff geo-marketplace relay",
   "supported_nips": [1, 9, 11, 12, 13, 33, 40],

@@ -16,6 +16,14 @@ const prefix = typeof window !== 'undefined' ? window.location.origin + base : b
 export const itemUrl = (id) =>
   `${typeof window !== 'undefined' ? window.location.origin : ''}${base}/item/${encodeURIComponent(id)}`
 
+// The link to SHARE for an item. When VITE_OG_BASE points at a public relay
+// (e.g. https://relay.example.com), share the relay's /i/<d-tag> preview URL so
+// chat/social crawlers unfurl a rich card (title, description, photo) and real
+// browsers get bounced on to the PWA. Without it, share the canonical PWA link.
+const _ogBase = (import.meta.env?.VITE_OG_BASE || '').replace(/\/$/, '')
+export const shareUrl = (id) =>
+  _ogBase ? `${_ogBase}/i/${encodeURIComponent(id)}` : itemUrl(id)
+
 // Absolute path to a static asset under the app base. Needed because a bare
 // relative src ("images/x.png") resolves against the current SPA route
 // (e.g. /saysheep/list/) and 404s on every non-root route.

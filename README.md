@@ -35,6 +35,17 @@ graph TD
 
 ---
 
+## Security & Privacy
+
+saysheep has no accounts or servers that hold your data — your identity is a Nostr keypair generated and kept on your device. A few properties and trade-offs are worth understanding:
+
+- **Identity / key storage.** The secret key lives in `localStorage` (`saysheep_identity_v1`) as hex. The optional **passkey** (WebAuthn) gates the *export/reveal* of the key in Settings, but does not encrypt it at rest — anything with code-execution in the origin (e.g. a malicious browser extension) could read it. There is intentionally no XSS surface: all user content is rendered as text (VanJS escapes text nodes) and image tags are accepted only as `data:image/(png|jpeg|jpg|webp);base64,…`. *Future work: encrypt the key at rest with a WebAuthn-PRF–derived key.*
+- **Private chat (NIP-44).** Item chat is end-to-end encrypted with NIP-44 (kind `1442`); only the two participants can read a message. Each message carries a small NIP-13 proof-of-work and is dropped on ingest below the difficulty threshold to deter spam, and the owner of a thread is verified against the real listing's pubkey so a sender cannot forge which item/owner a conversation belongs to.
+- **Metadata trade-off.** To let relays and peers route and thread messages, the routing tags stay in clear text: recipient (`p`), item (`e`/`i`), owner (`o`) and a coarse geohash (`g`). The message *body* is encrypted, but an observer of a relay can see *who is talking to whom about which item* and the approximate area. If full metadata privacy is required, a NIP-17 gift-wrapped mode would hide this at the cost of relay-side `#p` filtering. *Considered future work.*
+- **Spam & abuse.** Listings require NIP-13 PoW (difficulty 8); the relay additionally rate-limits to 60 events/window/IP and can screen images against a SHA-256 / perceptual-hash denylist (`moderation` in `relay.config.json`). Encrypted DM bodies cannot be server-moderated by design; clients can **block** a sender (mutes them and hides their listings/messages) or **report** a listing.
+
+---
+
 ## How Relays Talk to Each Other
 
 saysheep relays form a **leaderless mesh** — there is no central server, and any relay can join or leave at any time. Three independent gossip mechanisms run in parallel, so events still spread even if one path is blocked:
@@ -90,6 +101,10 @@ Settings live in `relay/relay.config.json`; each can be overridden by an environ
 | `IROH_DATA_DIR` | — | `data/iroh` | Iroh identity/storage dir |
 
 Spam control is built in: listing events must carry proof-of-work (`min_pow_difficulty_item` = 8 bits, 4 for chat), are rate-limited to 60 events/min per IP, signature-verified, and capped at 512 KB.
+
+#### Rich link previews (optional)
+
+Because GitHub Pages can't server-render per-item Open Graph tags, a shared item link normally unfurls only to the generic app. A **public, TLS-terminated relay** can serve them instead: the relay answers `GET /i/<d-tag>` with Open Graph meta (title, description, photo) and `GET /i/<d-tag>/image` with the photo as a real HTTP image (crawlers can't read the `data:` URL stored in the event), then redirects real browsers on to the PWA item page. Set `pwa_url` in `relay.config.json` to your deployed PWA URL, and build the client with `VITE_OG_BASE=https://relay.example.com` so the **Share** button hands out `/i/<d-tag>` links. Leave `VITE_OG_BASE` unset to keep sharing the plain PWA deep link.
 
 ### Put it behind TLS
 

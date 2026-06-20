@@ -98,6 +98,58 @@ export const startRelay = (port) => {
       }))
       return
     }
+    // ── Per-item social/link preview ──
+    // Shared item links can point here (/i/<d-tag>) so chat/social crawlers get
+    // real Open Graph meta — including the photo served as an HTTP image, since
+    // crawlers can't read the data: URL stored in the event — while real
+    // browsers are bounced on to the PWA item page.
+    const imgMatch = req.url?.match(/^\/i\/([^/?]+)\/image/)
+    if (imgMatch) {
+      const dtag = decodeURIComponent(imgMatch[1])
+      let item = null
+      try { item = queryEvents({ kinds: [30402], '#d': [dtag], limit: 1 })[0] } catch {}
+      const data = item?.tags?.find(t => t[0] === 'image')?.[1] || ''
+      const m = /^data:(image\/[a-z+]+);base64,(.+)$/i.exec(data)
+      if (m) {
+        const buf = Buffer.from(m[2], 'base64')
+        res.setHeader('Content-Type', m[1])
+        res.setHeader('Cache-Control', 'public, max-age=300')
+        res.end(buf)
+      } else {
+        res.statusCode = 404
+        res.end('no image')
+      }
+      return
+    }
+    if (req.url?.startsWith('/i/')) {
+      const dtag = decodeURIComponent(req.url.slice(3).split(/[?/]/)[0])
+      let item = null
+      try { item = queryEvents({ kinds: [30402], '#d': [dtag], limit: 1 })[0] } catch {}
+      const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+      const tagVal = (name) => item?.tags?.find(t => t[0] === name)?.[1] || ''
+      const pwa = (config.pwa_url || '').replace(/\/$/, '')
+      const itemUrl = `${pwa}/item/${encodeURIComponent(dtag)}`
+      const proto = (req.headers['x-forwarded-proto'] || 'https').split(',')[0]
+      const host = req.headers.host
+      const hasImage = !!tagVal('image')
+      const imgUrl = hasImage && host ? `${proto}://${host}/i/${encodeURIComponent(dtag)}/image` : ''
+      const title = item ? (tagVal('title') || 'free on saysheep') : 'saysheep'
+      const desc = item ? (tagVal('summary') || item.content || 'free to a good home') : 'give away and find free stuff nearby'
+      res.setHeader('Content-Type', 'text/html; charset=utf-8')
+      res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>${esc(title)}</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(desc)}">
+${imgUrl ? `<meta property="og:image" content="${esc(imgUrl)}">` : ''}
+<meta property="og:url" content="${esc(itemUrl)}">
+<meta name="twitter:card" content="${imgUrl ? 'summary_large_image' : 'summary'}">
+<meta http-equiv="refresh" content="0; url=${esc(itemUrl)}">
+</head><body>Redirecting to <a href="${esc(itemUrl)}">${esc(title)}</a>…</body></html>`)
+      return
+    }
+
     res.end('saysheep Relay — connect via WebSocket')
   })
 
