@@ -213,5 +213,8 @@
   "messages.item_gone": "この物はもう利用できません",
   "item.message_owner": "出品者にメッセージ",
   "item.view_messages": "メッセージを見る",
-  "item.share_copied": "リンクをクリップボードにコピーしました ✓"
+  "item.share_copied": "リンクをクリップボードにコピーしました ✓",
+  "messages.hide": "この会話をアーカイブ",
+  "messages.block": "この人をブロック",
+  "messages.block_confirm": "この人をブロックしますか？相手のメッセージや出品が表示されなくなります。"
 }

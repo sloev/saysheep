@@ -780,7 +780,7 @@ html, body {
 .thread-unread-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pink); border: 1.5px solid var(--ink); flex-shrink: 0; }
 
 /* ── MESSAGES: thread view ── */
-.thread-view { display: flex; flex-direction: column; height: 100%; }
+.thread-view { display: flex; flex-direction: column; }
 .thread-view-header {
   display: flex;
   align-items: center;
@@ -789,7 +789,9 @@ html, body {
   border-bottom: var(--border);
   background: var(--surface);
 }
-.thread-view-title { display: flex; flex-direction: column; min-width: 0; }
+.thread-view-title { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.thread-view-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.thread-view-actions .btn-icon { padding: 4px 8px; }
 .thread-view-title .thread-title { font-size: 15px; }
 .thread-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; }
 .thread-empty-hint, .thread-gone { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 16px; }
@@ -1159,6 +1161,18 @@ select.form-select {
     overflow-y: auto !important;
     padding-bottom: 24px !important;
   }
+  /* In a thread, the message list scrolls and the composer stays pinned to the
+     bottom instead of the whole sidebar scrolling. (Mobile scrolls the document,
+     so this is desktop-only.) */
+  .page-content.thread-open {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    padding-bottom: 0 !important;
+  }
+  .thread-open .thread-view { flex: 1 !important; min-height: 0 !important; }
+  .thread-open .thread-messages { flex: 1 !important; min-height: 0 !important; }
+  .thread-open .chat-input-row { flex-shrink: 0 !important; }
   .mobile-only {
     display: none !important;
   }

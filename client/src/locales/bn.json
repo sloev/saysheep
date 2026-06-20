@@ -213,5 +213,8 @@
   "messages.item_gone": "এই জিনিসটি আর উপলব্ধ নেই",
   "item.message_owner": "মালিককে বার্তা দিন",
   "item.view_messages": "বার্তা দেখুন",
-  "item.share_copied": "লিঙ্ক ক্লিপবোর্ডে কপি হয়েছে ✓"
+  "item.share_copied": "লিঙ্ক ক্লিপবোর্ডে কপি হয়েছে ✓",
+  "messages.hide": "এই কথোপকথন আর্কাইভ করুন",
+  "messages.block": "এই ব্যক্তিকে ব্লক করুন",
+  "messages.block_confirm": "এই ব্যক্তিকে ব্লক করবেন? আপনি আর তাদের বার্তা বা তালিকা দেখতে পাবেন না।"
 }

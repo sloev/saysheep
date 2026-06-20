@@ -213,5 +213,8 @@
   "messages.item_gone": "este item já não está disponível",
   "item.message_owner": "enviar mensagem ao dono",
   "item.view_messages": "ver mensagens",
-  "item.share_copied": "link copiado para a área de transferência ✓"
+  "item.share_copied": "link copiado para a área de transferência ✓",
+  "messages.hide": "arquivar esta conversa",
+  "messages.block": "bloquear esta pessoa",
+  "messages.block_confirm": "Bloquear esta pessoa? Deixarás de ver as mensagens e os anúncios dela."
 }

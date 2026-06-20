@@ -213,5 +213,8 @@
   "messages.item_gone": "dieses ding ist nicht mehr verfügbar",
   "item.message_owner": "besitzer anschreiben",
   "item.view_messages": "nachrichten ansehen",
-  "item.share_copied": "link in die zwischenablage kopiert ✓"
+  "item.share_copied": "link in die zwischenablage kopiert ✓",
+  "messages.hide": "diese unterhaltung archivieren",
+  "messages.block": "diese person blockieren",
+  "messages.block_confirm": "Diese Person blockieren? Du siehst ihre Nachrichten und Anzeigen nicht mehr."
 }

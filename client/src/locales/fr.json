@@ -213,5 +213,8 @@
   "messages.item_gone": "cet objet n’est plus disponible",
   "item.message_owner": "contacter le propriétaire",
   "item.view_messages": "voir les messages",
-  "item.share_copied": "lien copié dans le presse-papiers ✓"
+  "item.share_copied": "lien copié dans le presse-papiers ✓",
+  "messages.hide": "archiver cette conversation",
+  "messages.block": "bloquer cette personne",
+  "messages.block_confirm": "Bloquer cette personne ? Vous ne verrez plus ses messages ni ses annonces."
 }

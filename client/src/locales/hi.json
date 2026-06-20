@@ -213,5 +213,8 @@
   "messages.item_gone": "यह चीज़ अब उपलब्ध नहीं है",
   "item.message_owner": "मालिक को संदेश भेजें",
   "item.view_messages": "संदेश देखें",
-  "item.share_copied": "लिंक क्लिपबोर्ड पर कॉपी हो गया ✓"
+  "item.share_copied": "लिंक क्लिपबोर्ड पर कॉपी हो गया ✓",
+  "messages.hide": "इस बातचीत को संग्रहित करें",
+  "messages.block": "इस व्यक्ति को ब्लॉक करें",
+  "messages.block_confirm": "इस व्यक्ति को ब्लॉक करें? आपको उनके संदेश और सूचियाँ नहीं दिखेंगी।"
 }

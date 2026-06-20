@@ -213,5 +213,8 @@
   "messages.item_gone": "this item is no longer available",
   "item.message_owner": "message the owner",
   "item.view_messages": "view messages",
-  "item.share_copied": "link copied to clipboard ✓"
+  "item.share_copied": "link copied to clipboard ✓",
+  "messages.hide": "archive this conversation",
+  "messages.block": "block this person",
+  "messages.block_confirm": "Block this person? You won’t see their messages or listings anymore."
 }

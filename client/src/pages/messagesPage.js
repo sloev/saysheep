@@ -2,6 +2,7 @@ import van from 'vanjs-core'
 import {
   store, openThread, getThreads, getThreadMessages, threadUnread,
   markThreadRead, sendThreadMessage, findItemByDtag, threadOther, openItem,
+  blockThread, hideThread,
 } from '../store.js'
 import { parseThreadKey } from '../lib/dm.js'
 import { getItemImage, getItemTitle, getItemTags, isExpired, shortPubkey } from '../lib/nostr.js'
@@ -77,6 +78,16 @@ export const MessagesPage = () => {
         div({ class: 'thread-view-title' },
           span({ class: 'thread-title' }, itemLabel(item)),
           span({ class: 'thread-who' }, '🐑 ', shortPubkey(other))
+        ),
+        div({ class: 'thread-view-actions' },
+          button({
+            class: 'btn btn-icon', title: () => t('messages.hide'),
+            onclick: () => hideThread(key),
+          }, '🗑'),
+          button({
+            class: 'btn btn-icon', title: () => t('messages.block'),
+            onclick: () => { if (confirm(t('messages.block_confirm'))) blockThread(key) },
+          }, '🚫')
         )
       ),
       div({ class: 'thread-messages' },
@@ -110,7 +121,7 @@ export const MessagesPage = () => {
     )
   }
 
-  return div({ class: 'page-content' },
+  return div({ class: () => 'page-content' + (openThread.val ? ' thread-open' : '') },
     // Reactive children always return a real element (never null) so the binding
     // stays live across the list ⇄ thread switch.
     () => openThread.val ? threadView(openThread.val) : threadList()
