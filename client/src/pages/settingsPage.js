@@ -110,10 +110,11 @@ export const SettingsPage = () => {
       div({ class: 'settings-section-title' }, () => t('settings.relays')),
       div({ class: 'relay-list' },
         () => div({ style: 'display:flex;flex-direction:column;gap:8px' },
-          ...relaysStatus.val.map(({ url, connected, nextReconnectAt }) => {
+          ...relaysStatus.val.map(({ url, connected, nextReconnectAt, saysheep }) => {
             let statusBadge
             if (connected) {
-              statusBadge = span({ class: 'settings-text-mint', style: 'margin-top:2px' }, () => '🟢 ' + t('relay.status.connected'))
+              statusBadge = span({ class: 'settings-text-mint', style: 'margin-top:2px' },
+                () => '🟢 ' + t('relay.status.connected') + ' · ' + (saysheep ? t('relay.kind.saysheep') : t('relay.kind.nostr')))
             } else {
               const secs = nextReconnectAt ? Math.ceil((nextReconnectAt - Date.now()) / 1000) : 0
               statusBadge = span({ style: 'font-size:11px;color:var(--pink);font-weight:700;margin-top:2px' }, 

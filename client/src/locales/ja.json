@@ -216,5 +216,7 @@
   "item.share_copied": "リンクをクリップボードにコピーしました ✓",
   "messages.hide": "この会話をアーカイブ",
   "messages.block": "この人をブロック",
-  "messages.block_confirm": "この人をブロックしますか？相手のメッセージや出品が表示されなくなります。"
+  "messages.block_confirm": "この人をブロックしますか？相手のメッセージや出品が表示されなくなります。",
+  "relay.kind.saysheep": "🐺 saysheep リレー",
+  "relay.kind.nostr": "nostr リレー"
 }

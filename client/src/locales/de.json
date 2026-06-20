@@ -216,5 +216,7 @@
   "item.share_copied": "link in die zwischenablage kopiert ✓",
   "messages.hide": "diese unterhaltung archivieren",
   "messages.block": "diese person blockieren",
-  "messages.block_confirm": "Diese Person blockieren? Du siehst ihre Nachrichten und Anzeigen nicht mehr."
+  "messages.block_confirm": "Diese Person blockieren? Du siehst ihre Nachrichten und Anzeigen nicht mehr.",
+  "relay.kind.saysheep": "🐺 saysheep-Relay",
+  "relay.kind.nostr": "Nostr-Relay"
 }

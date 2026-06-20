@@ -22,6 +22,9 @@ class saysheepRelay {
     this.nextReconnectAt = null
     this._reconnectDelay = 1000
     this._dead = false
+    // Capability info from a "proper" saysheep relay's CAP handshake (e.g. its
+    // OG preview base). Stays null for generic Nostr relays, which ignore CAP.
+    this.capability = null
     this._connect()
   }
 
@@ -43,6 +46,8 @@ class saysheepRelay {
       for (const [subId, sub] of this.subs) {
         this.ws.send(JSON.stringify(['REQ', subId, ...sub.filters]))
       }
+      // Probe for saysheep-relay capabilities (generic relays ignore this).
+      this.ws.send(JSON.stringify(['CAP']))
       this.onP2PMessage?.({ type: '_connected', relay: this })
     }
 
@@ -53,6 +58,11 @@ class saysheepRelay {
 
       if (msg[0] === 'P2P') {
         this.onP2PMessage?.(msg)
+        return
+      }
+
+      if (msg[0] === 'CAP') {
+        this.capability = msg[1] || {}
         return
       }
 
@@ -155,8 +165,19 @@ export const getRelaysStatus = () => {
   return [..._connections.entries()].map(([url, conn]) => ({
     url,
     connected: conn.connected,
-    nextReconnectAt: conn.nextReconnectAt
+    nextReconnectAt: conn.nextReconnectAt,
+    saysheep: !!conn.capability, // answered the CAP handshake
   }))
+}
+
+// The OG preview base of any currently-connected "proper" saysheep relay (the
+// first one found), or null if only generic relays are connected. Used at share
+// time to build a rich-preview link without hard-coding any domain.
+export const getOgBase = () => {
+  for (const conn of _connections.values()) {
+    if (conn.connected && conn.capability?.og_base) return conn.capability.og_base.replace(/\/$/, '')
+  }
+  return null
 }
 
 export const getRelays = () => _relays

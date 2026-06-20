@@ -216,5 +216,7 @@
   "item.share_copied": "lien copié dans le presse-papiers ✓",
   "messages.hide": "archiver cette conversation",
   "messages.block": "bloquer cette personne",
-  "messages.block_confirm": "Bloquer cette personne ? Vous ne verrez plus ses messages ni ses annonces."
+  "messages.block_confirm": "Bloquer cette personne ? Vous ne verrez plus ses messages ni ses annonces.",
+  "relay.kind.saysheep": "🐺 relais saysheep",
+  "relay.kind.nostr": "relais nostr"
 }

@@ -216,5 +216,7 @@
   "item.share_copied": "链接已复制到剪贴板 ✓",
   "messages.hide": "归档此对话",
   "messages.block": "屏蔽此人",
-  "messages.block_confirm": "屏蔽此人？你将不再看到他们的消息和物品。"
+  "messages.block_confirm": "屏蔽此人？你将不再看到他们的消息和物品。",
+  "relay.kind.saysheep": "🐺 saysheep 中继",
+  "relay.kind.nostr": "nostr 中继"
 }

@@ -216,5 +216,7 @@
   "item.share_copied": "link copied to clipboard ✓",
   "messages.hide": "archive this conversation",
   "messages.block": "block this person",
-  "messages.block_confirm": "Block this person? You won’t see their messages or listings anymore."
+  "messages.block_confirm": "Block this person? You won’t see their messages or listings anymore.",
+  "relay.kind.saysheep": "🐺 saysheep relay",
+  "relay.kind.nostr": "nostr relay"
 }

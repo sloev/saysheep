@@ -216,5 +216,7 @@
   "item.share_copied": "link kopieret til udklipsholder ✓",
   "messages.hide": "arkivér denne samtale",
   "messages.block": "blokér denne person",
-  "messages.block_confirm": "Blokér denne person? Du vil ikke længere se deres beskeder eller annoncer."
+  "messages.block_confirm": "Blokér denne person? Du vil ikke længere se deres beskeder eller annoncer.",
+  "relay.kind.saysheep": "🐺 saysheep-relæ",
+  "relay.kind.nostr": "nostr-relæ"
 }

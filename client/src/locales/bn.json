@@ -216,5 +216,7 @@
   "item.share_copied": "লিঙ্ক ক্লিপবোর্ডে কপি হয়েছে ✓",
   "messages.hide": "এই কথোপকথন আর্কাইভ করুন",
   "messages.block": "এই ব্যক্তিকে ব্লক করুন",
-  "messages.block_confirm": "এই ব্যক্তিকে ব্লক করবেন? আপনি আর তাদের বার্তা বা তালিকা দেখতে পাবেন না।"
+  "messages.block_confirm": "এই ব্যক্তিকে ব্লক করবেন? আপনি আর তাদের বার্তা বা তালিকা দেখতে পাবেন না।",
+  "relay.kind.saysheep": "🐺 saysheep রিলে",
+  "relay.kind.nostr": "nostr রিলে"
 }

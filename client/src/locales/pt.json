@@ -216,5 +216,7 @@
   "item.share_copied": "link copiado para a área de transferência ✓",
   "messages.hide": "arquivar esta conversa",
   "messages.block": "bloquear esta pessoa",
-  "messages.block_confirm": "Bloquear esta pessoa? Deixarás de ver as mensagens e os anúncios dela."
+  "messages.block_confirm": "Bloquear esta pessoa? Deixarás de ver as mensagens e os anúncios dela.",
+  "relay.kind.saysheep": "🐺 relé saysheep",
+  "relay.kind.nostr": "relé nostr"
 }

@@ -156,11 +156,24 @@ ${imgUrl ? `<meta property="og:image" content="${esc(imgUrl)}">` : ''}
   const wss = new WebSocketServer({ server, maxPayload: config.max_event_size_bytes })
   const clients = new Set()
 
+  // The public HTTP(S) base a client should use for this relay's per-item OG
+  // previews. Prefer the operator's configured public_url (ws→http, wss→https);
+  // otherwise fall back to the host the client connected through.
+  const ogBaseFor = (ws) => {
+    const pub = (config.pwa_og_base || config.public_url || '').trim()
+    if (pub) return pub.replace(/^wss:\/\//, 'https://').replace(/^ws:\/\//, 'http://').replace(/\/$/, '')
+    const host = ws.hostHeader
+    if (!host) return ''
+    const scheme = /^(localhost|127\.|0\.0\.0\.0|\[?::1)/.test(host) ? 'http' : 'https'
+    return `${scheme}://${host}`
+  }
+
   wss.on('connection', (ws, req) => {
     const clientId = crypto.randomUUID()
     const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown'
     ws.clientId = clientId
     ws.clientIp = clientIp
+    ws.hostHeader = req.headers.host
     clients.add(ws)
     subscriptions.set(clientId, [])
     log.info(`+ ${clientId.slice(0,8)} (${clientIp})`)
@@ -176,6 +189,14 @@ ${imgUrl ? `<meta property="og:image" content="${esc(imgUrl)}">` : ''}
         return
       }
       if (!Array.isArray(msg) || !msg.length) return
+
+      // Capability handshake — lets clients tell a "proper" saysheep relay apart
+      // from a generic Nostr relay (which ignores this verb) and learn its OG
+      // preview endpoint. The reply advertises this relay's public OG base.
+      if (msg[0] === 'CAP') {
+        ws.send(JSON.stringify(['CAP', { software: 'saysheep-relay', og_base: ogBaseFor(ws), federation: true }]))
+        return
+      }
 
       // P2P control messages — dispatch to DHT layer
       if (msg[0] === 'P2P') {
