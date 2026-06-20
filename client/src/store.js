@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
 import * as vanX from 'vanjs-ext'
 import { initSync, subscribeArea, subscribeDMs, sendDM, CONNECTIVITY, getMode } from './lib/sync.js'
-import { toMessage, threadKey, parseThreadKey, CHAT_KIND } from './lib/dm.js'
+import { toMessage, threadKey, parseThreadKey, dmRecipient, CHAT_KIND, DM_POW } from './lib/dm.js'
 import { initI18n } from './lib/i18n.js'
 import { getIdentity, importIdentity } from './lib/identity.js'
 import { encodeGeohash, precisionForZoom, geohashesForBounds, geohashBounds } from './lib/geo.js'
@@ -245,6 +245,7 @@ export const addEvent = (event) => {
   // These never enter store.items (which is listings only).
   if (event.kind === CHAT_KIND) {
     if (!event.content || event.content.length > 16000) return
+    if (getEventPow(event.id) < DM_POW) return // anti-spam PoW
     ingestMessage(event)
     return
   }
@@ -479,10 +480,32 @@ export const messages = van.state([])
 export const threadReads = van.state({})
 // The thread open in the Messages page (a threadKey), or null for the list.
 export const openThread = van.state(null)
+// Locally hidden/archived threads: key -> hide timestamp. A thread reappears
+// once a newer message arrives (created_at > hide ts).
+export const hiddenThreads = van.state({})
 
 const loadThreadReads = () => {
   try { threadReads.val = JSON.parse(localStorage.getItem('saysheep_thread_reads') || '{}') || {} }
   catch { threadReads.val = {} }
+  try { hiddenThreads.val = JSON.parse(localStorage.getItem('saysheep_hidden_threads') || '{}') || {} }
+  catch { hiddenThreads.val = {} }
+}
+
+// Block the other party in a thread: mute them (drops their future events and
+// existing listings) and leave the thread view. Muted parties are filtered out
+// of the thread list.
+export const blockThread = (key) => {
+  const { ownerPubkey, takerPubkey } = parseThreadKey(key)
+  mutePubkey(threadOther(ownerPubkey, takerPubkey))
+  openThread.val = null
+}
+
+// Hide/archive a thread locally; it returns if a newer message arrives.
+export const hideThread = (key) => {
+  const next = { ...hiddenThreads.val, [key]: Math.floor(Date.now() / 1000) }
+  hiddenThreads.val = next
+  localStorage.setItem('saysheep_hidden_threads', JSON.stringify(next))
+  openThread.val = null
 }
 
 // Decrypt + thread a DM event, append it to the feed, and notify if it's an
@@ -491,12 +514,32 @@ const ingestMessage = (event) => {
   const { secretKey } = getIdentity()
   const msg = toMessage(event, secretKey, store.identity.pubkey)
   if (!msg) return
+
+  // Harden against forged 'o'/'i' tags: a DM's owner is authoritatively the
+  // listing's pubkey, not whatever the sender claimed. When we hold the listing,
+  // require that one of the two participants actually owns it (else the thread is
+  // spoofed — drop it), and recompute the thread from the real owner so a sender
+  // can't misattribute a conversation to a different item/owner.
+  const item = findItemByDtag(msg.itemId)
+  if (item) {
+    const recipient = dmRecipient(event)
+    const realOwner = item.pubkey
+    if (msg.sender !== realOwner && recipient !== realOwner) return
+    const taker = msg.sender === realOwner ? recipient : msg.sender
+    msg.ownerPubkey = realOwner
+    msg.takerPubkey = taker
+    msg.key = threadKey(msg.itemId, realOwner, taker)
+  }
+
   if (messages.val.some(m => m.id === msg.id)) return
   messages.val = [...messages.val, msg].sort((a, b) => a.created_at - b.created_at)
 
   if (!msg.fromMe) {
     if (event.created_at > _notifMax) _notifMax = event.created_at
-    if (event.created_at > _notifBaseline) {
+    // Coalesce: at most one unread message notification per thread, so a burst of
+    // messages (or a spammer) can't flood the feed.
+    const alreadyUnread = notifications.val.some(n => n.type === 'message' && !n.read && n.params?.threadKey === msg.key)
+    if (event.created_at > _notifBaseline && !alreadyUnread) {
       const item = findItemByDtag(msg.itemId)
       addNotification({
         type: 'message',
@@ -530,7 +573,12 @@ export const getThreads = () => {
       cur.last = m
     }
   }
-  return [...map.values()].sort((a, b) => b.last.created_at - a.last.created_at)
+  return [...map.values()]
+    // Hide blocked participants and locally-archived threads (the latter return
+    // when a newer message lands).
+    .filter(th => !isMuted(threadOther(th.ownerPubkey, th.takerPubkey)))
+    .filter(th => !(hiddenThreads.val[th.key] >= th.last.created_at))
+    .sort((a, b) => b.last.created_at - a.last.created_at)
 }
 
 export const getThreadMessages = (key) =>

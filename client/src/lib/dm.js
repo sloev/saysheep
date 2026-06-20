@@ -1,4 +1,9 @@
-import { finalizeEvent, nip44 } from 'nostr-tools'
+import { finalizeEvent, nip44, getPublicKey } from 'nostr-tools'
+import { getEventHash, getEventPow } from './nostr.js'
+
+// Small NIP-13 proof-of-work on every DM to deter spam, mirroring the anti-spam
+// the old public chat carried. Ingest rejects DMs below this difficulty.
+export const DM_POW = 4
 
 // Private item chat. A message is a regular (relay-stored) event whose body is
 // NIP-44 encrypted to the recipient, while a few single-char tags stay in clear
@@ -26,6 +31,7 @@ export const dmOwner = (event) => event.tags.find(t => t[0] === 'o')?.[1] || nul
 export const buildDMEvent = ({ secretKey, recipientPubkey, itemEventId, itemId, ownerPubkey, geohash, text }) => {
   const convKey = nip44.getConversationKey(secretKey, recipientPubkey)
   const content = nip44.encrypt(text, convKey)
+  const now = Math.floor(Date.now() / 1000)
   const tags = [
     ['p', recipientPubkey],
     ['e', itemEventId],
@@ -33,7 +39,19 @@ export const buildDMEvent = ({ secretKey, recipientPubkey, itemEventId, itemId, 
     ['o', ownerPubkey],
   ]
   if (geohash) tags.push(['g', geohash])
-  return finalizeEvent({ kind: CHAT_KIND, created_at: Math.floor(Date.now() / 1000), tags, content }, secretKey)
+
+  // Mine NIP-13 PoW (difficulty DM_POW) before finalizing.
+  tags.push(['nonce', '', String(DM_POW)])
+  const nonceIdx = tags.length - 1
+  const baseEvent = { pubkey: getPublicKey(secretKey), created_at: now, kind: CHAT_KIND, content, tags }
+  let counter = 0
+  while (true) {
+    tags[nonceIdx][1] = String(counter)
+    if (getEventPow(getEventHash(baseEvent)) >= DM_POW) break
+    counter++
+  }
+
+  return finalizeEvent({ kind: CHAT_KIND, created_at: now, tags, content }, secretKey)
 }
 
 // Decrypt a DM for the given identity. The conversation key is symmetric, so the
