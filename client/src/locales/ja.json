@@ -218,5 +218,7 @@
   "messages.block": "この人をブロック",
   "messages.block_confirm": "この人をブロックしますか？相手のメッセージや出品が表示されなくなります。",
   "relay.kind.saysheep": "🐺 saysheep リレー",
-  "relay.kind.nostr": "nostr リレー"
+  "relay.kind.nostr": "nostr リレー",
+  "agents.unnamed": "名前のないエージェント",
+  "agents.save_changes": "エージェントの変更を保存"
 }

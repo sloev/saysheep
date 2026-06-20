@@ -218,5 +218,7 @@
   "messages.block": "block this person",
   "messages.block_confirm": "Block this person? You won’t see their messages or listings anymore.",
   "relay.kind.saysheep": "🐺 saysheep relay",
-  "relay.kind.nostr": "nostr relay"
+  "relay.kind.nostr": "nostr relay",
+  "agents.unnamed": "unnamed agent",
+  "agents.save_changes": "save changes to agent"
 }

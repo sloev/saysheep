@@ -218,5 +218,7 @@
   "messages.block": "এই ব্যক্তিকে ব্লক করুন",
   "messages.block_confirm": "এই ব্যক্তিকে ব্লক করবেন? আপনি আর তাদের বার্তা বা তালিকা দেখতে পাবেন না।",
   "relay.kind.saysheep": "🐺 saysheep রিলে",
-  "relay.kind.nostr": "nostr রিলে"
+  "relay.kind.nostr": "nostr রিলে",
+  "agents.unnamed": "নামহীন এজেন্ট",
+  "agents.save_changes": "এজেন্টে পরিবর্তন সংরক্ষণ করুন"
 }

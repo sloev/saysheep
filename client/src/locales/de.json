@@ -218,5 +218,7 @@
   "messages.block": "diese person blockieren",
   "messages.block_confirm": "Diese Person blockieren? Du siehst ihre Nachrichten und Anzeigen nicht mehr.",
   "relay.kind.saysheep": "🐺 saysheep-Relay",
-  "relay.kind.nostr": "Nostr-Relay"
+  "relay.kind.nostr": "Nostr-Relay",
+  "agents.unnamed": "unbenannter Agent",
+  "agents.save_changes": "Änderungen am Agenten speichern"
 }

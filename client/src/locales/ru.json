@@ -218,5 +218,7 @@
   "messages.block": "заблокировать этого человека",
   "messages.block_confirm": "Заблокировать этого человека? Вы больше не увидите его сообщения и объявления.",
   "relay.kind.saysheep": "🐺 реле saysheep",
-  "relay.kind.nostr": "реле nostr"
+  "relay.kind.nostr": "реле nostr",
+  "agents.unnamed": "агент без имени",
+  "agents.save_changes": "сохранить изменения агента"
 }

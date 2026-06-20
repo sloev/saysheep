@@ -218,5 +218,7 @@
   "messages.block": "屏蔽此人",
   "messages.block_confirm": "屏蔽此人？你将不再看到他们的消息和物品。",
   "relay.kind.saysheep": "🐺 saysheep 中继",
-  "relay.kind.nostr": "nostr 中继"
+  "relay.kind.nostr": "nostr 中继",
+  "agents.unnamed": "未命名智能体",
+  "agents.save_changes": "保存对智能体的更改"
 }

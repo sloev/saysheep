@@ -983,6 +983,7 @@ html, body {
   width: 100%;
 }
 .agent-edit-hint { font-size: 12px; font-weight: 700; color: var(--ink); }
+.agent-saved-hint { font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; padding: 4px 0; }
 .agent-card {
   background: var(--surface);
   border: var(--border);
@@ -995,6 +996,20 @@ html, body {
 }
 .agent-summary { font-size: 12px; color: var(--muted); }
 .agent-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Clickable agent row: name + summary on the left, actions on the right. */
+.agent-card-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.agent-card-row:hover { transform: translateY(-1px); }
+.agent-card-row:active { transform: translate(1px, 1px); box-shadow: var(--shadow-sm); }
+.agent-card-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.agent-card-name { font-weight: 800; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agent-card-chevron { font-size: 22px; font-weight: 900; color: var(--muted); line-height: 1; padding: 0 2px; }
 
 /* ── BACK BUTTON ── */
 .back-btn {

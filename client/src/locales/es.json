@@ -218,5 +218,7 @@
   "messages.block": "bloquear a esta persona",
   "messages.block_confirm": "¿Bloquear a esta persona? Ya no verás sus mensajes ni sus artículos.",
   "relay.kind.saysheep": "🐺 relé saysheep",
-  "relay.kind.nostr": "relé nostr"
+  "relay.kind.nostr": "relé nostr",
+  "agents.unnamed": "agente sin nombre",
+  "agents.save_changes": "guardar cambios en el agente"
 }

@@ -100,14 +100,16 @@ export const ListPage = () => {
           ? t('agents.watching', { query: store.ui.searchQuery.trim() })
           : t('agents.watching_everything')
       ),
+      // The save prompt only appears once the search/map has actually changed.
       () => {
         const dirty = filterDirty(agent)
-        return button({
-          class: 'btn btn-sm btn-primary',
-          style: 'width:100%',
-          disabled: !dirty,
-          onclick: () => updateAgent(id, { query: store.ui.searchQuery, bounds: store.map.bounds }),
-        }, () => dirty ? t('agents.save') : t('agents.saved'))
+        return dirty
+          ? button({
+              class: 'btn btn-sm btn-primary',
+              style: 'width:100%',
+              onclick: () => updateAgent(id, { query: store.ui.searchQuery, bounds: store.map.bounds }),
+            }, () => t('agents.save_changes'))
+          : div({ class: 'agent-saved-hint' }, () => t('agents.saved'))
       }
     )
   }
