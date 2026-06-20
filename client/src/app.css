@@ -360,14 +360,6 @@ html, body {
   font-weight: 900;
   letter-spacing: -0.5px;
 }
-.app-logo {
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -1px;
-  color: var(--pink);
-}
-.app-logo span { color: var(--ink); }
-
 /* ── MAP ── */
 #map {
   width: 100%;
@@ -375,10 +367,6 @@ html, body {
   position: absolute;
   top: 0; left: 0;
   z-index: 0;
-}
-.map-wrapper {
-  position: relative;
-  height: calc(100dvh - var(--nav-h) - var(--safe-bottom));
 }
 
 /* ── LIST ── */
@@ -883,21 +871,6 @@ html, body {
   color: var(--mint);
   font-weight: bold;
 }
-.connectivity-options { display: flex; flex-direction: column; gap: 8px; }
-.connectivity-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: var(--border);
-  border-radius: var(--radius);
-  cursor: pointer;
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-}
-.connectivity-option.active { background: var(--yellow-light); border-color: var(--ink); }
-.connectivity-option input[type="radio"] { accent-color: var(--pink); }
-
 /* ── LOADING ── */
 .loading-screen {
   position: fixed;
@@ -928,22 +901,6 @@ html, body {
 }
 
 /* ── AGENTS PAGE ── */
-.alert-card {
-  background: var(--surface);
-  border: var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.alert-info { flex: 1; }
-.alert-area { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-.alert-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-
-/* Agents */
 .btn-icon {
   height: 38px;
   min-width: 38px;
@@ -1041,22 +998,11 @@ select.form-select {
   box-shadow: var(--shadow-sm);
 }
 
-/* ── AVAILABILITY TOGGLE ── */
-.toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-}
-.toggle-row input[type="checkbox"] { accent-color: var(--pink); width: 18px; height: 18px; }
-
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; opacity: 0.3; }
 
-/* ── MAPLIBRE overrides ── */
-.maplibregl-map { font-family: inherit; }
-.maplibregl-ctrl-group { border: 1.5px solid var(--ink) !important; border-radius: 8px !important; box-shadow: var(--shadow-sm) !important; }
+/* ── MAP MARKERS ── */
 .map-marker {
   width: 28px; height: 28px;
   background: var(--pink);
@@ -1076,9 +1022,6 @@ select.form-select {
 /* ── UTILS ── */
 .divider { height: 1.5px; background: rgba(0,0,0,0.08); margin: 4px 0; }
 .text-muted { color: var(--muted); }
-.text-sm { font-size: 12px; }
-.mt-8 { margin-top: 8px; }
-.section-pad { padding: 0 16px; }
 
 /* ── RESPONSIVE DESKTOP LAYOUT ── */
 @media (min-width: 768px) {
@@ -1314,18 +1257,6 @@ select.form-select {
   box-shadow: var(--shadow-sm);
 }
 
-.map-conn-status {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: var(--z-overlay);
-}
-@media (max-width: 767px) {
-  .map-conn-status {
-    bottom: calc(var(--nav-h) + var(--safe-bottom) + 12px);
-  }
-}
-
 /* ── MODALS ── */
 .modal-overlay {
   position: fixed;
@@ -1369,7 +1300,6 @@ select.form-select {
   margin-top: 8px;
 }
 
-/* Spinner and Chat Claim custom styles */
 .spinner {
   width: 20px;
   height: 20px;
@@ -1381,14 +1311,6 @@ select.form-select {
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-.chat-msg.claim-msg {
-  align-self: center !important;
-  background: var(--yellow-light);
-  border-style: dashed;
-  text-align: center;
-  max-width: 100%;
 }
 
 /* ---- Notification bell + dropdown feed ---- */
