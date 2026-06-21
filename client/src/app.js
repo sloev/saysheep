@@ -7,7 +7,7 @@ import { routerElement, cone } from './router.js'
 import { MapComponent, MapSearchBox, MapControls } from './fragments/map.js'
 import { t } from './lib/i18n.js'
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.Capacitor) {
   window.addEventListener('load', () =>
     navigator.serviceWorker.register('./sw.js').catch(() => {})
   )

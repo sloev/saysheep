@@ -5,7 +5,7 @@ import { getLang, setLang, getSupportedLangs, t } from '../lib/i18n.js'
 import { getPubkey, getSecretKeyHex, isWebAuthnSupported, hasPasskey, registerPasskey, verifyPasskey, clearPasskey } from '../lib/identity.js'
 import { requestNotificationPermission, getNotificationPermission } from '../lib/notifications.js'
 import { shortPubkey } from '../lib/nostr.js'
-import { installAvailable, promptInstall, isIOS, isStandalone, ANDROID_APK_URL } from '../lib/pwaInstall.js'
+import { installAvailable, promptInstall, isIOS, isStandalone, isCapacitorNative, ANDROID_APK_URL } from '../lib/pwaInstall.js'
 const { div, button, input, span, select, option, label, p, a } = van.tags
 
 
@@ -26,7 +26,7 @@ export const SettingsPage = () => {
   const pageEl = div({ class: 'page-content' },
 
     // 0. Install Section
-    isStandalone() ? '' : div({ class: 'settings-section' },
+    (isStandalone() || isCapacitorNative()) ? '' : div({ class: 'settings-section' },
       div({ class: 'settings-section-title' }, () => t('settings.install')),
       () => installAvailable.val
         ? button({ class: 'btn btn-primary', style: 'width:100%', onclick: promptInstall }, () => t('settings.install.pwa'))

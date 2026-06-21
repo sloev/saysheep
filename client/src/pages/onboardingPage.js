@@ -1,7 +1,7 @@
 import van from 'vanjs-core'
 import { cone } from '../router.js'
 import { t } from '../lib/i18n.js'
-import { installAvailable, promptInstall, isIOS, isStandalone, ANDROID_APK_URL } from '../lib/pwaInstall.js'
+import { installAvailable, promptInstall, isIOS, isStandalone, isCapacitorNative, ANDROID_APK_URL } from '../lib/pwaInstall.js'
 
 const { div, p, button, a } = van.tags
 
@@ -25,7 +25,7 @@ export const OnboardingPage = () => {
 
     // Install section — same PWA prompt + Android APK link as settings, hidden
     // when already running as an installed app.
-    isStandalone() ? '' : div({ class: 'onboarding-install' },
+    (isStandalone() || isCapacitorNative()) ? '' : div({ class: 'onboarding-install' },
       div({ class: 'onboarding-install-title' }, () => t('onboarding.install.title')),
       () => installAvailable.val
         ? button({ class: 'btn btn-primary', style: 'width:100%', onclick: promptInstall }, () => t('settings.install.pwa'))

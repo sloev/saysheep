@@ -16,6 +16,7 @@
   --shadow: 3px 3px 0 var(--ink);
   --shadow-sm: 2px 2px 0 var(--ink);
   --nav-h: 60px;
+  --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --z-map: 1;
   --z-overlay: 100;
@@ -68,9 +69,9 @@ html, body {
 #global-map-container {
   display: none;
   position: absolute;
-  top: 50px; left: 0;
+  top: calc(50px + var(--safe-top)); left: 0;
   width: 100%;
-  height: calc(100dvh - 50px - var(--nav-h) - var(--safe-bottom));
+  height: calc(100dvh - 50px - var(--safe-top) - var(--nav-h) - var(--safe-bottom));
   z-index: var(--z-map);
 }
 
@@ -121,7 +122,8 @@ html, body {
 .topbar {
   display: flex;
   align-items: center;
-  height: 50px;
+  height: calc(50px + var(--safe-top));
+  padding-top: var(--safe-top);
   background: var(--surface);
   border-bottom: var(--border);
   z-index: 101;

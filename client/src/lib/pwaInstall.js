@@ -12,6 +12,10 @@ export const isStandalone = () =>
   typeof window !== 'undefined' &&
   (window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true)
 
+export const isCapacitorNative = () =>
+  typeof window !== 'undefined' &&
+  window.Capacitor?.isNativePlatform?.() === true
+
 export const isIOS = () =>
   typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream
 
