@@ -5,10 +5,14 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'))
 
 export default defineConfig(({ mode }) => ({
   root: 'src',
   base: process.env.VITE_BASE !== undefined ? process.env.VITE_BASE : '/',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     nodePolyfills(),
     {

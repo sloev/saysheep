@@ -10,6 +10,7 @@ import { getSearchableTerms } from './lib/categories.js'
 import { getRelays } from './lib/relay.js'
 import { getItemGeohash, getItemGeo, isTaken, isExpired, getEventPow, randomUUID, isTestContext, computeReceiptHash, getItemTitle } from './lib/nostr.js'
 import { notifyIfMatches, findAgentMatch } from './lib/notifications.js'
+import { checkForUpdate } from './lib/updateCheck.js'
 import { getItemId } from './lib/nostr.js'
 import { cone } from './router.js'
 
@@ -137,6 +138,17 @@ export const initStore = async () => {
     addNotification({ type: 'announcement', route: 'onboarding', key: 'welcome', params: { textKey: 'notif.welcome' } })
     localStorage.setItem('saysheep_welcomed', '1')
   }
+
+  // In-app update check (Capacitor Android only — no-op on web)
+  checkForUpdate().then(result => {
+    if (result) {
+      addNotification({
+        type: 'announcement',
+        key: `update:${result.tag}`,
+        params: { textKey: 'notif.update', version: result.tag },
+      })
+    }
+  })
 
   // Watch GPS
   if (navigator.geolocation) {

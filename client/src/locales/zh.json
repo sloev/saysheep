@@ -230,5 +230,11 @@
   "agents.matches": "当前匹配",
   "agents.no_matches": "暂无匹配——将在此显示",
   "agents.notifications_on": "通知已开启",
-  "agents.notifications_off": "通知已关闭"
+  "agents.notifications_off": "通知已关闭",
+  "settings.install.sideload_warning": "由于此应用直接安装（非通过Play商店），Android会显示安全警告。\n\n下载后：\n1. 点击下载的文件\n2. 如果看到\"被Play保护机制阻止\"，点击\"更多详情\"→\"仍然安装\"\n3. 可能需要在设置→应用→安装未知应用中允许从浏览器安装\n\n这对于在Play商店外分发的应用是正常的。\n\n继续下载？",
+  "settings.install.sideload_hint": "当Android的Play保护机制显示警告时，可能需要点击\"更多详情\"→\"仍然安装\"。",
+  "settings.update.title": "有可用更新",
+  "settings.update.body": "新版本（{version}）可用。下载并安装以获取最新功能和修复。",
+  "settings.update.cta": "⬇️ 下载更新",
+  "notif.update": "🆕 saysheep {version} 可用 — 前往设置更新"
 }

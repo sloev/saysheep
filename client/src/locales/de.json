@@ -230,5 +230,11 @@
   "agents.matches": "aktuelle Treffer",
   "agents.no_matches": "noch keine Treffer — sie erscheinen hier",
   "agents.notifications_on": "Benachrichtigungen an",
-  "agents.notifications_off": "Benachrichtigungen aus"
+  "agents.notifications_off": "Benachrichtigungen aus",
+  "settings.install.sideload_warning": "Android zeigt eine Sicherheitswarnung, weil die App direkt installiert wird (nicht über den Play Store).\n\nNach dem Download:\n1. Tippe auf die heruntergeladene Datei\n2. Falls \"Von Play Protect blockiert\" erscheint, tippe auf \"Weitere Details\" → \"Trotzdem installieren\"\n3. Möglicherweise musst du Installationen aus deinem Browser unter Einstellungen → Apps → Unbekannte Apps installieren erlauben\n\nDas ist normal für Apps außerhalb des Play Store.\n\nMit Download fortfahren?",
+  "settings.install.sideload_hint": "Möglicherweise musst du auf \"Weitere Details\" → \"Trotzdem installieren\" tippen, wenn Android Play Protect eine Warnung zeigt.",
+  "settings.update.title": "Update verfügbar",
+  "settings.update.body": "Eine neue Version ({version}) ist verfügbar. Lade sie herunter und installiere sie für die neuesten Funktionen und Fehlerbehebungen.",
+  "settings.update.cta": "⬇️ Update herunterladen",
+  "notif.update": "🆕 saysheep {version} ist verfügbar — aktualisiere in den Einstellungen"
 }

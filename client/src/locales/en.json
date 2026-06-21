@@ -230,5 +230,11 @@
   "agents.matches": "current matches",
   "agents.no_matches": "no matches yet — they’ll appear here",
   "agents.notifications_on": "notifications on",
-  "agents.notifications_off": "notifications off"
+  "agents.notifications_off": "notifications off",
+  "settings.install.sideload_warning": "Android will show a security warning because this app is installed directly (not from the Play Store).\n\nAfter downloading:\n1. Tap the downloaded file\n2. If you see \"Blocked by Play Protect\", tap \"More details\" → \"Install anyway\"\n3. You may need to allow installs from your browser in Settings → Apps → Install unknown apps\n\nThis is normal for apps distributed outside the Play Store.\n\nContinue with download?",
+  "settings.install.sideload_hint": "You may need to tap \"More details\" → \"Install anyway\" when Android's Play Protect shows a warning.",
+  "settings.update.title": "Update available",
+  "settings.update.body": "A new version ({version}) is available. Download and install it to get the latest features and fixes.",
+  "settings.update.cta": "⬇️ Download update",
+  "notif.update": "🆕 saysheep {version} is available — update in Settings"
 }

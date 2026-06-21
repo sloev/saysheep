@@ -230,5 +230,11 @@
   "agents.matches": "現在の一致",
   "agents.no_matches": "一致はまだありません——ここに表示されます",
   "agents.notifications_on": "通知オン",
-  "agents.notifications_off": "通知オフ"
+  "agents.notifications_off": "通知オフ",
+  "settings.install.sideload_warning": "このアプリはPlay Storeからではなく直接インストールされるため、Androidがセキュリティ警告を表示します。\n\nダウンロード後：\n1. ダウンロードしたファイルをタップ\n2.「Play プロテクトによりブロック」と表示された場合、「詳細」→「インストールする」をタップ\n3. 設定 → アプリ → 不明なアプリのインストールで、ブラウザからのインストールを許可する必要がある場合があります\n\nPlay Store外で配布されるアプリでは正常です。\n\nダウンロードを続けますか？",
+  "settings.install.sideload_hint": "AndroidのPlay プロテクトが警告を表示した場合、「詳細」→「インストールする」をタップしてください。",
+  "settings.update.title": "アップデートがあります",
+  "settings.update.body": "新しいバージョン（{version}）が利用可能です。最新の機能と修正を入手するためにダウンロードしてインストールしてください。",
+  "settings.update.cta": "⬇️ アップデートをダウンロード",
+  "notif.update": "🆕 saysheep {version} が利用可能です — 設定からアップデート"
 }

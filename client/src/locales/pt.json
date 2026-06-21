@@ -230,5 +230,11 @@
   "agents.matches": "correspondências atuais",
   "agents.no_matches": "ainda sem correspondências — aparecerão aqui",
   "agents.notifications_on": "notificações ativadas",
-  "agents.notifications_off": "notificações desativadas"
+  "agents.notifications_off": "notificações desativadas",
+  "settings.install.sideload_warning": "O Android mostrará um aviso de segurança porque o app é instalado diretamente (não pela Play Store).\n\nApós o download:\n1. Toque no arquivo baixado\n2. Se aparecer \"Bloqueado pelo Play Protect\", toque em \"Mais detalhes\" → \"Instalar mesmo assim\"\n3. Pode ser necessário permitir instalações do seu navegador em Configurações → Apps → Instalar apps desconhecidos\n\nIsso é normal para apps distribuídos fora da Play Store.\n\nContinuar com o download?",
+  "settings.install.sideload_hint": "Pode ser necessário tocar em \"Mais detalhes\" → \"Instalar mesmo assim\" quando o Play Protect do Android mostrar um aviso.",
+  "settings.update.title": "Atualização disponível",
+  "settings.update.body": "Uma nova versão ({version}) está disponível. Baixe e instale para obter as últimas funcionalidades e correções.",
+  "settings.update.cta": "⬇️ Baixar atualização",
+  "notif.update": "🆕 saysheep {version} está disponível — atualize nas Configurações"
 }

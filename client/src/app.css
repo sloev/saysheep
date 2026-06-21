@@ -1433,4 +1433,10 @@ select.form-select {
   vertical-align: middle;
 }
 
+/* ── Update banner ── */
+.update-banner {
+  background: var(--mint-light) !important;
+  border-color: var(--mint) !important;
+}
+
 

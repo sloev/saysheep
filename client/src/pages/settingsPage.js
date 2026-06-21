@@ -6,7 +6,15 @@ import { getPubkey, getSecretKeyHex, isWebAuthnSupported, hasPasskey, registerPa
 import { requestNotificationPermission, getNotificationPermission } from '../lib/notifications.js'
 import { shortPubkey } from '../lib/nostr.js'
 import { installAvailable, promptInstall, isIOS, isStandalone, isCapacitorNative, ANDROID_APK_URL } from '../lib/pwaInstall.js'
+import { updateAvailable, getAppVersion } from '../lib/updateCheck.js'
 const { div, button, input, span, select, option, label, p, a } = van.tags
+
+const showSideloadHelp = () => {
+  const ok = confirm(
+    t('settings.install.sideload_warning')
+  )
+  if (ok) window.open(ANDROID_APK_URL, '_blank')
+}
 
 
 export const SettingsPage = () => {
@@ -25,7 +33,27 @@ export const SettingsPage = () => {
 
   const pageEl = div({ class: 'page-content' },
 
-    // 0. Install Section
+    // 0a. Update available (Capacitor native only)
+    isCapacitorNative() ? (() => updateAvailable.val
+      ? div({ class: 'settings-section update-banner' },
+          div({ class: 'settings-section-title' }, '🆕 ', () => t('settings.update.title')),
+          p({ style: 'font-size:13px;line-height:1.5;margin:4px 0 10px' },
+            () => t('settings.update.body', { version: updateAvailable.val?.tag || '' })
+          ),
+          a({
+            class: 'btn btn-primary',
+            style: 'width:100%;display:block;text-align:center;text-decoration:none;box-sizing:border-box',
+            href: updateAvailable.val?.url || ANDROID_APK_URL,
+            rel: 'noopener',
+          }, () => t('settings.update.cta')),
+          p({ style: 'font-size:11px;color:var(--muted);margin-top:8px;line-height:1.4' },
+            () => t('settings.install.sideload_hint')
+          )
+        )
+      : ''
+    ) : '',
+
+    // 0b. Install Section (web only — hidden when already native or standalone)
     (isStandalone() || isCapacitorNative()) ? '' : div({ class: 'settings-section' },
       div({ class: 'settings-section-title' }, () => t('settings.install')),
       () => installAvailable.val
@@ -33,11 +61,10 @@ export const SettingsPage = () => {
         : (isIOS()
             ? div({ style: 'font-size:13px;color:var(--muted);line-height:1.5' }, () => t('settings.install.ios_hint'))
             : ''),
-      a({
+      button({
         class: 'btn',
-        style: 'width:100%;display:block;text-align:center;margin-top:8px;text-decoration:none;box-sizing:border-box',
-        href: ANDROID_APK_URL,
-        rel: 'noopener',
+        style: 'width:100%;display:block;text-align:center;margin-top:8px;box-sizing:border-box',
+        onclick: showSideloadHelp,
       }, () => t('settings.install.android'))
     ),
 

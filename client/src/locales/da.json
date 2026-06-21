@@ -230,5 +230,11 @@
   "agents.matches": "aktuelle match",
   "agents.no_matches": "ingen match endnu — de vises her",
   "agents.notifications_on": "notifikationer til",
-  "agents.notifications_off": "notifikationer fra"
+  "agents.notifications_off": "notifikationer fra",
+  "settings.install.sideload_warning": "Android viser en sikkerhedsadvarsel, fordi appen installeres direkte (ikke fra Play Store).\n\nEfter download:\n1. Tryk på den downloadede fil\n2. Hvis du ser \"Blokeret af Play Protect\", tryk \"Flere detaljer\" → \"Installer alligevel\"\n3. Du skal muligvis tillade installationer fra din browser under Indstillinger → Apps → Installer ukendte apps\n\nDette er normalt for apps distribueret uden for Play Store.\n\nFortsæt med download?",
+  "settings.install.sideload_hint": "Du skal muligvis trykke \"Flere detaljer\" → \"Installer alligevel\" når Androids Play Protect viser en advarsel.",
+  "settings.update.title": "Opdatering tilgængelig",
+  "settings.update.body": "En ny version ({version}) er tilgængelig. Download og installer den for at få de nyeste funktioner og rettelser.",
+  "settings.update.cta": "⬇️ Download opdatering",
+  "notif.update": "🆕 saysheep {version} er tilgængelig — opdater i Indstillinger"
 }

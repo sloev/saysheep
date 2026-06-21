@@ -32,11 +32,14 @@ export const OnboardingPage = () => {
         : (isIOS()
             ? div({ style: 'font-size:13px;color:var(--muted);line-height:1.5' }, () => t('settings.install.ios_hint'))
             : ''),
-      a({
+      button({
         class: 'btn',
-        style: 'width:100%;display:block;text-align:center;margin-top:8px;text-decoration:none;box-sizing:border-box',
-        href: ANDROID_APK_URL,
-        rel: 'noopener',
+        style: 'width:100%;display:block;text-align:center;margin-top:8px;box-sizing:border-box',
+        onclick: () => {
+          if (confirm(t('settings.install.sideload_warning'))) {
+            window.open(ANDROID_APK_URL, '_blank')
+          }
+        },
       }, () => t('settings.install.android'))
     ),
 
