@@ -247,5 +247,7 @@
   "settings.wifidirect.role.owner": "group owner (server)",
   "settings.wifidirect.role.peer": "peer (client)",
   "settings.wifidirect.group_owner": "group owner IP",
-  "settings.wifidirect.description": "Connects directly to nearby Android devices over Wi-Fi without internet. Enables offline sharing at events, campsites, and other areas without connectivity."
+  "settings.wifidirect.description": "Connects directly to nearby Android devices over Wi-Fi without internet. Enables offline sharing at events, campsites, and other areas without connectivity.",
+  "settings.wifidirect.permission_denied": "permission denied — allow in system settings",
+  "settings.wifidirect.unsupported": "not supported on this device"
 }
