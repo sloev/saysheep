@@ -15,6 +15,7 @@ export const wifiDirectPeers = van.state([])
 export const wifiDirectConnected = van.state(false)
 export const wifiDirectIsGroupOwner = van.state(false)
 export const wifiDirectGroupOwnerAddress = van.state(null)
+export const wifiDirectError = van.state(null)   // 'permission_denied' | 'unsupported' | null
 
 const isCapacitorAndroid = () =>
   typeof window !== 'undefined' &&
@@ -28,10 +29,24 @@ export const initWifiDirect = async ({ onMessage, onPeerChange }) => {
     _plugin = WifiDirect
     _onMessage = onMessage
     _onPeerChange = onPeerChange
+  } catch {
+    return false
+  }
 
-    const result = await _plugin.startDiscovery()
-    if (!result?.supported) return false
+  let result
+  try {
+    result = await _plugin.startDiscovery()
+  } catch (e) {
+    const msg = String(e?.message || e || '')
+    wifiDirectError.val = msg.toLowerCase().includes('denied') ? 'permission_denied' : 'unsupported'
+    return false
+  }
+  if (!result?.supported) {
+    wifiDirectError.val = 'unsupported'
+    return false
+  }
 
+  try {
     _listeners.push(
       _plugin.addListener('peersUpdated', ({ peers }) => {
         wifiDirectPeers.val = Array.isArray(peers) ? peers : []
@@ -48,13 +63,13 @@ export const initWifiDirect = async ({ onMessage, onPeerChange }) => {
         } catch {}
       }),
     )
-
-    _active = true
-    wifiDirectActive.val = true
-    return true
   } catch {
     return false
   }
+
+  _active = true
+  wifiDirectActive.val = true
+  return true
 }
 
 export const stopWifiDirect = async () => {
@@ -69,6 +84,7 @@ export const stopWifiDirect = async () => {
   wifiDirectPeers.val = []
   wifiDirectIsGroupOwner.val = false
   wifiDirectGroupOwnerAddress.val = null
+  wifiDirectError.val = null
 }
 
 export const connectWifiPeer = (address) =>

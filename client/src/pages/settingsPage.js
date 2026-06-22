@@ -7,7 +7,7 @@ import { requestNotificationPermission, getNotificationPermission } from '../lib
 import { shortPubkey } from '../lib/nostr.js'
 import { installAvailable, promptInstall, isIOS, isStandalone, isCapacitorNative, ANDROID_APK_URL } from '../lib/pwaInstall.js'
 import { updateAvailable, getAppVersion } from '../lib/updateCheck.js'
-import { wifiDirectActive, wifiDirectPeers, wifiDirectConnected, wifiDirectIsGroupOwner, wifiDirectGroupOwnerAddress } from '../lib/wifidirect.js'
+import { wifiDirectActive, wifiDirectPeers, wifiDirectConnected, wifiDirectIsGroupOwner, wifiDirectGroupOwnerAddress, wifiDirectError } from '../lib/wifidirect.js'
 const { div, button, input, span, select, option, label, p, a } = van.tags
 
 const showSideloadHelp = () => {
@@ -207,7 +207,12 @@ export const SettingsPage = () => {
         () => {
           const active = wifiDirectActive.val
           const connected = wifiDirectConnected.val
-          if (!active) return span({ class: 'settings-text-muted' }, () => t('settings.wifidirect.inactive'))
+          const err = wifiDirectError.val
+          if (!active) {
+            if (err === 'permission_denied') return span({ style: 'font-size:12px;color:var(--pink);font-weight:700' }, () => t('settings.wifidirect.permission_denied'))
+            if (err === 'unsupported') return span({ class: 'settings-text-muted' }, () => t('settings.wifidirect.unsupported'))
+            return span({ class: 'settings-text-muted' }, () => t('settings.wifidirect.inactive'))
+          }
           if (connected) return span({ class: 'settings-text-mint' }, '🟢 ', () => t('settings.wifidirect.connected'))
           return span({ style: 'font-size:12px;color:var(--pink);font-weight:700' }, '🔵 ', () => t('settings.wifidirect.scanning'))
         }

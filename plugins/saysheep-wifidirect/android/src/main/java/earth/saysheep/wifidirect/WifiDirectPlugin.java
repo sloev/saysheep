@@ -27,6 +27,7 @@ import java.util.Collection;
     permissions = {
         @Permission(strings = { Manifest.permission.ACCESS_FINE_LOCATION }, alias = "location"),
         @Permission(strings = { Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE }, alias = "wifi"),
+        @Permission(strings = { "android.permission.NEARBY_WIFI_DEVICES" }, alias = "nearby"),
     }
 )
 public class WifiDirectPlugin extends Plugin {
@@ -70,8 +71,9 @@ public class WifiDirectPlugin extends Plugin {
     @PluginMethod
     public void startDiscovery(PluginCall call) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (!hasPermission("wifi")) {
-                requestPermissionForAlias("wifi", call, "wifiPermissionCallback");
+            // Android 13+: NEARBY_WIFI_DEVICES replaces location for peer discovery
+            if (!hasPermission("nearby")) {
+                requestPermissionForAlias("nearby", call, "nearbyPermissionCallback");
                 return;
             }
         } else {
@@ -84,11 +86,11 @@ public class WifiDirectPlugin extends Plugin {
     }
 
     @PermissionCallback
-    private void wifiPermissionCallback(PluginCall call) {
-        if (hasPermission("wifi")) {
+    private void nearbyPermissionCallback(PluginCall call) {
+        if (hasPermission("nearby")) {
             directManager.startDiscovery(call);
         } else {
-            call.reject("WiFi permission denied");
+            call.reject("Nearby WiFi Devices permission denied");
         }
     }
 
