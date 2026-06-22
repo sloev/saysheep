@@ -236,5 +236,16 @@
   "settings.update.title": "Update available",
   "settings.update.body": "A new version ({version}) is available. Download and install it to get the latest features and fixes.",
   "settings.update.cta": "⬇️ Download update",
-  "notif.update": "🆕 saysheep {version} is available — update in Settings"
+  "notif.update": "🆕 saysheep {version} is available — update in Settings",
+  "settings.wifidirect": "WiFi Direct P2P",
+  "settings.wifidirect.status": "status",
+  "settings.wifidirect.inactive": "inactive",
+  "settings.wifidirect.scanning": "scanning for peers…",
+  "settings.wifidirect.connected": "connected",
+  "settings.wifidirect.peers": "peers discovered",
+  "settings.wifidirect.role": "group role",
+  "settings.wifidirect.role.owner": "group owner (server)",
+  "settings.wifidirect.role.peer": "peer (client)",
+  "settings.wifidirect.group_owner": "group owner IP",
+  "settings.wifidirect.description": "Connects directly to nearby Android devices over Wi-Fi without internet. Enables offline sharing at events, campsites, and other areas without connectivity."
 }

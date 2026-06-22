@@ -52,6 +52,9 @@ jobs:
       - name: Add Capacitor Android platform
         run: cd client && npx cap add android
 
+      - name: Generate Android launcher icons
+        run: cd client && npx @capacitor/assets generate --android
+
       - name: Sync Capacitor
         run: cd client && npx cap sync android
 

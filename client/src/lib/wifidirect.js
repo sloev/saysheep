@@ -1,11 +1,20 @@
 // Android WiFi Direct mesh layer — wraps the @saysheep/wifidirect Capacitor plugin.
 // Falls back gracefully to a no-op on web and iOS.
 
+import van from 'vanjs-core'
+
 let _plugin = null
 let _onMessage = null
 let _onPeerChange = null
 let _listeners = []
 let _active = false
+
+// Reactive state exposed to the UI (settingsPage reads these)
+export const wifiDirectActive = van.state(false)
+export const wifiDirectPeers = van.state([])
+export const wifiDirectConnected = van.state(false)
+export const wifiDirectIsGroupOwner = van.state(false)
+export const wifiDirectGroupOwnerAddress = van.state(null)
 
 const isCapacitorAndroid = () =>
   typeof window !== 'undefined' &&
@@ -25,11 +34,13 @@ export const initWifiDirect = async ({ onMessage, onPeerChange }) => {
 
     _listeners.push(
       _plugin.addListener('peersUpdated', ({ peers }) => {
+        wifiDirectPeers.val = Array.isArray(peers) ? peers : []
         _onPeerChange?.(peers)
       }),
       _plugin.addListener('connectionChanged', ({ connected, groupOwnerAddress, isGroupOwner }) => {
-        // Connection state change is handled by WifiDirectManager natively
-        // but surface it here for diagnostics
+        wifiDirectConnected.val = !!connected
+        wifiDirectIsGroupOwner.val = !!isGroupOwner
+        wifiDirectGroupOwnerAddress.val = groupOwnerAddress || null
       }),
       _plugin.addListener('messageReceived', ({ message, from }) => {
         try {
@@ -39,6 +50,7 @@ export const initWifiDirect = async ({ onMessage, onPeerChange }) => {
     )
 
     _active = true
+    wifiDirectActive.val = true
     return true
   } catch {
     return false
@@ -52,6 +64,11 @@ export const stopWifiDirect = async () => {
   await _plugin.stopDiscovery().catch(() => {})
   await _plugin.disconnect().catch(() => {})
   _active = false
+  wifiDirectActive.val = false
+  wifiDirectConnected.val = false
+  wifiDirectPeers.val = []
+  wifiDirectIsGroupOwner.val = false
+  wifiDirectGroupOwnerAddress.val = null
 }
 
 export const connectWifiPeer = (address) =>
