@@ -7,6 +7,7 @@ import { requestNotificationPermission, getNotificationPermission } from '../lib
 import { shortPubkey } from '../lib/nostr.js'
 import { installAvailable, promptInstall, isIOS, isStandalone, isCapacitorNative, ANDROID_APK_URL } from '../lib/pwaInstall.js'
 import { updateAvailable, getAppVersion } from '../lib/updateCheck.js'
+import { wifiDirectActive, wifiDirectPeers, wifiDirectConnected, wifiDirectIsGroupOwner, wifiDirectGroupOwnerAddress } from '../lib/wifidirect.js'
 const { div, button, input, span, select, option, label, p, a } = van.tags
 
 const showSideloadHelp = () => {
@@ -196,6 +197,52 @@ export const SettingsPage = () => {
         }, '+')
       )
     ),
+
+    // 2.5. WiFi Direct P2P Status (Android only)
+    isCapacitorNative() ? div({ class: 'settings-section' },
+      div({ class: 'settings-section-title' }, () => t('settings.wifidirect')),
+
+      div({ class: 'settings-row' },
+        span({ class: 'settings-label' }, () => t('settings.wifidirect.status')),
+        () => {
+          const active = wifiDirectActive.val
+          const connected = wifiDirectConnected.val
+          if (!active) return span({ class: 'settings-text-muted' }, () => t('settings.wifidirect.inactive'))
+          if (connected) return span({ class: 'settings-text-mint' }, '🟢 ', () => t('settings.wifidirect.connected'))
+          return span({ style: 'font-size:12px;color:var(--pink);font-weight:700' }, '🔵 ', () => t('settings.wifidirect.scanning'))
+        }
+      ),
+
+      div({ class: 'settings-row' },
+        span({ class: 'settings-label' }, () => t('settings.wifidirect.peers')),
+        () => span({}, () => String(wifiDirectPeers.val.length))
+      ),
+
+      () => {
+        if (!wifiDirectConnected.val) return div()
+        return div({ class: 'settings-row' },
+          span({ class: 'settings-label' }, () => t('settings.wifidirect.role')),
+          span({ class: 'settings-text-mint' }, () =>
+            wifiDirectIsGroupOwner.val
+              ? t('settings.wifidirect.role.owner')
+              : t('settings.wifidirect.role.peer')
+          )
+        )
+      },
+
+      () => {
+        const addr = wifiDirectGroupOwnerAddress.val
+        if (!addr || !wifiDirectConnected.val) return div()
+        return div({ class: 'settings-row' },
+          span({ class: 'settings-label' }, () => t('settings.wifidirect.group_owner')),
+          span({ style: 'font-family:monospace;font-size:12px' }, addr)
+        )
+      },
+
+      p({ class: 'settings-text-muted', style: 'font-size:12px;margin:6px 0 0' },
+        () => t('settings.wifidirect.description')
+      )
+    ) : '',
 
     // 3. Identity & Security (Danger Zone)
     div({ class: 'settings-danger-zone' },
